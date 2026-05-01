@@ -1,0 +1,13 @@
+services:
+  api:
+    environment:
+      DEBUG: "true"
+    volumes:
+      - "./src/prodik/:/prodik/src/prodik/"
+
+  postgres:
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres", "-d", "postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
