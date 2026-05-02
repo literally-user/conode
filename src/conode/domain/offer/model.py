@@ -10,11 +10,12 @@ from conode.domain.group import Group, GroupId
 from conode.domain.offer.errors import (
     InvalidOfferDescriptionFormatError,
     InvalidOfferTitleFormatError,
-    OfferCannotAnswerToItself,
+    OfferCannotAnswerToItselfError,
 )
 from conode.domain.shared import Entity, ValueObject
 
 OfferId = NewType("OfferId", UUID)
+OfferLinkId = NewType("OfferLinkId", UUID)
 OfferGroupsId = NewType("OfferGroupsId", UUID)
 OfferContextsId = NewType("OfferContextsId", UUID)
 
@@ -22,6 +23,12 @@ MIN_ALLOWED_OFFER_TITLE_LENGTH: Final = 1
 MAX_ALLOWED_OFFER_TITLE_LENGTH: Final = 50
 
 MAX_ALLOWED_OFFER_DESCRIPTION_LENGTH: Final = 1000
+
+
+class OfferLinkStatus(StrEnum):
+    ACCEPTED = "ACCEPTED"
+    ABORTED = "ABORTED"
+    PENDING = "PENDING"
 
 
 class OfferStatus(StrEnum):
@@ -86,12 +93,9 @@ class Offer(Entity[OfferId]):
         from_offer: "Offer | None",
     ) -> "Offer":
         if from_offer is not None and from_offer.id == id:
-            raise OfferCannotAnswerToItself(
+            raise OfferCannotAnswerToItselfError(
                 "Offer cannot answer to itself",
-                {
-                    "key": "from_offer",
-                    "value": from_offer
-                }
+                {"key": "from_offer", "value": from_offer},
             )
 
         now = datetime.now(UTC)
@@ -139,6 +143,27 @@ class OfferContexts(Entity[OfferContextsId]):
             id=id,
             offer_id=offer.id,
             context_id=context.id,
+            created_at=now,
+            updated_at=now,
+        )
+
+
+@dataclass
+class OfferLink(Entity[OfferLinkId]):
+    request_offer_id: OfferId
+    response_offer_id: OfferId
+    status: OfferLinkStatus
+
+    @classmethod
+    def new(
+        cls, id: OfferLinkId, request_offer: Offer, response_offer: Offer
+    ) -> "OfferLink":
+        now = datetime.now(UTC)
+        return OfferLink(
+            id=id,
+            request_offer_id=request_offer.id,
+            response_offer_id=response_offer.id,
+            status=OfferLinkStatus.PENDING,
             created_at=now,
             updated_at=now,
         )
