@@ -10,6 +10,7 @@ from conode.domain.group import Group, GroupId
 from conode.domain.offer.errors import (
     InvalidOfferDescriptionFormatError,
     InvalidOfferTitleFormatError,
+    OfferCannotAnswerToItself,
 )
 from conode.domain.shared import Entity, ValueObject
 
@@ -84,6 +85,15 @@ class Offer(Entity[OfferId]):
         to_company: Company,
         from_offer: "Offer | None",
     ) -> "Offer":
+        if from_offer is not None and from_offer.id == id:
+            raise OfferCannotAnswerToItself(
+                "Offer cannot answer to itself",
+                {
+                    "key": "from_offer",
+                    "value": from_offer
+                }
+            )
+
         now = datetime.now(UTC)
         return Offer(
             id=id,
