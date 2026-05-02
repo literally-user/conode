@@ -36,6 +36,8 @@ class NodeName(ValueObject[str]):
 
 class NodeDescription(ValueObject[str]):
     def __init__(self, value: str) -> None:
+        value = value.strip()
+
         if len(value) >= MAX_ALLOWED_NODE_DESCRIPTION_LENGTH:
             raise InvalidNodeDescriptionFormatError(
                 "Node description must be shorter than "

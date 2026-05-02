@@ -50,6 +50,8 @@ class OfferTitle(ValueObject[str]):
 
 class OfferDescription(ValueObject[str]):
     def __init__(self, value: str) -> None:
+        value = value.strip()
+
         if len(value) >= MAX_ALLOWED_OFFER_DESCRIPTION_LENGTH:
             raise InvalidOfferDescriptionFormatError(
                 "Offer description must be shorter than "
