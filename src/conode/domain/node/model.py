@@ -3,6 +3,7 @@ from datetime import UTC, datetime
 from typing import Final, NewType
 from uuid import UUID
 
+from conode.domain.group import GroupId, Group
 from conode.domain.company import Company, CompanyId
 from conode.domain.node.errors import (
     InvalidNodeDescriptionFormatError,
@@ -11,6 +12,7 @@ from conode.domain.node.errors import (
 from conode.domain.shared import Entity, ValueObject
 
 NodeId = NewType("NodeId", UUID)
+NodeAssociationId = NewType("NodeAssociationId", UUID)
 
 MIN_ALLOWED_NODE_NAME_LENGTH: Final = 1
 MAX_ALLOWED_NODE_NAME_LENGTH: Final = 50
@@ -58,6 +60,22 @@ class Node(Entity[NodeId]):
             name=NodeName(name),
             description=NodeDescription(description),
             company_id=company.id,
+            created_at=now,
+            updated_at=now,
+        )
+
+@dataclass
+class NodeAssociation(Entity[NodeAssociationId]):
+    node_id: NodeId
+    group_id: GroupId
+
+    @classmethod
+    def new(cls, id: NodeAssociationId, node: Node, group: Group) -> "NodeAssociation":
+        now = datetime.now(UTC)
+        return NodeAssociation(
+            id=id,
+            node_id=node.id,
+            group_id=group.id,
             created_at=now,
             updated_at=now,
         )
