@@ -5,6 +5,9 @@ from typing import Final, NewType
 from uuid import UUID
 
 from conode.domain.company import Company, CompanyId
+from conode.domain.context import ContextId
+from conode.domain.group import GroupId
+from conode.domain.node import NodeId
 from conode.domain.role.errors import InvalidRoleNameFormatError
 from conode.domain.shared import Entity, ValueObject
 
@@ -13,6 +16,12 @@ RolePermissionId = NewType("RolePermissionId", UUID)
 
 MIN_ALLOWED_ROLE_NAME_LENGTH: Final = 1
 MAX_ALLOWED_ROLE_NAME_LENGTH: Final = 50
+
+
+class EntityType(StrEnum):
+    NODE = "NODE"
+    GROUP = "GROUP"
+    CONTEXT = "CONTEXT"
 
 
 class PermissionType(StrEnum):
@@ -60,16 +69,25 @@ class Role(Entity[RoleId]):
 class RolePermission(Entity[RolePermissionId]):
     role_id: RoleId
     permission: PermissionType
+    entity_type: EntityType
+    entity_id: NodeId | ContextId | GroupId
 
     @classmethod
     def new(
-        cls, id: RolePermissionId, role: Role, permission: PermissionType
+        cls,
+        id: RolePermissionId,
+        role: Role,
+        permission: PermissionType,
+        entity_type: EntityType,
+        entity_id: NodeId | ContextId | GroupId,
     ) -> "RolePermission":
         now = datetime.now(UTC)
         return RolePermission(
             id=id,
             role_id=role.id,
             permission=permission,
+            entity_type=entity_type,
+            entity_id=entity_id,
             created_at=now,
             updated_at=now,
         )
