@@ -1,8 +1,8 @@
-from .user import User, UserId, Username, UserRole
+from .user import User, UserId, Username, UserSystemRole
 
 __all__ = (
     "User",
     "UserId",
-    "UserRole",
+    "UserSystemRole",
     "Username",
 )

@@ -3,9 +3,9 @@ from datetime import UTC, datetime, timedelta
 from uuid import UUID
 
 import jwt
-from conode.domain.user import UserRole
 
 from conode.application.interfaces.token_manager import TokenManager, UserData
+from conode.domain.user import UserSystemRole
 from conode.infrastructure.config import APIConfig
 
 
@@ -13,7 +13,7 @@ from conode.infrastructure.config import APIConfig
 class TokenManagerImpl(TokenManager):
     _config: APIConfig
 
-    def encode(self, user_id: UUID, user_role: UserRole) -> str:
+    def encode(self, user_id: UUID, user_role: UserSystemRole) -> str:
         now = datetime.now(tz=UTC)
         return jwt.encode(
             {

@@ -1,0 +1,61 @@
+from dataclasses import dataclass
+from datetime import UTC, datetime
+from enum import StrEnum
+from typing import NewType
+from uuid import UUID
+
+from conode.domain.company import Company, CompanyId
+from conode.domain.contract.errors import InvalidCompanyOffersFormatError
+from conode.domain.offer import Offer, OfferId
+from conode.domain.shared import Entity
+
+ContractId = NewType("ContractId", UUID)
+
+
+class ContractStatus(StrEnum):
+    ACTIVE = "ACTIVE"
+    CANCELLED = "CANCELLED"
+    EXPIRED = "EXPIRED"
+
+
+@dataclass
+class Contract(Entity[ContractId]):
+    company_a_id: CompanyId
+    company_b_id: CompanyId
+
+    company_a_offer_id: OfferId | None
+    company_b_offer_id: OfferId | None
+
+    status: ContractStatus
+    expires_in: datetime
+
+    @classmethod
+    def new(
+        cls,
+        id: ContractId,
+        company_a: Company,
+        company_b: Company,
+        company_a_offer: Offer | None,
+        company_b_offer: Offer | None,
+        expires_in: datetime,
+    ) -> "Contract":
+        if company_a_offer is None and company_b_offer is None:
+            raise InvalidCompanyOffersFormatError(
+                "Required at least one company offer", None
+            )
+        now = datetime.now(UTC)
+        return Contract(
+            id=id,
+            company_a_id=company_a.id,
+            company_b_id=company_b.id,
+            company_a_offer_id=company_a_offer.id
+            if company_a_offer is not None
+            else None,
+            company_b_offer_id=company_b_offer.id
+            if company_b_offer is not None
+            else None,
+            status=ContractStatus.ACTIVE,
+            expires_in=expires_in,
+            created_at=now,
+            updated_at=now,
+        )

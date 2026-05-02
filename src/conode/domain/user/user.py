@@ -1,34 +1,97 @@
+import re
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from enum import StrEnum
 from typing import Final, NewType
 from uuid import UUID
 
+from conode.domain.role import Role, RoleId
 from conode.domain.shared import Entity, ValueObject
 from conode.domain.user.errors import (
-    UsernameCannotBeLongerThanError,
-    UsernameCannotBeShorterThanError,
+    InvalidUserEmailFormatError,
+    InvalidUserFirstNameFormatError,
+    InvalidUserLastNameFormatError,
+    InvalidUserUsernameFormatError,
 )
 
 UserId = NewType("UserId", UUID)
 
-MIN_USERNAME_LENGTH: Final = 5
-MAX_USERNAME_LENGTH: Final = 30
+MIN_ALLOWED_USERNAME_LENGTH: Final = 5
+MAX_ALLOWED_USERNAME_LENGTH: Final = 30
+
+MIN_ALLOWED_FIRST_NAME_LENGTH: Final = 1
+MAX_ALLOWED_FIRST_NAME_LENGTH: Final = 30
+
+MIN_ALLOWED_LAST_LENGTH: Final = 1
+MAX_ALLOWED_LAST_LENGTH: Final = 30
 
 
-class UserRole(StrEnum):
+class UserSystemRole(StrEnum):
     USER = "USER"
     ADMIN = "ADMIN"
 
 
 class Username(ValueObject[str]):
     def __init__(self, value: str) -> None:
-        if len(value) < MIN_USERNAME_LENGTH:
-            raise UsernameCannotBeShorterThanError(
-                f"Username cannot be shorter than {MIN_USERNAME_LENGTH} symbols", None
+        value = value.strip()
+
+        if MIN_ALLOWED_USERNAME_LENGTH <= len(value) <= MAX_ALLOWED_USERNAME_LENGTH:
+            raise InvalidUserUsernameFormatError(
+                "Company name length must be between"
+                f"{MIN_ALLOWED_USERNAME_LENGTH} and "
+                f"{MAX_ALLOWED_USERNAME_LENGTH}",
+                {"key": "name", "value": value},
             )
-        if len(value) > MAX_USERNAME_LENGTH:
-            raise UsernameCannotBeLongerThanError(
-                f"Username cannot be longer than {MAX_USERNAME_LENGTH} symbols", None
+
+        if re.match(r"^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)[A-Za-z\d]+$", value):
+            raise InvalidUserUsernameFormatError(
+                "Username must contain at least "
+                "one uppercase characters, "
+                "one number "
+                "and cannot contain special symbols",
+                {"key": "username", "value": value},
+            )
+
+        super().__init__(value)
+
+
+class FirstName(ValueObject[str]):
+    def __init__(self, value: str) -> None:
+        value = value.strip()
+
+        if MIN_ALLOWED_FIRST_NAME_LENGTH <= len(value) <= MAX_ALLOWED_FIRST_NAME_LENGTH:
+            raise InvalidUserFirstNameFormatError(
+                "First name length must be between"
+                f"{MIN_ALLOWED_FIRST_NAME_LENGTH} and "
+                f"{MAX_ALLOWED_FIRST_NAME_LENGTH}",
+                {"key": "first_name", "value": value},
+            )
+
+        super().__init__(value)
+
+
+class LastName(ValueObject[str]):
+    def __init__(self, value: str) -> None:
+        value = value.strip()
+
+        if MIN_ALLOWED_LAST_LENGTH <= len(value) <= MAX_ALLOWED_LAST_LENGTH:
+            raise InvalidUserLastNameFormatError(
+                "First name length must be between"
+                f"{MIN_ALLOWED_LAST_LENGTH} and "
+                f"{MAX_ALLOWED_LAST_LENGTH}",
+                {"key": "last_name", "value": value},
+            )
+
+        super().__init__(value)
+
+
+class Email(ValueObject[str]):
+    def __init__(self, value: str) -> None:
+        value = value.strip()
+
+        if re.match(r"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,63}$", value):
+            raise InvalidUserEmailFormatError(
+                "Invalid email format", {"key": "email", "value": value}
             )
 
         super().__init__(value)
@@ -36,5 +99,49 @@ class Username(ValueObject[str]):
 
 @dataclass(kw_only=True)
 class User(Entity[UserId]):
+    first_name: FirstName
+    last_name: LastName
     username: Username
     password: str
+    email: Email
+    system_role: UserSystemRole
+
+    @classmethod
+    def new(
+        cls,
+        id: UserId,
+        first_name: str,
+        last_name: str,
+        username: str,
+        password: str,
+        email: str,
+    ) -> "User":
+        now = datetime.now(UTC)
+        return User(
+            id=id,
+            first_name=FirstName(first_name),
+            last_name=LastName(last_name),
+            username=Username(username),
+            password=password,
+            email=Email(email),
+            system_role=UserSystemRole.USER,
+            created_at=now,
+            updated_at=now,
+        )
+
+
+@dataclass
+class UserGrant(Entity[UserId]):
+    user_id: UserId
+    role_id: RoleId
+
+    @classmethod
+    def new(cls, id: UserId, role: Role, user: User) -> "UserGrant":
+        now = datetime.now(UTC)
+        return UserGrant(
+            id=id,
+            user_id=user.id,
+            role_id=role.id,
+            created_at=now,
+            updated_at=now,
+        )

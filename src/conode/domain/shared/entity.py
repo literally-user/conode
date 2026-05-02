@@ -1,8 +1,10 @@
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import cast, override
 from uuid import UUID
 
 
+@dataclass
 class Entity[EntityId: UUID]:
     id: EntityId
     created_at: datetime
