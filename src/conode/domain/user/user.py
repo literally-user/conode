@@ -24,11 +24,11 @@ class Username(ValueObject[str]):
     def __init__(self, value: str) -> None:
         if len(value) < MIN_USERNAME_LENGTH:
             raise UsernameCannotBeShorterThanError(
-                f"Username cannot be shorter than {MIN_USERNAME_LENGTH} symbols"
+                f"Username cannot be shorter than {MIN_USERNAME_LENGTH} symbols", None
             )
         if len(value) > MAX_USERNAME_LENGTH:
             raise UsernameCannotBeLongerThanError(
-                f"Username cannot be longer than {MAX_USERNAME_LENGTH} symbols"
+                f"Username cannot be longer than {MAX_USERNAME_LENGTH} symbols", None
             )
 
         super().__init__(value)
