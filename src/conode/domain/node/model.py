@@ -3,8 +3,8 @@ from datetime import UTC, datetime
 from typing import Final, NewType
 from uuid import UUID
 
-from conode.domain.group import GroupId, Group
 from conode.domain.company import Company, CompanyId
+from conode.domain.group import Group, GroupId
 from conode.domain.node.errors import (
     InvalidNodeDescriptionFormatError,
     InvalidNodeNameFormatError,
@@ -63,6 +63,7 @@ class Node(Entity[NodeId]):
             created_at=now,
             updated_at=now,
         )
+
 
 @dataclass
 class NodeAssociation(Entity[NodeAssociationId]):

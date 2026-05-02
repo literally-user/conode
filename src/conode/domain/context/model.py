@@ -21,7 +21,11 @@ class ContextName(ValueObject[str]):
     def __init__(self, value: str) -> None:
         value = value.strip()
 
-        if MIN_ALLOWED_CONTEXT_NAME_LENGTH <= len(value) <= MAX_ALLOWED_CONTEXT_NAME_LENGTH:
+        if (
+            MIN_ALLOWED_CONTEXT_NAME_LENGTH
+            <= len(value)
+            <= MAX_ALLOWED_CONTEXT_NAME_LENGTH
+        ):
             raise InvalidContextNameFormatError(
                 "Context name must be between"
                 f"{MIN_ALLOWED_CONTEXT_NAME_LENGTH} and "
@@ -51,7 +55,9 @@ class Context(Entity[ContextId]):
     company_id: CompanyId
 
     @classmethod
-    def new(cls, id: ContextId, name: str, description: str, company: Company) -> "Context":
+    def new(
+        cls, id: ContextId, name: str, description: str, company: Company
+    ) -> "Context":
         now = datetime.now(UTC)
         return Context(
             id=id,
