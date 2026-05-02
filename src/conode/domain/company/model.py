@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from typing import Final, NewType
 from uuid import UUID
 
@@ -6,9 +7,11 @@ from conode.domain.company.errors import (
     InvalidCompanyDescriptionFormatError,
     InvalidCompanyNameFormatError,
 )
+from conode.domain.role import Role, RoleId
 from conode.domain.shared import Entity, ValueObject
 
 CompanyId = NewType("CompanyId", UUID)
+CompanyGrantId = NewType("CompanyGrantId", UUID)
 
 MIN_ALLOWED_COMPANY_NAME_LENGTH: Final = 1
 MAX_ALLOWED_COMPANY_NAME_LENGTH: Final = 50
@@ -21,9 +24,9 @@ class CompanyName(ValueObject[str]):
         value = value.strip()
 
         if (
-            MAX_ALLOWED_COMPANY_NAME_LENGTH
+            MIN_ALLOWED_COMPANY_NAME_LENGTH
             <= len(value)
-            <= MIN_ALLOWED_COMPANY_NAME_LENGTH
+            <= MAX_ALLOWED_COMPANY_NAME_LENGTH
         ):
             raise InvalidCompanyNameFormatError(
                 "Company name must be between"
@@ -59,13 +62,34 @@ class Company(Entity[CompanyId]):
     verified: bool
 
     @classmethod
-    def new(cls, name: str, description: str) -> "Company":
+    def new(cls, id: CompanyId, name: str, description: str) -> "Company":
+        now = datetime.now(UTC)
         return Company(
+            id=id,
             name=CompanyName(name),
             description=CompanyDescription(description),
             verified=False,
+            created_at=now,
+            updated_at=now,
         )
 
     def verify(self) -> None:
         self.verified = True
         self.touch()
+
+
+@dataclass
+class CompanyGrant(Entity[CompanyGrantId]):
+    company_id: CompanyId
+    role_id: RoleId
+
+    @classmethod
+    def new(cls, id: CompanyGrantId, role: Role, company: Company) -> "CompanyGrant":
+        now = datetime.now(UTC)
+        return CompanyGrant(
+            id=id,
+            company_id=company.id,
+            role_id=role.id,
+            created_at=now,
+            updated_at=now,
+        )

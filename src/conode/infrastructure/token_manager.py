@@ -3,9 +3,9 @@ from datetime import UTC, datetime, timedelta
 from uuid import UUID
 
 import jwt
-from conode.domain.user import UserRole
 
 from conode.application.interfaces.token_manager import TokenManager, UserData
+from conode.domain.user import UserRole
 from conode.infrastructure.config import APIConfig
 
 
