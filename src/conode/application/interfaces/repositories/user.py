@@ -1,7 +1,7 @@
 from typing import Protocol
 from uuid import UUID
 
-from prodik.domain.user import User
+from conode.domain.user import User
 
 
 class UserRepository(Protocol):

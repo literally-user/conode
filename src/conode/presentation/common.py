@@ -3,7 +3,7 @@ from typing import Final
 from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
 
-from prodik.application.errors import ApplicationError, UserAlreadyExistsError
+from conode.application.errors import ApplicationError, UserAlreadyExistsError
 
 EXCEPTION_HANDLERS: Final[dict[type[ApplicationError], int]] = {
     UserAlreadyExistsError: status.HTTP_400_BAD_REQUEST

@@ -1,8 +1,8 @@
 from dishka import Provider, Scope, WithParents, provide_all
 
-from prodik.infrastructure.password_hasher import PasswordHasherImpl
-from prodik.infrastructure.token_manager import TokenManagerImpl
-from prodik.infrastructure.transaction_manager import TransactionManagerImpl
+from conode.infrastructure.password_hasher import PasswordHasherImpl
+from conode.infrastructure.token_manager import TokenManagerImpl
+from conode.infrastructure.transaction_manager import TransactionManagerImpl
 
 
 class InfrastructureProvider(Provider):

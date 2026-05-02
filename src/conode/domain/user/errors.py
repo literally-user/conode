@@ -1,4 +1,4 @@
-from prodik.application.errors import ApplicationError
+from conode.application.errors import ApplicationError
 
 
 class UserDomainValidationError(ApplicationError): ...

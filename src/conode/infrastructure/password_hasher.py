@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 from argon2 import PasswordHasher as Argon2Hasher
 
-from prodik.application.interfaces.password_hasher import PasswordHasher
+from conode.application.interfaces.password_hasher import PasswordHasher
 
 
 @dataclass

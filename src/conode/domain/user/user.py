@@ -3,8 +3,8 @@ from enum import StrEnum
 from typing import Final, NewType
 from uuid import UUID
 
-from prodik.domain.shared import Entity, ValueObject
-from prodik.domain.user.errors import (
+from conode.domain.shared import Entity, ValueObject
+from conode.domain.user.errors import (
     UsernameCannotBeLongerThanError,
     UsernameCannotBeShorterThanError,
 )

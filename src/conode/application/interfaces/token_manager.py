@@ -1,7 +1,7 @@
 from typing import Protocol, TypedDict
 from uuid import UUID
 
-from prodik.domain.user import UserRole
+from conode.domain.user import UserRole
 
 
 class UserData(TypedDict):

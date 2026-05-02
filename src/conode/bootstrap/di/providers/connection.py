@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 
-from prodik.infrastructure.config import DatabaseConfig
+from conode.infrastructure.config import DatabaseConfig
 
 
 class ConnectionProvider(Provider):

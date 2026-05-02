@@ -1,10 +1,10 @@
 from typing import Any, ClassVar, override
 
+from conode.domain.user import Username
 from sqlalchemy import Dialect, String
 from sqlalchemy.types import TypeDecorator
 
-from prodik.domain.shared import ValueObject
-from prodik.domain.user import Username
+from conode.domain.shared import ValueObject
 
 
 class BaseVOTypeDecorator[T: ValueObject[Any]](TypeDecorator[T]):

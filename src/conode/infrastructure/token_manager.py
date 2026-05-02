@@ -3,10 +3,10 @@ from datetime import UTC, datetime, timedelta
 from uuid import UUID
 
 import jwt
+from conode.domain.user import UserRole
 
-from prodik.application.interfaces.token_manager import TokenManager, UserData
-from prodik.domain.user import UserRole
-from prodik.infrastructure.config import APIConfig
+from conode.application.interfaces.token_manager import TokenManager, UserData
+from conode.infrastructure.config import APIConfig
 
 
 @dataclass

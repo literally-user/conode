@@ -3,7 +3,7 @@ from typing import override
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from prodik.application.interfaces.transaction_manager import TransactionManager
+from conode.application.interfaces.transaction_manager import TransactionManager
 
 
 class TransactionManagerImpl(TransactionManager):

@@ -6,10 +6,10 @@ from dishka.integrations.fastapi import setup_dishka
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from prodik.bootstrap.di import get_async_container
-from prodik.bootstrap.logs import configure_structlog
-from prodik.infrastructure.config import Config, load_config
-from prodik.presentation.common import (
+from conode.bootstrap.di import get_async_container
+from conode.bootstrap.logs import configure_structlog
+from conode.infrastructure.config import Config, load_config
+from conode.presentation.common import (
     include_exception_handlers,
     include_handlers,
 )
