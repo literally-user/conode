@@ -1,0 +1,10 @@
+from conode.application.errors import ApplicationError
+
+
+class OfferDomainValidationError(ApplicationError): ...
+
+
+class InvalidOfferTitleFormatError(OfferDomainValidationError): ...
+
+
+class InvalidOfferDescriptionFormatError(OfferDomainValidationError): ...
