@@ -6,6 +6,9 @@ lint:
 clean:
     docker compose -f docker-compose.base.yaml down -v
 
+certs:
+    bash ./scripts/certs.sh
+
 run target build="":
     #!/usr/bin/env bash
     BUILD_FLAG=""
