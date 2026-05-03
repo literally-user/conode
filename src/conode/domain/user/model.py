@@ -5,7 +5,6 @@ from enum import StrEnum
 from typing import Final, NewType
 from uuid import UUID
 
-from conode.domain.role import Role, RoleId
 from conode.domain.shared import Entity, ValueObject
 from conode.domain.user.errors import (
     InvalidUserEmailFormatError,
@@ -125,23 +124,6 @@ class User(Entity[UserId]):
             password=password,
             email=Email(email),
             system_role=UserSystemRole.USER,
-            created_at=now,
-            updated_at=now,
-        )
-
-
-@dataclass
-class UserGrant(Entity[UserId]):
-    user_id: UserId
-    role_id: RoleId
-
-    @classmethod
-    def new(cls, id: UserId, role: Role, user: User) -> "UserGrant":
-        now = datetime.now(UTC)
-        return UserGrant(
-            id=id,
-            user_id=user.id,
-            role_id=role.id,
             created_at=now,
             updated_at=now,
         )

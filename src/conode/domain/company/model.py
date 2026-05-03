@@ -7,11 +7,9 @@ from conode.domain.company.errors import (
     InvalidCompanyDescriptionFormatError,
     InvalidCompanyNameFormatError,
 )
-from conode.domain.role import Role, RoleId
 from conode.domain.shared import Entity, ValueObject
 
 CompanyId = NewType("CompanyId", UUID)
-CompanyGrantId = NewType("CompanyGrantId", UUID)
 
 MIN_ALLOWED_COMPANY_NAME_LENGTH: Final = 1
 MAX_ALLOWED_COMPANY_NAME_LENGTH: Final = 50
@@ -76,20 +74,3 @@ class Company(Entity[CompanyId]):
     def verify(self) -> None:
         self.verified = True
         self.touch()
-
-
-@dataclass
-class CompanyGrant(Entity[CompanyGrantId]):
-    company_id: CompanyId
-    role_id: RoleId
-
-    @classmethod
-    def new(cls, id: CompanyGrantId, role: Role, company: Company) -> "CompanyGrant":
-        now = datetime.now(UTC)
-        return CompanyGrant(
-            id=id,
-            company_id=company.id,
-            role_id=role.id,
-            created_at=now,
-            updated_at=now,
-        )
