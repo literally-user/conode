@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from uuid import uuid7
 
 from conode.application.authorization.errors import InvalidCredentialsError
 from conode.application.interfaces.identity_provider import IdentityProvider
@@ -14,7 +13,7 @@ from conode.application.interfaces.token_managers import (
     RefreshTokenManager,
 )
 from conode.application.interfaces.transaction_manager import TransactionManager
-from conode.domain.authorization import Session, SessionId
+from conode.application.services import SessionService
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
@@ -40,6 +39,7 @@ class LoginInteractor:
     access_token_manager: AccessTokenManager
     refresh_token_manager: RefreshTokenManager
     transaction_manager: TransactionManager
+    session_service: SessionService
 
     async def execute(self, request: LoginRequestDTO) -> LoginResponseDTO:
         async with self.transaction_manager:
@@ -76,23 +76,10 @@ class LoginInteractor:
                     ],
                 )
 
-            access_token, expires_in = self.access_token_manager.encode(user)
-            refresh_token = self.refresh_token_manager.encode()
-            session = await self.session_repository.get_by_host(host)
-            if session is not None:
-                session.update_token(refresh_token)
-                await self.session_repository.update(session)
-            else:
-                session = Session.new(
-                    SessionId(uuid7()),
-                    user,
-                    host,
-                    refresh_token,
-                )
-                await self.session_repository.create(session)
+            session_service_response = await self.session_service.execute(user, host)
 
             return LoginResponseDTO(
-                access_token=access_token,
-                refresh_token=refresh_token,
-                expires_in=expires_in,
+                access_token=session_service_response.access_token,
+                refresh_token=session_service_response.refresh_token,
+                expires_in=session_service_response.expires_in,
             )
