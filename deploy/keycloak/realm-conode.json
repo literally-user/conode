@@ -1,0 +1,46 @@
+{
+  "realm": "conode",
+  "enabled": true,
+  "displayName": "Conode",
+  "registrationAllowed": false,
+  "resetPasswordAllowed": true,
+  "rememberMe": true,
+  "clients": [
+    {
+      "clientId": "conode-client",
+      "name": "Conode OAuth2 Proxy",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "secret": "super-secret",
+      "directAccessGrantsEnabled": false,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "serviceAccountsEnabled": false,
+      "redirectUris": [
+        "https://localhost/oauth/callback"
+      ],
+      "webOrigins": [
+        "https://localhost"
+      ],
+      "fullScopeAllowed": true
+    }
+  ],
+  "users": [
+    {
+      "username": "literally",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "literally",
+      "lastName": "user",
+      "email": "contact@conode.team",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Ddz180905",
+          "temporary": false
+        }
+      ]
+    }
+  ]
+}
