@@ -16,8 +16,6 @@ services:
       - "traefik.http.routers.api.tls=true"
       - "traefik.http.services.api-conode.loadbalancer.server.port=8000"
 
-      - "traefik.http.routers.api.middlewares=oauth-auth@docker"
-
   postgres:
     image: postgres:16-alpine
     volumes:
@@ -55,7 +53,7 @@ services:
       KC_DB_USERNAME: keycloak
       KC_DB_PASSWORD: keycloak
 
-      KC_HOSTNAME: https://localhost/auth
+      KC_HOSTNAME: localhost
       KC_HTTP_RELATIVE_PATH: /auth
       KC_PROXY_HEADERS: xforwarded
 
@@ -87,58 +85,6 @@ services:
       - "traefik.http.routers.keycloak.entrypoints=websecure"
       - "traefik.http.routers.keycloak.tls=true"
       - "traefik.http.services.keycloak.loadbalancer.server.port=8080"
-
-  oauth2-proxy:
-    image: quay.io/oauth2-proxy/oauth2-proxy:v7.6.0
-    container_name: oauth2-proxy
-    restart: unless-stopped
-
-    environment:
-      OAUTH2_PROXY_PROVIDER: oidc
-
-      OAUTH2_PROXY_CLIENT_ID: conode-client
-      OAUTH2_PROXY_CLIENT_SECRET: super-secret
-
-      OAUTH2_PROXY_COOKIE_SECRET: 0123456789abcdef0123456789abcdef
-      OAUTH2_PROXY_OIDC_ISSUER_URL: https://localhost/auth/realms/conode
-      OAUTH2_PROXY_SKIP_OIDC_DISCOVERY: "true"
-      OAUTH2_PROXY_LOGIN_URL: https://localhost/auth/realms/conode/protocol/openid-connect/auth
-      OAUTH2_PROXY_REDEEM_URL: http://keycloak:8080/auth/realms/conode/protocol/openid-connect/token
-      OAUTH2_PROXY_OIDC_JWKS_URL: http://keycloak:8080/auth/realms/conode/protocol/openid-connect/certs
-      OAUTH2_PROXY_INSECURE_OIDC_SKIP_ISSUER_VERIFICATION: "true"
-      OAUTH2_PROXY_REDIRECT_URL: https://localhost/oauth/callback
-      OAUTH2_PROXY_PROXY_PREFIX: /oauth
-      OAUTH2_PROXY_COOKIE_SECURE: "false"
-      OAUTH2_PROXY_COOKIE_SAMESITE: "lax"
-
-      OAUTH2_PROXY_EMAIL_DOMAINS: "*"
-      OAUTH2_PROXY_OIDC_EMAIL_CLAIM: preferred_username
-      OAUTH2_PROXY_INSECURE_OIDC_ALLOW_UNVERIFIED_EMAIL: "true"
-      OAUTH2_PROXY_UPSTREAMS: "http://api:8000"
-
-      OAUTH2_PROXY_HTTP_ADDRESS: "0.0.0.0:4180"
-
-      OAUTH2_PROXY_SET_XAUTHREQUEST: "true"
-      OAUTH2_PROXY_PASS_ACCESS_TOKEN: "true"
-
-    depends_on:
-      keycloak:
-        condition: service_healthy
-
-    networks:
-      - conode-network
-
-    labels:
-      - "traefik.enable=true"
-
-      - "traefik.http.routers.oauth.rule=Host(`localhost`) && PathPrefix(`/oauth`)"
-      - "traefik.http.routers.oauth.entrypoints=websecure"
-      - "traefik.http.routers.oauth.tls=true"
-      - "traefik.http.services.oauth.loadbalancer.server.port=4180"
-
-      - "traefik.http.middlewares.oauth-auth.forwardauth.address=http://oauth2-proxy:4180/oauth/auth"
-      - "traefik.http.middlewares.oauth-auth.forwardauth.trustForwardHeader=true"
-      - "traefik.http.middlewares.oauth-auth.forwardauth.authResponseHeaders=X-Auth-Request-User,X-Auth-Request-Email,Authorization"
 
   traefik:
     image: traefik:latest
