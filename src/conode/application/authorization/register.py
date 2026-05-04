@@ -5,7 +5,6 @@ from conode.application.authorization.errors import UserAlreadyExistsError
 from conode.application.interfaces.identity_provider import IdentityProvider
 from conode.application.interfaces.repositories import (
     LocalAuhthorizationRepository,
-    SessionRepository,
     UserRepository,
 )
 from conode.application.interfaces.token_managers import (
@@ -18,7 +17,6 @@ from conode.domain.authorization import (
     LocalAuthorization,
     LocalAuthorizationId,
 )
-
 from conode.domain.user import User, UserId
 
 
