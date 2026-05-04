@@ -3,10 +3,10 @@ from uuid import uuid7
 
 from conode.application.authorization.errors import UserAlreadyExistsError
 from conode.application.interfaces.identity_provider import IdentityProvider
-from conode.application.interfaces.repositories import UserRepository
-from conode.application.interfaces.repositories.authorization import (
+from conode.application.interfaces.repositories import (
     LocalAuhthorizationRepository,
     SessionRepository,
+    UserRepository,
 )
 from conode.application.interfaces.token_managers import (
     AccessTokenManager,

@@ -26,3 +26,7 @@ class Session(Entity[SessionId]):
             created_at=now,
             updated_at=now,
         )
+
+    def update_token(self, token: str) -> None:
+        self.token = token
+        self.touch()
