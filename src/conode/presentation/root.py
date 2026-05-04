@@ -4,8 +4,7 @@ from fastapi import APIRouter
 
 router = APIRouter()
 
-@router.get('/')
+
+@router.get("/")
 async def ping() -> dict[str, int]:
-    return {
-        "status": HTTPStatus.OK
-    }
+    return {"status": HTTPStatus.OK}

@@ -98,12 +98,12 @@ class Email(ValueObject[str]):
 
 @dataclass(kw_only=True)
 class User(Entity[UserId]):
+    system_role: UserSystemRole
     first_name: FirstName
     last_name: LastName
     username: Username
-    password: str
     email: Email
-    system_role: UserSystemRole
+    token_revision: int
 
     @classmethod
     def new(
@@ -112,7 +112,6 @@ class User(Entity[UserId]):
         first_name: str,
         last_name: str,
         username: str,
-        password: str,
         email: str,
     ) -> "User":
         now = datetime.now(UTC)
@@ -121,9 +120,9 @@ class User(Entity[UserId]):
             first_name=FirstName(first_name),
             last_name=LastName(last_name),
             username=Username(username),
-            password=password,
             email=Email(email),
             system_role=UserSystemRole.USER,
             created_at=now,
             updated_at=now,
+            token_revision=1,
         )
