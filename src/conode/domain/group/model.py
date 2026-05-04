@@ -27,7 +27,7 @@ class GroupName(ValueObject[str]):
                 "Group name must be between"
                 f"{MIN_ALLOWED_GROUP_NAME_LENGTH} and "
                 f"{MAX_ALLOWED_GROUP_NAME_LENGTH}",
-                {"key": "name", "value": value},
+                [{"key": "name", "value": value}],
             )
 
         super().__init__(value)
@@ -39,7 +39,7 @@ class GroupDescription(ValueObject[str]):
             raise InvalidGroupDescriptionFormatError(
                 "Group description must be shorter than "
                 f"{MAX_ALLOWED_GROUP_DESCRIPTION_LENGTH}",
-                {"key": "name", "value": value},
+                [{"key": "description", "value": value}],
             )
 
         super().__init__(value)
@@ -64,7 +64,7 @@ class Group(Entity[GroupId]):
         if parent_group is not None and parent_group.id == id:
             raise GroupCannotInheritedFromItselfError(
                 "Group cannot inherit from itself",
-                {"key": "parent_group", "value": parent_group},
+                [{"key": "parent_group", "value": parent_group}],
             )
 
         now = datetime.now(UTC)

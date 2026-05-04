@@ -24,7 +24,11 @@ class Edge(Entity[EdgeId]):
     ) -> "Edge":
         if node_a == node_b:
             raise EdgeCannotConnectTwoSameNodesError(
-                "Edge cannot connect two same nodes", {"key": "node_b", "value": node_b}
+                "Edge cannot connect two same nodes",
+                [
+                    {"key": "node_a", "value": node_a},
+                    {"key": "node_b", "value": node_b},
+                ],
             )
 
         now = datetime.now(UTC)

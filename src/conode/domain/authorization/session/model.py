@@ -12,14 +12,16 @@ SessionId = NewType("SessionId", UUID)
 @dataclass
 class Session(Entity[SessionId]):
     user_id: UserId
+    token: str
     host: str
 
     @classmethod
-    def new(cls, id: SessionId, user: User, host: str) -> "Session":
+    def new(cls, id: SessionId, user: User, host: str, token: str) -> "Session":
         now = datetime.now(UTC)
         return Session(
             id=id,
             host=host,
+            token=token,
             user_id=user.id,
             created_at=now,
             updated_at=now,

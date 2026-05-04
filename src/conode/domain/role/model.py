@@ -38,7 +38,7 @@ class RoleName(ValueObject[str]):
                 "Company name must be between"
                 f"{MIN_ALLOWED_ROLE_NAME_LENGTH} and "
                 f"{MAX_ALLOWED_ROLE_NAME_LENGTH}",
-                {"key": "name", "value": value},
+                [{"key": "name", "value": value}],
             )
 
         super().__init__(value)

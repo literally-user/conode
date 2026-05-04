@@ -30,7 +30,7 @@ class ContextName(ValueObject[str]):
                 "Context name must be between"
                 f"{MIN_ALLOWED_CONTEXT_NAME_LENGTH} and "
                 f"{MAX_ALLOWED_CONTEXT_NAME_LENGTH}",
-                {"key": "name", "value": value},
+                [{"key": "name", "value": value}],
             )
 
         super().__init__(value)
@@ -42,7 +42,7 @@ class ContextDescription(ValueObject[str]):
             raise InvalidContextDescriptionFormatError(
                 "Context description must be shorter than "
                 f"{MAX_ALLOWED_CONTEXT_DESCRIPTION_LENGTH}",
-                {"key": "name", "value": value},
+                [{"key": "description", "value": value}],
             )
 
         super().__init__(value)

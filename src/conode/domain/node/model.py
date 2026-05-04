@@ -28,7 +28,7 @@ class NodeName(ValueObject[str]):
                 "Node name must be between"
                 f"{MIN_ALLOWED_NODE_NAME_LENGTH} and "
                 f"{MAX_ALLOWED_NODE_NAME_LENGTH}",
-                {"key": "name", "value": value},
+                [{"key": "name", "value": value}],
             )
 
         super().__init__(value)
@@ -42,7 +42,7 @@ class NodeDescription(ValueObject[str]):
             raise InvalidNodeDescriptionFormatError(
                 "Node description must be shorter than "
                 f"{MAX_ALLOWED_NODE_DESCRIPTION_LENGTH}",
-                {"key": "name", "value": value},
+                [{"key": "name", "value": value}],
             )
 
         super().__init__(value)

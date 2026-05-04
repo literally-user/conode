@@ -39,7 +39,7 @@ class Username(ValueObject[str]):
                 "Company name length must be between"
                 f"{MIN_ALLOWED_USERNAME_LENGTH} and "
                 f"{MAX_ALLOWED_USERNAME_LENGTH}",
-                {"key": "name", "value": value},
+                [{"key": "name", "value": value}],
             )
 
         if re.match(r"^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)[A-Za-z\d]+$", value):
@@ -48,7 +48,7 @@ class Username(ValueObject[str]):
                 "one uppercase characters, "
                 "one number "
                 "and cannot contain special symbols",
-                {"key": "username", "value": value},
+                [{"key": "username", "value": value}],
             )
 
         super().__init__(value)
@@ -63,7 +63,7 @@ class FirstName(ValueObject[str]):
                 "First name length must be between"
                 f"{MIN_ALLOWED_FIRST_NAME_LENGTH} and "
                 f"{MAX_ALLOWED_FIRST_NAME_LENGTH}",
-                {"key": "first_name", "value": value},
+                [{"key": "first_name", "value": value}],
             )
 
         super().__init__(value)
@@ -78,7 +78,7 @@ class LastName(ValueObject[str]):
                 "First name length must be between"
                 f"{MIN_ALLOWED_LAST_LENGTH} and "
                 f"{MAX_ALLOWED_LAST_LENGTH}",
-                {"key": "last_name", "value": value},
+                [{"key": "last_name", "value": value}],
             )
 
         super().__init__(value)
@@ -90,7 +90,7 @@ class Email(ValueObject[str]):
 
         if re.match(r"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,63}$", value):
             raise InvalidUserEmailFormatError(
-                "Invalid email format", {"key": "email", "value": value}
+                "Invalid email format", [{"key": "email", "value": value}]
             )
 
         super().__init__(value)

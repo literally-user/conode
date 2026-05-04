@@ -30,7 +30,7 @@ class CompanyName(ValueObject[str]):
                 "Company name must be between"
                 f"{MIN_ALLOWED_COMPANY_NAME_LENGTH} and "
                 f"{MAX_ALLOWED_COMPANY_NAME_LENGTH}",
-                {"key": "name", "value": value},
+                [{"key": "name", "value": value}],
             )
 
         super().__init__(value)
@@ -47,7 +47,7 @@ class CompanyDescription(ValueObject[str]):
                 "Company description must be between"
                 f"{MIN_ALLOWED_COMPANY_DESCRIPTION_LENGTH} and "
                 f"{MAX_ALLOWED_COMPANY_DESCRIPTION_LENGTH}",
-                {"key": "name", "value": value},
+                [{"key": "name", "value": value}],
             )
 
         super().__init__(value)

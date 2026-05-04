@@ -50,7 +50,7 @@ class OfferTitle(ValueObject[str]):
                 "Offer name must be between"
                 f"{MIN_ALLOWED_OFFER_TITLE_LENGTH} and "
                 f"{MAX_ALLOWED_OFFER_TITLE_LENGTH}",
-                {"key": "name", "value": value},
+                [{"key": "name", "value": value}],
             )
 
         super().__init__(value)
@@ -64,7 +64,7 @@ class OfferDescription(ValueObject[str]):
             raise InvalidOfferDescriptionFormatError(
                 "Offer description must be shorter than "
                 f"{MAX_ALLOWED_OFFER_DESCRIPTION_LENGTH}",
-                {"key": "name", "value": value},
+                [{"key": "name", "value": value}],
             )
 
         super().__init__(value)
@@ -95,7 +95,9 @@ class Offer(Entity[OfferId]):
         if from_offer is not None and from_offer.id == id:
             raise OfferCannotAnswerToItselfError(
                 "Offer cannot answer to itself",
-                {"key": "from_offer", "value": from_offer},
+                [
+                    {"key": "from_offer", "value": from_offer},
+                ],
             )
 
         now = datetime.now(UTC)
