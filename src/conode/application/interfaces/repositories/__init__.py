@@ -3,9 +3,11 @@ from .authorization import (
     OAuthAuthorizationRepository,
     SessionRepository,
 )
+from .company import CompanyRepository
 from .user import UserRepository
 
 __all__ = (
+    "CompanyRepository",
     "LocalAuhthorizationRepository",
     "OAuthAuthorizationRepository",
     "SessionRepository",
