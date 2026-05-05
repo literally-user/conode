@@ -103,6 +103,7 @@ class User(Entity[UserId]):
     last_name: LastName
     username: Username
     email: Email
+    bio: str
     token_revision: int
 
     @classmethod
@@ -113,6 +114,7 @@ class User(Entity[UserId]):
         last_name: str,
         username: str,
         email: str,
+        bio: str,
     ) -> "User":
         now = datetime.now(UTC)
         return User(
@@ -125,4 +127,13 @@ class User(Entity[UserId]):
             created_at=now,
             updated_at=now,
             token_revision=1,
+            bio=bio,
         )
+
+    def update_profile(
+        self, *, first_name: str, last_name: str, username: str, bio: str
+    ) -> None:
+        self.first_name = FirstName(first_name)
+        self.last_name = LastName(last_name)
+        self.username = Username(username)
+        self.bio = bio

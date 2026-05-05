@@ -27,6 +27,7 @@ class RegisterRequestDTO:
     last_name: str
     username: str
     email: str
+    bio: str
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
@@ -70,6 +71,7 @@ class RegisterInteractor:
                 request.last_name,
                 request.username,
                 request.email,
+                request.bio,
             )
             authorization = LocalAuthorization.new(
                 LocalAuthorizationId(uuid7()), user, request.password

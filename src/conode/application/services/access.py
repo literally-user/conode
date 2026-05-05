@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from conode.application.authorization.errors import InvalidCredentialsError
+from conode.application.authorization.errors import InvalidTokenError
 from conode.domain.authorization import Session
 
 
@@ -8,4 +8,6 @@ from conode.domain.authorization import Session
 class AccessService:
     def verify_session(self, session: Session, token: str) -> None:
         if not session.token == token:
-            raise InvalidCredentialsError("Invalid email or password", None)
+            raise InvalidTokenError(
+                "Invalid refresh token", [{"key": "token", "value": token}]
+            )
