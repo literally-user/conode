@@ -36,7 +36,7 @@ class RefreshTokenInteractor:
             if session is None:
                 raise InvalidCredentialsError("Invalid email or password", None)
 
-            self.access_service.verify_session(session, refresh_token)
+            self.access_service.verify_token(session, refresh_token)
 
             session_service_response = await self.session_service.process(user, host)
 
