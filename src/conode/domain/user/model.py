@@ -137,3 +137,6 @@ class User(Entity[UserId]):
         self.last_name = LastName(last_name)
         self.username = Username(username)
         self.bio = bio
+
+    def increment_revision(self) -> None:
+        self.token_revision += 1

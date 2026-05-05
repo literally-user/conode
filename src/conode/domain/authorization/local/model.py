@@ -26,3 +26,6 @@ class LocalAuthorization(Entity[LocalAuthorizationId]):
             created_at=now,
             updated_at=now,
         )
+
+    def update_password(self, password: str) -> None:
+        self.password = password
