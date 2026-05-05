@@ -76,7 +76,7 @@ class LoginInteractor:
                     ],
                 )
 
-            session_service_response = await self.session_service.execute(user, host)
+            session_service_response = await self.session_service.process(user, host)
 
             return LoginResponseDTO(
                 access_token=session_service_response.access_token,

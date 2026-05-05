@@ -27,8 +27,7 @@ class SessionService:
     refresh_token_manager: RefreshTokenManager
     transaction_manager: TransactionManager
 
-    async def execute(self, user: User, host: str) -> SessionServiceResponse:
-        host = self.identity_provider.get_current_ip()
+    async def process(self, user: User, host: str) -> SessionServiceResponse:
         access_token, expires_in = self.access_token_manager.encode(user)
         refresh_token = self.refresh_token_manager.encode()
 

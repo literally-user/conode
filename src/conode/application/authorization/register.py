@@ -74,7 +74,7 @@ class RegisterInteractor:
             authorization = LocalAuthorization.new(
                 LocalAuthorizationId(uuid7()), user, request.password
             )
-            session_service_response = await self.session_service.execute(user, host)
+            session_service_response = await self.session_service.process(user, host)
 
             await self.user_repository.create(user)
             await self.authorization_repository.create(authorization)
