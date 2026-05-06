@@ -24,9 +24,9 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 def create_app(config: Config) -> FastAPI:
     app = FastAPI(
         lifespan=lifespan,
-        docs_url="/docs" if config.api.debug else None,
-        redoc_url="/redoc" if config.api.debug else None,
-        openapi_url="/openapi.json" if config.api.debug else None,
+        docs_url="/api/docs" if config.api.debug else None,
+        redoc_url="/api/redoc" if config.api.debug else None,
+        openapi_url="/api/openapi.json" if config.api.debug else None,
         title="application",
         description="Great & powerful application",
         version="0.1.0",
