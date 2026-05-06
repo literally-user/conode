@@ -1,0 +1,16 @@
+from prodik.application.errors import ApplicationError
+
+
+class UserAlreadyExistsError(ApplicationError): ...
+
+
+class InvalidCredentialsError(ApplicationError): ...
+
+
+class InvalidTokenError(ApplicationError): ...
+
+
+class InvalidAccessHeaderError(ApplicationError): ...
+
+
+class InvalidClientError(ApplicationError): ...

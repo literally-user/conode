@@ -3,7 +3,7 @@ services:
     environment:
       DEBUG: "true"
     volumes:
-      - "./src/conode:/conode/src/conode/"
+      - "./src/prodik/:/prodik/src/prodik/"
 
   postgres:
     healthcheck:

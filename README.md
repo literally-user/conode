@@ -1,3 +1,2 @@
-# CoNode (Context-Node)
-
-Create graphs, contexts, and groups. Share them with others easily!
+И все завидуют, пускай!
+Ведь жить станет в кааааааааааааайФ!!!!

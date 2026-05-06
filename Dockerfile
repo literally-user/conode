@@ -1,4 +1,4 @@
-FROM python:3.14-slim-bookworm AS python-base
+FROM python:3.14-slim AS python-base
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
@@ -6,7 +6,7 @@ ENV PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
     PIP_DEFAULT_TIMEOUT=100 \
-    APP_PATH=/conode \
+    APP_PATH=/prodik \
     UV_VERSION=0.9.22
 
 ENV VIRTUAL_ENV="$APP_PATH/.venv"
@@ -26,11 +26,9 @@ COPY ./config.toml ./
 RUN mkdir -p ./certs
 COPY ./certs/local.crt ./certs/local.crt
 COPY ./certs/local.key ./certs/local.key
-RUN uv venv -p 3.14
+RUN uv venv -p 3.13
 COPY ./src ./src
-RUN uv sync --all-extras \
-    && uv pip install . \
-    && test -x "$VIRTUAL_ENV/bin/conode"
+RUN uv sync --all-extras && uv pip install -e .
 
 FROM python-base AS runner
 

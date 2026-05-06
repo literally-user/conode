@@ -1,0 +1,9 @@
+from typing import Protocol
+
+from prodik.domain.authorization import Session
+
+
+class SessionRepository(Protocol):
+    async def create(self, session: Session) -> None: ...
+    async def update(self, session: Session) -> None: ...
+    async def get_by_host(self, host: str) -> Session | None: ...

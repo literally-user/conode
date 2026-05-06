@@ -3,25 +3,25 @@ services:
     build: .
     restart: on-failure
     container_name: api
-    command: ["conode", "api", "run"]
+    command: ["prodik", "api", "run"]
     depends_on:
       postgres:
         condition: service_healthy
     networks:
-      - conode-network
+      - prodik-network
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.api.rule=Host(`localhost`) && PathPrefix(`/api`)"
       - "traefik.http.routers.api.entrypoints=websecure"
       - "traefik.http.routers.api.tls=true"
-      - "traefik.http.services.api-conode.loadbalancer.server.port=8000"
+      - "traefik.http.services.api-prodik.loadbalancer.server.port=8000"
 
   postgres:
     image: postgres:16-alpine
     volumes:
       - postgres-data:/var/lib/postgresql/data
     networks:
-      conode-network:
+      prodik-network:
         aliases:
           - persistence.literally.io
     env_file:
@@ -38,7 +38,7 @@ services:
     volumes:
       - keycloak-data:/var/lib/postgresql/data
     networks:
-      - conode-network
+      - prodik-network
 
   keycloak:
     image: quay.io/keycloak/keycloak:latest
@@ -70,9 +70,9 @@ services:
     ports:
       - "8001:8080"
     networks:
-      - conode-network
+      - prodik-network
     volumes:
-      - ./deploy/keycloak/realm-conode.json:/opt/keycloak/data/import/realm-conode.json:ro
+      - ./deploy/keycloak/realm-prodik.json:/opt/keycloak/data/import/realm-prodik.json:ro
     healthcheck:
       test: ["CMD-SHELL", "bash -c '</dev/tcp/127.0.0.1/8080'"]
       interval: 5s
@@ -94,7 +94,7 @@ services:
       - no-new-privileges:true
 
     networks:
-      - conode-network
+      - prodik-network
 
     ports:
       - "80:80"
@@ -117,7 +117,7 @@ services:
 
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
-      - "--providers.docker.network=conode-network"
+      - "--providers.docker.network=prodik-network"
 
       - "--api.dashboard=true"
       - "--api.insecure=false"
@@ -142,6 +142,6 @@ volumes:
   keycloak-data:
 
 networks:
-  conode-network:
-    name: conode-network
+  prodik-network:
+    name: prodik-network
     driver: bridge
