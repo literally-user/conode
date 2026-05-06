@@ -59,7 +59,7 @@ def configure_structlog() -> LoggingConfiguration:
                 "propagate": False,
             },
             "uvicorn.error": {
-                "level": "INFO",
+                "level": "CRITICAL",
                 "handlers": ["json"],
                 "propagate": False,
             },

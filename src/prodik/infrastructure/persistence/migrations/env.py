@@ -2,15 +2,15 @@ import asyncio
 from logging.config import fileConfig
 
 from alembic import context
-from prodik.infrastructure.config import load_config
-from prodik.infrastructure.persistence.registry import metadata
 from sqlalchemy import Connection, pool
 from sqlalchemy.ext.asyncio import async_engine_from_config
+
+from prodik.infrastructure.config import load_config
+from prodik.infrastructure.persistence.registry import metadata
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
-
 
 def render_item(type_, obj, autogen_context):
     if hasattr(obj, "__class__"):
@@ -18,7 +18,6 @@ def render_item(type_, obj, autogen_context):
             return f"sa.{obj.impl}"
 
     return False
-
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.

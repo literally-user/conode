@@ -3,7 +3,7 @@ name = "prodik"
 version = "0.1.0"
 description = "Great & powerful application"
 readme = "README.md"
-requires-python = ">=3.14"
+requires-python = ">=3.10"
 dependencies = [
     "alembic>=1.18.4",
     "argon2-cffi>=25.1.0",
@@ -34,9 +34,8 @@ exclude = [".venv", "src/prodik/infrastructure/persistence/migrations"]
 [tool.ruff.lint]
 extend-select = ["ALL"]
 ignore = [
+    "ERA001",
     "T201",
-    "A002",
-    "PLR0913",
 
     "PT019",
     "ANN401",
