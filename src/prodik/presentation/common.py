@@ -4,6 +4,7 @@ from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
 
 from prodik.application.errors import ApplicationError, UserAlreadyExistsError
+from prodik.presentation.root import router as root_router
 
 EXCEPTION_HANDLERS: Final[dict[type[ApplicationError], int]] = {
     UserAlreadyExistsError: status.HTTP_400_BAD_REQUEST
@@ -20,8 +21,7 @@ async def application_error_handler(
 
 
 def include_handlers(app: FastAPI) -> None:
-    # app.include_router(your_router)
-    pass
+    app.include_router(root_router)
 
 
 def include_exception_handlers(app: FastAPI) -> None:
