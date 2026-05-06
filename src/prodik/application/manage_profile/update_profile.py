@@ -1,9 +1,12 @@
 from dataclasses import dataclass
 
+from prodik.application.authorization.errors import (
+    InvalidCredentialsError,
+    UserAlreadyExistsError,
+)
 from prodik.application.interfaces.identity_provider import IdentityProvider
 from prodik.application.interfaces.repositories import SessionRepository, UserRepository
 from prodik.application.interfaces.transaction_manager import TransactionManager
-from prodik.application.manage_profile.errors import FailedToUpdateProfileError
 from prodik.application.services import AccessService
 from prodik.domain.user import Username
 
@@ -31,11 +34,11 @@ class UpdateProfileInteractor:
 
             user = await self.user_repository.get_by_id(user_id)
             if user is None:
-                raise FailedToUpdateProfileError("User not found", None)
+                raise InvalidCredentialsError("User not found", None)
 
             session = await self.session_repository.get_by_host(host)
             if session is None:
-                raise FailedToUpdateProfileError("Session not found", None)
+                raise InvalidCredentialsError("Session not found", None)
 
             self.access_service.ensure_session_active(session, user)
 
@@ -43,7 +46,7 @@ class UpdateProfileInteractor:
                 username=Username(request.username)
             )
             if unique_user is not None and unique_user != user:
-                raise FailedToUpdateProfileError(
+                raise UserAlreadyExistsError(
                     "User with that username already exists",
                     [{"key": "username", "value": request.username}],
                 )

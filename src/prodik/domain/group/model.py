@@ -4,7 +4,7 @@ from typing import Final, NewType
 from uuid import UUID
 
 from prodik.domain.company import Company, CompanyId
-from prodik.domain.group.error import (
+from prodik.domain.group.errors import (
     GroupCannotInheritedFromItselfError,
     InvalidGroupDescriptionFormatError,
     InvalidGroupNameFormatError,

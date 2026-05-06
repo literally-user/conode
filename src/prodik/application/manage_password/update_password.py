@@ -1,5 +1,9 @@
 from dataclasses import dataclass
 
+from prodik.application.authorization.errors import (
+    InvalidCredentialsError,
+    InvalidOldPasswordError,
+)
 from prodik.application.interfaces.identity_provider import IdentityProvider
 from prodik.application.interfaces.password_hasher import PasswordHasher
 from prodik.application.interfaces.repositories import (
@@ -8,7 +12,6 @@ from prodik.application.interfaces.repositories import (
     UserRepository,
 )
 from prodik.application.interfaces.transaction_manager import TransactionManager
-from prodik.application.manage_password.errors import FailedToUpdatePasswordError
 from prodik.application.services import AccessService, SessionService
 
 
@@ -43,21 +46,21 @@ class UpdatePasswordInteractor:
 
             session = await self.session_repository.get_by_host(host)
             if session is None:
-                raise FailedToUpdatePasswordError("Session not found", None)
+                raise InvalidCredentialsError("Session not found", None)
 
             user = await self.user_repository.get_by_id(user_id)
             if user is None:
-                raise FailedToUpdatePasswordError("User not found", None)
+                raise InvalidCredentialsError("User not found", None)
 
             self.access_service.ensure_session_active(session, user)
 
             authorization = await self.authorization_repository.get_by_user_id(user_id)
             if authorization is None:
-                raise FailedToUpdatePasswordError("Authorization not found", None)
+                raise InvalidCredentialsError("Authorization not found", None)
             if not self.password_hasher.verify(
                 authorization.password, request.old_password
             ):
-                raise FailedToUpdatePasswordError(
+                raise InvalidOldPasswordError(
                     "Invalid old password",
                     [{"key": "old_password", "value": request.old_password}],
                 )

@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from uuid import uuid7
 
+from prodik.application.authorization.errors import InvalidCredentialsError
 from prodik.application.interfaces.identity_provider import IdentityProvider
 from prodik.application.interfaces.repositories import (
     CompanyRepository,
@@ -8,7 +9,7 @@ from prodik.application.interfaces.repositories import (
     UserRepository,
 )
 from prodik.application.interfaces.transaction_manager import TransactionManager
-from prodik.application.manage_company.errors import FailedToRegisterCompanyError
+from prodik.application.manage_company.errors import CompanyAlreadyExistsError
 from prodik.application.services import AccessService
 from prodik.domain.company import Company, CompanyId
 
@@ -35,17 +36,17 @@ class RegisterCompanyInteractor:
 
             session = await self.session_repository.get_by_host(host)
             if session is None:
-                raise FailedToRegisterCompanyError("Session not found", None)
+                raise InvalidCredentialsError("Session not found", None)
 
             user = await self.user_repository.get_by_id(user_id)
             if user is None:
-                raise FailedToRegisterCompanyError("User not found", None)
+                raise InvalidCredentialsError("User not found", None)
 
             self.access_service.ensure_session_active(session, user)
 
             company = await self.company_repository.get_by_name(request.name)
             if company is not None:
-                raise FailedToRegisterCompanyError(
+                raise CompanyAlreadyExistsError(
                     "Company with this name already exists",
                     [{"key": "name", "value": request.name}],
                 )
