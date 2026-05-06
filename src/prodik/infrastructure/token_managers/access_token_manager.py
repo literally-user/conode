@@ -17,7 +17,7 @@ class AccessTokenManagerImpl(AccessTokenManager):
         now = datetime.now(UTC)
         token = jwt.encode(
             {
-                "sub": user.id,
+                "sub": str(user.id),
                 "iat": int(now.timestamp()),
                 "exp": int(
                     (now + timedelta(seconds=self.config.expires_in)).timestamp()

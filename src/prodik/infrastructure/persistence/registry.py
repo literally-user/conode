@@ -59,6 +59,7 @@ session_table = Table(
     Column("id", UUID, nullable=False, primary_key=True),
     Column("user_id", ForeignKey("user_record.id"), nullable=False),
     Column("host", String, nullable=False),
+    Column("token", String, nullable=False),
     Column("token_revision", Integer, nullable=False),
     Column("updated_at", DateTime(timezone=True), nullable=False),
     Column("created_at", DateTime(timezone=True), nullable=False),

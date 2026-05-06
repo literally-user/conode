@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from uuid import uuid7
 
+import structlog
+
 from prodik.application.authorization.errors import UserAlreadyExistsError
 from prodik.application.interfaces.identity_provider import IdentityProvider
 from prodik.application.interfaces.repositories import (
@@ -19,6 +21,8 @@ from prodik.domain.authorization import (
 )
 from prodik.domain.user import Email, User, UserId, Username
 
+logger = structlog.get_logger()
+
 
 @dataclass(frozen=True, slots=True, kw_only=True)
 class RegisterRequestDTO:
@@ -27,7 +31,6 @@ class RegisterRequestDTO:
     last_name: str
     username: str
     email: str
-    bio: str
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
@@ -56,6 +59,7 @@ class RegisterInteractor:
                 Username(request.username),
                 Email(request.email),
             )
+            logger.info("3")
             if user is not None:
                 raise UserAlreadyExistsError(
                     "User with this username or email already exists",
@@ -64,6 +68,7 @@ class RegisterInteractor:
                         {"key": "username", "value": request.username},
                     ],
                 )
+            logger.info("Пользователя с таким ником нет")
 
             user = User.new(
                 UserId(uuid7()),
@@ -71,16 +76,16 @@ class RegisterInteractor:
                 request.last_name,
                 request.username,
                 request.email,
-                request.bio,
+                "",
             )
+            await self.user_repository.create(user)
+
             authorization = LocalAuthorization.new(
                 LocalAuthorizationId(uuid7()), user, request.password
             )
             session_service_response = await self.session_service.process(user, host)
 
-            await self.user_repository.create(user)
             await self.authorization_repository.create(authorization)
-
             return RegisterResponseDTO(
                 access_token=session_service_response.access_token,
                 refresh_token=session_service_response.refresh_token,

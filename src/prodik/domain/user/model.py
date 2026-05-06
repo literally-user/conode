@@ -34,21 +34,14 @@ class Username(ValueObject[str]):
     def __init__(self, value: str) -> None:
         value = value.strip()
 
-        if MIN_ALLOWED_USERNAME_LENGTH <= len(value) <= MAX_ALLOWED_USERNAME_LENGTH:
+        if not (
+            MIN_ALLOWED_USERNAME_LENGTH <= len(value) <= MAX_ALLOWED_USERNAME_LENGTH
+        ):
             raise InvalidUserUsernameFormatError(
                 "Company name length must be between"
                 f"{MIN_ALLOWED_USERNAME_LENGTH} and "
                 f"{MAX_ALLOWED_USERNAME_LENGTH}",
                 [{"key": "name", "value": value}],
-            )
-
-        if re.match(r"^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)[A-Za-z\d]+$", value):
-            raise InvalidUserUsernameFormatError(
-                "Username must contain at least "
-                "one uppercase characters, "
-                "one number "
-                "and cannot contain special symbols",
-                [{"key": "username", "value": value}],
             )
 
         super().__init__(value)
@@ -58,7 +51,9 @@ class FirstName(ValueObject[str]):
     def __init__(self, value: str) -> None:
         value = value.strip()
 
-        if MIN_ALLOWED_FIRST_NAME_LENGTH <= len(value) <= MAX_ALLOWED_FIRST_NAME_LENGTH:
+        if not (
+            MIN_ALLOWED_FIRST_NAME_LENGTH <= len(value) <= MAX_ALLOWED_FIRST_NAME_LENGTH
+        ):
             raise InvalidUserFirstNameFormatError(
                 "First name length must be between"
                 f"{MIN_ALLOWED_FIRST_NAME_LENGTH} and "
@@ -73,7 +68,7 @@ class LastName(ValueObject[str]):
     def __init__(self, value: str) -> None:
         value = value.strip()
 
-        if MIN_ALLOWED_LAST_LENGTH <= len(value) <= MAX_ALLOWED_LAST_LENGTH:
+        if not (MIN_ALLOWED_LAST_LENGTH <= len(value) <= MAX_ALLOWED_LAST_LENGTH):
             raise InvalidUserLastNameFormatError(
                 "First name length must be between"
                 f"{MIN_ALLOWED_LAST_LENGTH} and "
@@ -88,7 +83,7 @@ class Email(ValueObject[str]):
     def __init__(self, value: str) -> None:
         value = value.strip()
 
-        if re.match(r"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,63}$", value):
+        if not re.match(r"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,63}$", value):
             raise InvalidUserEmailFormatError(
                 "Invalid email format", [{"key": "email", "value": value}]
             )

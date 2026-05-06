@@ -34,8 +34,9 @@ exclude = [".venv", "src/prodik/infrastructure/persistence/migrations"]
 [tool.ruff.lint]
 extend-select = ["ALL"]
 ignore = [
-    "ERA001",
     "T201",
+    "A002",
+    "PLR0913",
 
     "PT019",
     "ANN401",
