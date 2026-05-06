@@ -6,7 +6,7 @@ from conode.bootstrap.di.providers import (
     ConnectionProvider,
     InfrastructureProvider,
 )
-from conode.infrastructure.config import APIConfig, Config, DatabaseConfig
+from conode.infrastructure.config import APIConfig, CertsConfig, Config, DatabaseConfig
 
 
 def get_async_container(config: Config) -> AsyncContainer:
@@ -18,5 +18,6 @@ def get_async_container(config: Config) -> AsyncContainer:
         context={
             APIConfig: config.api,
             DatabaseConfig: config.database,
+            CertsConfig: config.certs,
         },
     )

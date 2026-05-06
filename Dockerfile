@@ -1,4 +1,4 @@
-FROM python:3.13-slim-bookworm AS python-base
+FROM python:3.14-slim-bookworm AS python-base
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
@@ -23,13 +23,19 @@ RUN apt-get update \
 RUN pip install --no-cache-dir "uv==$UV_VERSION"
 COPY ./pyproject.toml ./
 COPY ./config.toml ./
-RUN uv venv -p 3.13
+RUN mkdir -p ./certs
+COPY ./certs/local.crt ./certs/local.crt
+COPY ./certs/local.key ./certs/local.key
+RUN uv venv -p 3.14
 COPY ./src ./src
-RUN uv sync --all-extras && uv pip install -e .
+RUN uv sync --all-extras \
+    && uv pip install . \
+    && test -x "$VIRTUAL_ENV/bin/conode"
 
 FROM python-base AS runner
 
 COPY --from=builder $VIRTUAL_ENV $VIRTUAL_ENV
 COPY --from=builder $APP_PATH/src $APP_PATH/src
+COPY --from=builder $APP_PATH/certs $APP_PATH/certs
 COPY --from=builder $APP_PATH/pyproject.toml $APP_PATH/pyproject.toml
 COPY --from=builder $APP_PATH/config.toml $APP_PATH/config.toml

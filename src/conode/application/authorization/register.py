@@ -17,7 +17,7 @@ from conode.domain.authorization import (
     LocalAuthorization,
     LocalAuthorizationId,
 )
-from conode.domain.user import User, UserId
+from conode.domain.user import Email, User, UserId, Username
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
@@ -53,8 +53,8 @@ class RegisterInteractor:
         async with self.transaction_manager:
             host = self.identity_provider.get_current_ip()
             user = await self.user_repository.get_by_username_or_email(
-                request.username,
-                request.email,
+                Username(request.username),
+                Email(request.email),
             )
             if user is not None:
                 raise UserAlreadyExistsError(

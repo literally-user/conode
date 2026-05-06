@@ -1,47 +1,37 @@
 import argparse
-import contextlib
-from collections.abc import Iterator
-from importlib.resources import as_file, files
 from pathlib import Path
 
-import alembic.config
+from alembic import command
+from alembic.config import Config
 
 import conode.infrastructure.persistence
 from conode.bootstrap.api import run_http
 from conode.infrastructure.persistence import start_mapper
 
 
-def get_alembic_config_path() -> Iterator[Path]:
-    source = files(conode.infrastructure.persistence).joinpath("alembic.ini")
-    with as_file(source) as path:
-        yield path
+def get_migrations_path() -> Path:
+    persistence_root = Path(conode.infrastructure.persistence.__file__).resolve().parent
+    return persistence_root / "migrations"
+
+
+def get_alembic_config() -> Config:
+    config = Config()
+    config.set_main_option("script_location", str(get_migrations_path()))
+    return config
 
 
 def run_migrations(*_args: str) -> None:
-    alembic_path_gen = get_alembic_config_path()
-    alembic_path = str(next(alembic_path_gen))
-    alembic.config.main(
-        argv=["-c", alembic_path, "upgrade", "head"],
-    )
-    with contextlib.suppress(StopIteration):
-        next(alembic_path_gen)
+    command.upgrade(get_alembic_config(), "head")
 
 
 def autogenerate_migrations(*args: str) -> None:
-    alembic_path_gen = get_alembic_config_path()
-    alembic_path = str(next(alembic_path_gen))
-    alembic.config.main(
-        argv=["-c", alembic_path, "revision", "--autogenerate", "-m", args[0]],
-    )
-
-    with contextlib.suppress(StopIteration):
-        next(alembic_path_gen)
+    command.revision(get_alembic_config(), message=args[0], autogenerate=True)
 
 
 def configure_argument_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="Prodik",
-        description="PROD application",
+        prog="conode",
+        description="Easy-to-use API for building graphs with state contexts.",
     )
 
     subparsers = parser.add_subparsers(dest="module", required=True)

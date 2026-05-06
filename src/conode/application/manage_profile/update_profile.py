@@ -5,6 +5,7 @@ from conode.application.interfaces.repositories import SessionRepository, UserRe
 from conode.application.interfaces.transaction_manager import TransactionManager
 from conode.application.manage_profile.errors import FailedToUpdateProfileError
 from conode.application.services import AccessService
+from conode.domain.user import Username
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
@@ -39,7 +40,7 @@ class UpdateProfileInteractor:
             self.access_service.ensure_session_active(session, user)
 
             unique_user = await self.user_repository.get_by_username(
-                username=request.username
+                username=Username(request.username)
             )
             if unique_user is not None and unique_user != user:
                 raise FailedToUpdateProfileError(

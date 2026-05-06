@@ -54,6 +54,7 @@ class RegisterCompanyInteractor:
                 CompanyId(uuid7()),
                 name=request.name,
                 description=request.description,
+                owner=user,
             )
 
             await self.company_repository.create(company)

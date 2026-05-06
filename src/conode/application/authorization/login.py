@@ -14,6 +14,7 @@ from conode.application.interfaces.token_managers import (
 )
 from conode.application.interfaces.transaction_manager import TransactionManager
 from conode.application.services import SessionService
+from conode.domain.user import Email
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
@@ -44,7 +45,7 @@ class LoginInteractor:
     async def execute(self, request: LoginRequestDTO) -> LoginResponseDTO:
         async with self.transaction_manager:
             host = self.identity_provider.get_current_ip()
-            user = await self.user_repository.get_by_email(request.email)
+            user = await self.user_repository.get_by_email(Email(request.email))
             if user is None:
                 raise InvalidCredentialsError(
                     "Invalid email or password",

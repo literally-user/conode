@@ -8,6 +8,7 @@ from conode.domain.company.errors import (
     InvalidCompanyNameFormatError,
 )
 from conode.domain.shared import Entity, ValueObject
+from conode.domain.user import User, UserId
 
 CompanyId = NewType("CompanyId", UUID)
 
@@ -56,17 +57,19 @@ class CompanyDescription(ValueObject[str]):
 @dataclass
 class Company(Entity[CompanyId]):
     name: CompanyName
+    owner_id: UserId
     description: CompanyDescription
     verified: bool
 
     @classmethod
-    def new(cls, id: CompanyId, name: str, description: str) -> "Company":
+    def new(cls, id: CompanyId, name: str, description: str, owner: User) -> "Company":
         now = datetime.now(UTC)
         return Company(
             id=id,
             name=CompanyName(name),
             description=CompanyDescription(description),
             verified=False,
+            owner_id=owner.id,
             created_at=now,
             updated_at=now,
         )
