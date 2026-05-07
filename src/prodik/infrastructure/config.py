@@ -30,8 +30,8 @@ class Config:
     secrets: SecretsConfig
 
 
-def load_config() -> Config:
-    config_path = Path("config.toml")  # объект Path
+def load_config(path: str = "config.toml") -> Config:
+    config_path = Path(path)
     with config_path.open("rb") as file:
         config = tomllib.load(file)
         return Config(
@@ -42,7 +42,7 @@ def load_config() -> Config:
             ),
             database=DatabaseConfig(url=config["database"]["url"]),
             secrets=SecretsConfig(
-                secret=config["api"]["secret"],
-                expires_in=config["api"]["expires_in"],
+                secret=config["secrets"]["secret"],
+                expires_in=config["secrets"]["expires_in"],
             ),
         )
