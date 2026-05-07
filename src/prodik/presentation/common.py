@@ -9,14 +9,30 @@ from fastapi.responses import JSONResponse, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 from structlog.contextvars import bind_contextvars
 
-from prodik.application.errors import ApplicationError, UserAlreadyExistsError
+from prodik.application.errors import (
+    ApplicationError,
+    AuthorizationNotFoundError,
+    FailedToReadClientError,
+    InvalidCredentialsError,
+    InvalidTokenError,
+    SessionNotFoundError,
+    UserAlreadyExistsError,
+    UserNotFoundError,
+)
 from prodik.presentation.auth import router as auth_router
 from prodik.presentation.root import router as root_router
+from prodik.presentation.user import router as user_router
 
 logger = structlog.get_logger()
 
 EXCEPTION_HANDLERS: Final[dict[type[ApplicationError], int]] = {
-    UserAlreadyExistsError: status.HTTP_400_BAD_REQUEST
+    UserAlreadyExistsError: status.HTTP_400_BAD_REQUEST,
+    InvalidTokenError: status.HTTP_401_UNAUTHORIZED,
+    InvalidCredentialsError: status.HTTP_401_UNAUTHORIZED,
+    SessionNotFoundError: status.HTTP_401_UNAUTHORIZED,
+    AuthorizationNotFoundError: status.HTTP_404_NOT_FOUND,
+    UserNotFoundError: status.HTTP_404_NOT_FOUND,
+    FailedToReadClientError: status.HTTP_400_BAD_REQUEST,
 }
 
 
@@ -48,6 +64,13 @@ async def application_error_handler(
     status_code = EXCEPTION_HANDLERS.get(
         type(exception), status.HTTP_500_INTERNAL_SERVER_ERROR
     )
+    logger.warning(
+        "Handled application error",
+        error_type=type(exception).__name__,
+        detail=exception.detail,
+        status_code=status_code,
+        meta=exception.meta,
+    )
     result = {"detail": exception.detail, "meta": exception.meta}
     return JSONResponse(status_code=status_code, content=result)
 
@@ -55,12 +78,20 @@ async def application_error_handler(
 async def default_error_handler(
     _request: Request, exception: Exception
 ) -> JSONResponse:
-    return JSONResponse(content=exception.args)
+    logger.exception(
+        "Unhandled exception",
+        error_type=type(exception).__name__,
+    )
+    return JSONResponse(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        content={"detail": "Internal Server Error"},
+    )
 
 
 def include_handlers(app: FastAPI) -> None:
     app.include_router(root_router)
     app.include_router(auth_router)
+    app.include_router(user_router)
 
 
 def include_middlewares(app: FastAPI) -> None:
@@ -69,3 +100,4 @@ def include_middlewares(app: FastAPI) -> None:
 
 def include_exception_handlers(app: FastAPI) -> None:
     app.add_exception_handler(ApplicationError, application_error_handler)  # type: ignore
+    app.add_exception_handler(Exception, default_error_handler)

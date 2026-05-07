@@ -14,6 +14,7 @@ from sqlalchemy.orm import registry
 from prodik.domain.authorization import LocalAuthorization, Session
 from prodik.domain.user import User, UserSystemRole
 from prodik.infrastructure.persistence.types import (
+    BioType,
     EmailType,
     FirstNameType,
     LastNameType,
@@ -32,7 +33,7 @@ user_record_table = Table(
     Column("last_name", LastNameType, nullable=False),
     Column("first_name", FirstNameType, nullable=False),
     Column("email", EmailType, nullable=False),
-    Column("bio", String, nullable=False),
+    Column("bio", BioType, nullable=False),
     Column("token_revision", Integer, nullable=False),
     Column("created_at", DateTime(timezone=True), nullable=False),
     Column("updated_at", DateTime(timezone=True), nullable=False),

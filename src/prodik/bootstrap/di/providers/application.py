@@ -5,9 +5,14 @@ from prodik.application.authorization import (
     RefreshTokenInteractor,
     RegisterInteractor,
 )
+from prodik.application.manage_profile import UpdateCurrentUserProfileInteractor
 
 
 class ApplicationProvider(Provider):
     provides = provide_all(
-        RegisterInteractor, LoginInteractor, RefreshTokenInteractor, scope=Scope.REQUEST
+        RegisterInteractor,
+        LoginInteractor,
+        RefreshTokenInteractor,
+        UpdateCurrentUserProfileInteractor,
+        scope=Scope.REQUEST,
     )

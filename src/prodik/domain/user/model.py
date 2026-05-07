@@ -21,8 +21,10 @@ MAX_ALLOWED_USERNAME_LENGTH: Final = 30
 MIN_ALLOWED_FIRST_NAME_LENGTH: Final = 1
 MAX_ALLOWED_FIRST_NAME_LENGTH: Final = 30
 
-MIN_ALLOWED_LAST_LENGTH: Final = 1
-MAX_ALLOWED_LAST_LENGTH: Final = 30
+MIN_ALLOWED_LAST_NAME_LENGTH: Final = 1
+MAX_ALLOWED_LAST_NAME_LENGTH: Final = 30
+
+MAX_ALLOWED_BIO_LENGTH: Final = 300
 
 
 class UserSystemRole(StrEnum):
@@ -68,12 +70,27 @@ class LastName(ValueObject[str]):
     def __init__(self, value: str) -> None:
         value = value.strip()
 
-        if not (MIN_ALLOWED_LAST_LENGTH <= len(value) <= MAX_ALLOWED_LAST_LENGTH):
+        if not (
+            MIN_ALLOWED_LAST_NAME_LENGTH <= len(value) <= MAX_ALLOWED_LAST_NAME_LENGTH
+        ):
             raise InvalidUserLastNameFormatError(
                 "First name length must be between"
-                f"{MIN_ALLOWED_LAST_LENGTH} and "
-                f"{MAX_ALLOWED_LAST_LENGTH}",
+                f"{MIN_ALLOWED_LAST_NAME_LENGTH} and "
+                f"{MAX_ALLOWED_LAST_NAME_LENGTH}",
                 [{"key": "last_name", "value": value}],
+            )
+
+        super().__init__(value)
+
+
+class Bio(ValueObject[str]):
+    def __init__(self, value: str) -> None:
+        value = value.strip()
+
+        if len(value) >= MAX_ALLOWED_BIO_LENGTH:
+            raise InvalidUserLastNameFormatError(
+                f"Bio length cannot be longer than {MAX_ALLOWED_BIO_LENGTH}",
+                [{"key": "bio", "value": value}],
             )
 
         super().__init__(value)
@@ -98,7 +115,7 @@ class User(Entity[UserId]):
     last_name: LastName
     username: Username
     email: Email
-    bio: str
+    bio: Bio
     token_revision: int
 
     @classmethod
@@ -122,16 +139,17 @@ class User(Entity[UserId]):
             created_at=now,
             updated_at=now,
             token_revision=1,
-            bio=bio,
+            bio=Bio(bio),
         )
 
     def update_profile(
-        self, *, first_name: str, last_name: str, username: str, bio: str
+        self, *, first_name: str, last_name: str, username: str, bio: str, email: str
     ) -> None:
         self.first_name = FirstName(first_name)
         self.last_name = LastName(last_name)
         self.username = Username(username)
-        self.bio = bio
+        self.email = Email(email)
+        self.bio = Bio(bio)
 
     def increment_revision(self) -> None:
         self.token_revision += 1
