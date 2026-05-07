@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from types import TracebackType
 from typing import override
 
@@ -6,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from prodik.application.interfaces.transaction_manager import TransactionManager
 
 
+@dataclass
 class TransactionManagerImpl(TransactionManager):
     _session: AsyncSession
 
@@ -20,6 +22,6 @@ class TransactionManagerImpl(TransactionManager):
         tb: TracebackType | None,
     ) -> None:
         if exc:
-            await self._session.commit()
+            await self._session.rollback()
             return
-        await self._session.rollback()
+        await self._session.commit()

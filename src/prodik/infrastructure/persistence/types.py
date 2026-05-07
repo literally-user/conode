@@ -4,7 +4,7 @@ from sqlalchemy import Dialect, String
 from sqlalchemy.types import TypeDecorator
 
 from prodik.domain.shared import ValueObject
-from prodik.domain.user import Username
+from prodik.domain.user import Email, FirstName, LastName, Username
 
 
 class BaseVOTypeDecorator[T: ValueObject[Any]](TypeDecorator[T]):
@@ -26,3 +26,21 @@ class UsernameType(BaseVOTypeDecorator[Username]):
     impl = String
     cache_ok = True
     vo_class = Username
+
+
+class LastNameType(BaseVOTypeDecorator[LastName]):
+    impl = String
+    cache_ok = True
+    vo_class = LastName
+
+
+class FirstNameType(BaseVOTypeDecorator[FirstName]):
+    impl = String
+    cache_ok = True
+    vo_class = FirstName
+
+
+class EmailType(BaseVOTypeDecorator[Email]):
+    impl = String
+    cache_ok = True
+    vo_class = Email
