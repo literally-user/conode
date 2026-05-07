@@ -4,10 +4,16 @@ from fastapi import APIRouter
 from prodik.application.authorization import (
     LoginInteractor,
     LoginRequestDTO,
+    RefreshTokenInteractor,
     RegisterInteractor,
     RegisterRequestDTO,
 )
-from prodik.presentation.schemas.auth import AuthResponse, LoginRequest, RegisterRequest
+from prodik.presentation.schemas.auth import (
+    AuthResponse,
+    LoginRequest,
+    RefreshTokenRequest,
+    RegisterRequest,
+)
 
 router = APIRouter(tags=["authorization"], route_class=DishkaRoute, prefix="/auth")
 
@@ -43,6 +49,20 @@ async def login(
             email=request.email,
         )
     )
+
+    return AuthResponse(
+        access_token=result.access_token,
+        refresh_token=result.refresh_token,
+        expires_in=result.expires_in,
+    )
+
+
+@router.post("/refresh")
+async def refresh_token(
+    request: RefreshTokenRequest,
+    interactor: FromDishka[RefreshTokenInteractor],
+) -> AuthResponse:
+    result = await interactor.execute(request.refresh_token)
 
     return AuthResponse(
         access_token=result.access_token,

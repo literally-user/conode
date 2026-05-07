@@ -37,6 +37,13 @@ class SessionRepositoryImpl(SessionRepository):
             )
         )
 
+    async def get_by_token(self, token: str) -> Session | None:
+        result = await self.session.execute(
+            select(Session).where(Session.token == token)  # type: ignore
+        )
+
+        return result.scalar_one_or_none()
+
     async def get_by_host(self, host: str) -> Session | None:
         result = await self.session.execute(
             select(Session).where(Session.host == host)  # type: ignore

@@ -52,6 +52,12 @@ async def application_error_handler(
     return JSONResponse(status_code=status_code, content=result)
 
 
+async def default_error_handler(
+    _request: Request, exception: Exception
+) -> JSONResponse:
+    return JSONResponse(content=exception.args)
+
+
 def include_handlers(app: FastAPI) -> None:
     app.include_router(root_router)
     app.include_router(auth_router)

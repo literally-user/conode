@@ -37,6 +37,6 @@ class AccessTokenManagerImpl(AccessTokenManager):
         data = jwt.decode(token, self._config.secret, algorithms=["HS256"])
         return UserMeta(
             system_role=data["system_role"],
-            user_id=data["user_id"],
+            user_id=data["sub"],
             revision=data["revision"],
         )

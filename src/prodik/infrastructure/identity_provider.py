@@ -1,8 +1,9 @@
 from dataclasses import dataclass
 from typing import Final
 
+import structlog
 from fastapi import Request
-from jwt.exceptions import PyJWTError
+from jwt import PyJWTError
 
 from prodik.application.errors import FailedToReadClientError, InvalidTokenError
 from prodik.application.interfaces.identity_provider import IdentityProvider
@@ -10,6 +11,8 @@ from prodik.application.interfaces.token_managers import AccessTokenManager, Use
 
 TOKEN_TYPE: Final = "Bearer"  # noqa: S105
 TOKEN_SECTIONS: Final = 2
+
+logger = structlog.get_logger()
 
 
 @dataclass

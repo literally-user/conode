@@ -20,3 +20,7 @@ class AuthResponse(BaseModel):
     access_token: str
     refresh_token: str
     expires_in: int
+
+
+class RefreshTokenRequest(BaseModel):
+    refresh_token: str
