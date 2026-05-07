@@ -4,7 +4,7 @@ import structlog
 
 from prodik.application.errors import (
     AuthorizationNotFoundError,
-    InvalidCredentialsError,
+    InvalidOldPasswordError,
     SessionNotFoundError,
     UserNotFoundError,
 )
@@ -75,7 +75,7 @@ class UpdateCurrentUserPasswordInteractor:
             if not self.password_hasher.verify(
                 authorization.password, request.old_password
             ):
-                raise InvalidCredentialsError(
+                raise InvalidOldPasswordError(
                     "Invalid old password",
                     [
                         {"key": "old_password", "value": request.old_password},

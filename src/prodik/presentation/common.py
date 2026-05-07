@@ -15,6 +15,7 @@ from prodik.application.errors import (
     AuthorizationNotFoundError,
     FailedToReadClientError,
     InvalidCredentialsError,
+    InvalidOldPasswordError,
     InvalidTokenError,
     SessionNotFoundError,
     UserAlreadyExistsError,
@@ -34,6 +35,7 @@ EXCEPTION_HANDLERS: Final[dict[type[ApplicationError], HTTPStatus]] = {
     AuthorizationNotFoundError: HTTPStatus.NOT_FOUND,
     UserNotFoundError: HTTPStatus.NOT_FOUND,
     FailedToReadClientError: HTTPStatus.BAD_REQUEST,
+    InvalidOldPasswordError: HTTPStatus.FORBIDDEN,
 }
 
 
