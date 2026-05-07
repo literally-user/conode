@@ -10,6 +10,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from structlog.contextvars import bind_contextvars
 
 from prodik.application.errors import ApplicationError, UserAlreadyExistsError
+from prodik.presentation.auth import router as auth_router
 from prodik.presentation.root import router as root_router
 
 logger = structlog.get_logger()
@@ -47,11 +48,13 @@ async def application_error_handler(
     status_code = EXCEPTION_HANDLERS.get(
         type(exception), status.HTTP_500_INTERNAL_SERVER_ERROR
     )
-    return JSONResponse(status_code=status_code, content=exception.detail)
+    result = {"detail": exception.detail, "meta": exception.meta}
+    return JSONResponse(status_code=status_code, content=result)
 
 
 def include_handlers(app: FastAPI) -> None:
     app.include_router(root_router)
+    app.include_router(auth_router)
 
 
 def include_middlewares(app: FastAPI) -> None:
