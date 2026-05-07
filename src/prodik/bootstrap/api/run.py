@@ -12,6 +12,7 @@ from prodik.infrastructure.config import Config, load_config
 from prodik.presentation.common import (
     include_exception_handlers,
     include_handlers,
+    include_middlewares,
 )
 
 
@@ -33,6 +34,7 @@ def create_app(config: Config) -> FastAPI:
     )
 
     include_handlers(app)
+    include_middlewares(app)
     include_exception_handlers(app)
 
     app.add_middleware(
