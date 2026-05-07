@@ -4,7 +4,7 @@ from sqlalchemy import insert, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from prodik.application.interfaces.repositories import UserRepository
-from prodik.domain.user import Email, User, Username
+from prodik.domain.user import Email, User, UserId, Username
 
 
 @dataclass
@@ -40,4 +40,18 @@ class UserRepositoryImpl(UserRepository):
             )
             .limit(1)
         )
+        return result.scalar_one_or_none()
+
+    async def get_by_id(self, id: UserId) -> User | None:
+        result = await self.session.execute(
+            select(User).where(User.id == id)  # type: ignore
+        )
+
+        return result.scalar_one_or_none()
+
+    async def get_by_email(self, email: Email) -> User | None:
+        result = await self.session.execute(
+            select(User).where(User.email == email)  # type: ignore
+        )
+
         return result.scalar_one_or_none()

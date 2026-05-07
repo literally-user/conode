@@ -62,6 +62,7 @@ class RegisterInteractor:
                 email=Email(request.email),
             )
             if user is not None:
+                logger.warning("User already exists", user=user)
                 raise UserAlreadyExistsError(
                     "User with this username or email already exists",
                     [
@@ -78,11 +79,11 @@ class RegisterInteractor:
                 email=request.email,
                 bio="",
             )
-            logger.info("Created user", user_id=user.id)
+            logger.debug("Created user", user_id=user.id)
 
             access_token, expires_in = self.access_token_manager.encode(user)
             refresh_token = self.refresh_token_manager.encode()
-            logger.info(
+            logger.debug(
                 "Generated credentials",
                 access_token=access_token,
                 refresh_token=refresh_token,
@@ -94,22 +95,22 @@ class RegisterInteractor:
                 host=host,
                 token=refresh_token,
             )
-            logger.info("Generated session", session_id=session.id)
+            logger.debug("Generated session", session_id=session.id)
 
-            logger.info("Hashing password")
             hashed_password = self.password_hasher.hash(request.password)
+            logger.debug("Hashed password", password=hashed_password)
 
             authorization = LocalAuthorization.new(
                 id=LocalAuthorizationId(uuid4()), user=user, password=hashed_password
             )
-            logger.info(
+            logger.debug(
                 "Generated local authorization", authorization_id=authorization.id
             )
 
             await self.user_repository.create(user=user)
             await self.session_repository.create(session=session)
             await self.authorization_repository.create(authorization=authorization)
-            logger.info("Session synced")
+            logger.debug("Session synced")
 
             return RegisterResponseDTO(
                 access_token=access_token,

@@ -1,10 +1,12 @@
 from typing import Protocol
 
-from prodik.domain.user import Email, User, Username
+from prodik.domain.user import Email, User, UserId, Username
 
 
 class UserRepository(Protocol):
     async def create(self, user: User) -> None: ...
+    async def get_by_email(self, email: Email) -> User | None: ...
+    async def get_by_id(self, id: UserId) -> User | None: ...
     async def get_by_username_or_email(
         self, username: Username, email: Email
     ) -> User | None: ...

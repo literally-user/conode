@@ -54,7 +54,7 @@ local_authorization_record_table = Table(
     metadata,
     Column("id", UUID, primary_key=True, nullable=False),
     Column("user_id", ForeignKey("user_record.id"), nullable=False),
-    Column("hashed_password", String, nullable=False),
+    Column("password", String, nullable=False),
     Column("created_at", DateTime(timezone=True), nullable=False),
     Column("updated_at", DateTime(timezone=True), nullable=False),
 )

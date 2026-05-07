@@ -6,8 +6,7 @@ from jwt.exceptions import PyJWTError
 
 from prodik.application.errors import FailedToReadClientError, InvalidTokenError
 from prodik.application.interfaces.identity_provider import IdentityProvider
-from prodik.application.interfaces.token_managers import AccessTokenManager
-from prodik.domain.user import UserId
+from prodik.application.interfaces.token_managers import AccessTokenManager, UserMeta
 
 TOKEN_TYPE: Final = "Bearer"  # noqa: S105
 TOKEN_SECTIONS: Final = 2
@@ -24,7 +23,7 @@ class IdentityProviderImpl(IdentityProvider):
 
         return self.request.client.host
 
-    def get_current_user_id(self) -> UserId:
+    def get_current_user_meta(self) -> UserMeta:
         header = self.request.headers.get("Authorization")
         if header is None:
             raise InvalidTokenError("Authorization token not found", None)
@@ -51,4 +50,8 @@ class IdentityProviderImpl(IdentityProvider):
                 [{"key": "Authorization", "value": token}],
             ) from e
 
-        return content["user_id"]
+        return UserMeta(
+            system_role=content["system_role"],
+            user_id=content["user_id"],
+            revision=content["revision"],
+        )
