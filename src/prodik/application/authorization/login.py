@@ -91,7 +91,7 @@ class LoginInteractor:
                 session = Session.new(
                     id=SessionId(uuid4()), user=user, host=host, token=refresh_token
                 )
-                await self.session_repository.update(session)
+                await self.session_repository.create(session)
                 logger.debug("Session created", session_id=session.id)
             else:
                 session.update_token(refresh_token)
