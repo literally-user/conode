@@ -1,6 +1,7 @@
 from http import HTTPStatus
 
 import pytest
+from dirty_equals import IsInt, IsPartialDict, IsStr
 from httpx import AsyncClient
 
 from tests.factories import UserFactory
@@ -21,4 +22,9 @@ async def test_update_current_user_password_ok(
         headers={"Authorization": f"Bearer {factory_result.access_token}"},
     )
 
-    assert response.status_code == HTTPStatus.NO_CONTENT
+    assert response.status_code == HTTPStatus.OK
+    assert response.json() == IsPartialDict(
+        access_token=IsStr(),
+        refresh_token=IsStr(),
+        expires_in=IsInt(),
+    )

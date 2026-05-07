@@ -11,6 +11,7 @@ from prodik.application.manage_profile import (
     UpdateCurrentUserProfileInteractor,
     UpdateCurrentUserProfileRequestDTO,
 )
+from prodik.presentation.schemas.auth import AuthResponse
 from prodik.presentation.schemas.user import (
     UpdateCurrentUserPasswordRequest,
     UpdateCurrentUserProfileRequest,
@@ -35,13 +36,18 @@ async def update_current_user_profile(
     )
 
 
-@router.put("/me/password", status_code=HTTPStatus.NO_CONTENT)
+@router.put("/me/password")
 async def update_current_user_password(
     request: UpdateCurrentUserPasswordRequest,
     interactor: FromDishka[UpdateCurrentUserPasswordInteractor],
-) -> None:
-    await interactor.execute(
+) -> AuthResponse:
+    result = await interactor.execute(
         UpdateCurrentUserPasswordRequestDTO(
             old_password=request.old_password, new_password=request.new_password
         )
+    )
+    return AuthResponse(
+        access_token=result.access_token,
+        refresh_token=result.access_token,
+        expires_in=result.expires_in,
     )
