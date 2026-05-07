@@ -11,7 +11,6 @@ SessionId = NewType("SessionId", UUID)
 
 @dataclass
 class Session(Entity[SessionId]):
-    token_revision: int
     user_id: UserId
     token: str
     host: str
@@ -26,7 +25,6 @@ class Session(Entity[SessionId]):
             user_id=user.id,
             created_at=now,
             updated_at=now,
-            token_revision=user.token_revision,
         )
 
     def update_token(self, token: str) -> None:
