@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from sqlalchemy import insert, or_, select
+from sqlalchemy import insert, or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from prodik.application.interfaces.repositories import UserRepository
@@ -24,6 +24,23 @@ class UserRepositoryImpl(UserRepository):
                 token_revision=user.token_revision,
                 created_at=user.created_at,
                 updated_at=user.updated_at,
+            )
+        )
+
+    async def update(self, user: User) -> None:
+        await self.session.execute(
+            update(User)
+            .where(
+                User.id == user.id  # type: ignore
+            )
+            .values(
+                system_role=user.system_role,
+                first_name=user.first_name,
+                last_name=user.last_name,
+                username=user.username,
+                email=user.email,
+                bio=user.bio,
+                token_revision=user.token_revision,
             )
         )
 

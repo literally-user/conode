@@ -10,3 +10,8 @@ class UpdateCurrentUserProfileRequest(BaseModel):
     password: Annotated[str, Field(min_length=7, max_length=100)]
     email: EmailStr
     bio: str
+
+
+class UpdateCurrentUserPasswordRequest(BaseModel):
+    old_password: Annotated[str, Field(min_length=7, max_length=100)]
+    new_password: Annotated[str, Field(min_length=7, max_length=100)]

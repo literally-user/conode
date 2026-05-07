@@ -44,6 +44,7 @@ class UserFactoryResponse:
     authorization: LocalAuthorization
     access_token: str
     refresh_token: str
+    password: str
 
 
 @dataclass
@@ -68,7 +69,8 @@ class UserFactory:
         if admin:
             user.system_role = UserSystemRole.ADMIN
 
-        hashed_password = self.password_hasher.hash(generate_random_string(10))
+        password = generate_random_string(10)
+        hashed_password = self.password_hasher.hash(password)
         access_token, _ = self.access_token_manager.encode(user)
         refresh_token = self.refresh_token_manager.encode()
 
@@ -95,6 +97,7 @@ class UserFactory:
             authorization=authorization,
             access_token=access_token,
             refresh_token=refresh_token,
+            password=password,
         )
 
 

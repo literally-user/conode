@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from sqlalchemy import insert, select
+from sqlalchemy import insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from prodik.application.interfaces.repositories import LocalAuthorizationRepository
@@ -20,6 +20,18 @@ class LocalAuthorizationRepositoryImpl(LocalAuthorizationRepository):
                 password=authorization.password,
                 created_at=authorization.created_at,
                 updated_at=authorization.updated_at,
+            )
+        )
+
+    async def update(self, authorization: LocalAuthorization) -> None:
+        await self.session.execute(
+            update(LocalAuthorization)
+            .where(
+                LocalAuthorization.id == authorization.id  # type: ignore
+            )
+            .values(
+                user_id=authorization.user_id,
+                password=authorization.password,
             )
         )
 
