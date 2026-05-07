@@ -1,3 +1,5 @@
+from http import HTTPStatus
+
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
 from fastapi import APIRouter
 
@@ -18,7 +20,7 @@ from prodik.presentation.schemas.auth import (
 router = APIRouter(tags=["authorization"], route_class=DishkaRoute, prefix="/auth")
 
 
-@router.post("/register")
+@router.post("/register", status_code=HTTPStatus.CREATED)
 async def register(
     request: RegisterRequest, interactor: FromDishka[RegisterInteractor]
 ) -> AuthResponse:

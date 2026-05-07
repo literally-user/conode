@@ -1,5 +1,6 @@
 import time
 from collections.abc import Awaitable, Callable
+from http import HTTPStatus
 from typing import Final
 from uuid import uuid4
 
@@ -25,14 +26,14 @@ from prodik.presentation.user import router as user_router
 
 logger = structlog.get_logger()
 
-EXCEPTION_HANDLERS: Final[dict[type[ApplicationError], int]] = {
-    UserAlreadyExistsError: status.HTTP_400_BAD_REQUEST,
-    InvalidTokenError: status.HTTP_401_UNAUTHORIZED,
-    InvalidCredentialsError: status.HTTP_401_UNAUTHORIZED,
-    SessionNotFoundError: status.HTTP_401_UNAUTHORIZED,
-    AuthorizationNotFoundError: status.HTTP_404_NOT_FOUND,
-    UserNotFoundError: status.HTTP_404_NOT_FOUND,
-    FailedToReadClientError: status.HTTP_400_BAD_REQUEST,
+EXCEPTION_HANDLERS: Final[dict[type[ApplicationError], HTTPStatus]] = {
+    UserAlreadyExistsError: HTTPStatus.CONFLICT,
+    InvalidTokenError: HTTPStatus.UNAUTHORIZED,
+    InvalidCredentialsError: HTTPStatus.UNAUTHORIZED,
+    SessionNotFoundError: HTTPStatus.UNAUTHORIZED,
+    AuthorizationNotFoundError: HTTPStatus.NOT_FOUND,
+    UserNotFoundError: HTTPStatus.NOT_FOUND,
+    FailedToReadClientError: HTTPStatus.BAD_REQUEST,
 }
 
 
