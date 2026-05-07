@@ -9,12 +9,12 @@ from prodik.application.interfaces.token_managers import (
     UserMeta,
 )
 from prodik.domain.user import User
-from prodik.infrastructure.config import APIConfig
+from prodik.infrastructure.config import SecretsConfig
 
 
 @dataclass
 class AccessTokenManagerImpl(AccessTokenManager):
-    _config: APIConfig
+    _config: SecretsConfig
 
     def encode(self, user: User) -> AccessTokenManagerResponse:
         now = datetime.now(tz=UTC)

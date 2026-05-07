@@ -10,6 +10,10 @@ class APIConfig:
     port: int
 
     debug: bool
+
+
+@dataclass(slots=True, frozen=True, kw_only=True)
+class SecretsConfig:
     secret: str
     expires_in: int
 
@@ -23,6 +27,7 @@ class DatabaseConfig:
 class Config:
     api: APIConfig
     database: DatabaseConfig
+    secrets: SecretsConfig
 
 
 def load_config() -> Config:
@@ -34,8 +39,10 @@ def load_config() -> Config:
                 host=config["api"]["host"],
                 port=config["api"]["port"],
                 debug=os.getenv("DEBUG", "false") in ("true", "false"),
+            ),
+            database=DatabaseConfig(url=config["database"]["url"]),
+            secrets=SecretsConfig(
                 secret=config["api"]["secret"],
                 expires_in=config["api"]["expires_in"],
             ),
-            database=DatabaseConfig(url=config["database"]["url"]),
         )

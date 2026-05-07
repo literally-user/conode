@@ -6,7 +6,12 @@ from prodik.bootstrap.di.providers import (
     ConnectionProvider,
     InfrastructureProvider,
 )
-from prodik.infrastructure.config import APIConfig, Config, DatabaseConfig
+from prodik.infrastructure.config import (
+    APIConfig,
+    Config,
+    DatabaseConfig,
+    SecretsConfig,
+)
 
 
 def get_async_container(config: Config) -> AsyncContainer:
@@ -18,5 +23,6 @@ def get_async_container(config: Config) -> AsyncContainer:
         context={
             APIConfig: config.api,
             DatabaseConfig: config.database,
+            SecretsConfig: config.secrets,
         },
     )
