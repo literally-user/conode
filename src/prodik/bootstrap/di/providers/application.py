@@ -10,6 +10,8 @@ from prodik.application.manage_company import (
     VerifyCompanyInteractor,
 )
 from prodik.application.manage_credentials import UpdateCurrentUserPasswordInteractor
+from prodik.application.manage_group import CreateGroupInteractor
+from prodik.application.manage_node import CreateNodeInteractor
 from prodik.application.manage_profile import UpdateCurrentUserProfileInteractor
 from prodik.application.services import AccessControlService
 
@@ -24,5 +26,7 @@ class ApplicationProvider(Provider):
         UpdateCurrentUserPasswordInteractor,
         RegisterCompanyInteractor,
         VerifyCompanyInteractor,
+        CreateGroupInteractor,
+        CreateNodeInteractor,
         scope=Scope.REQUEST,
     )

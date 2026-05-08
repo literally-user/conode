@@ -14,6 +14,8 @@ from sqlalchemy.orm import registry
 
 from prodik.domain.authorization import LocalAuthorization, Session
 from prodik.domain.company import Company
+from prodik.domain.group import Group
+from prodik.domain.node import Node, NodeAssociation
 from prodik.domain.user import User, UserSystemRole
 from prodik.infrastructure.persistence.types import (
     BioType,
@@ -21,7 +23,11 @@ from prodik.infrastructure.persistence.types import (
     CompanyNameType,
     EmailType,
     FirstNameType,
+    GroupDescriptionType,
+    GroupNameType,
     LastNameType,
+    NodeDescriptionType,
+    NodeNameType,
     UsernameType,
 )
 
@@ -76,6 +82,38 @@ company_record_table = Table(
     Column("updated_at", DateTime(timezone=True), nullable=False),
 )
 
+node_record_table = Table(
+    "node_record",
+    metadata,
+    Column("id", UUID, primary_key=True, nullable=False),
+    Column("name", NodeNameType, nullable=False),
+    Column("description", NodeDescriptionType, nullable=False),
+    Column("company_id", ForeignKey("company_record.id"), nullable=False),
+    Column("created_at", DateTime(timezone=True), nullable=False),
+    Column("updated_at", DateTime(timezone=True), nullable=False),
+)
+
+group_record_table = Table(
+    "group_record",
+    metadata,
+    Column("id", UUID, primary_key=True, nullable=False),
+    Column("name", GroupNameType, nullable=False),
+    Column("description", GroupDescriptionType, nullable=False),
+    Column("company_id", ForeignKey("company_record.id"), nullable=False),
+    Column("created_at", DateTime(timezone=True), nullable=False),
+    Column("updated_at", DateTime(timezone=True), nullable=False),
+)
+
+node_association_record_table = Table(
+    "node_association_record",
+    metadata,
+    Column("id", UUID, primary_key=True, nullable=False),
+    Column("group_id", ForeignKey("group_record.id"), nullable=False),
+    Column("node_id", ForeignKey("node_record.id"), nullable=False),
+    Column("created_at", DateTime(timezone=True), nullable=False),
+    Column("updated_at", DateTime(timezone=True), nullable=False),
+)
+
 
 def start_mapper() -> None:
     registry_mapper.map_imperatively(User, user_record_table)
@@ -84,3 +122,6 @@ def start_mapper() -> None:
         LocalAuthorization, local_authorization_record_table
     )
     registry_mapper.map_imperatively(Company, company_record_table)
+    registry_mapper.map_imperatively(Node, node_record_table)
+    registry_mapper.map_imperatively(Group, group_record_table)
+    registry_mapper.map_imperatively(NodeAssociation, node_association_record_table)

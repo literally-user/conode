@@ -4,6 +4,8 @@ from sqlalchemy import Dialect, String
 from sqlalchemy.types import TypeDecorator
 
 from prodik.domain.company import CompanyDescription, CompanyName
+from prodik.domain.group import GroupDescription, GroupName
+from prodik.domain.node import NodeDescription, NodeName
 from prodik.domain.shared import ValueObject
 from prodik.domain.user import Bio, Email, FirstName, LastName, Username
 
@@ -63,3 +65,27 @@ class CompanyDescriptionType(BaseVOTypeDecorator[CompanyDescription]):
     impl = String
     cache_ok = True
     vo_class = CompanyDescription
+
+
+class NodeDescriptionType(BaseVOTypeDecorator[NodeDescription]):
+    impl = String
+    cache_ok = True
+    vo_class = NodeDescription
+
+
+class NodeNameType(BaseVOTypeDecorator[NodeName]):
+    impl = String
+    cache_ok = True
+    vo_class = NodeName
+
+
+class GroupDescriptionType(BaseVOTypeDecorator[GroupDescription]):
+    impl = String
+    cache_ok = True
+    vo_class = GroupDescription
+
+
+class GroupNameType(BaseVOTypeDecorator[GroupName]):
+    impl = String
+    cache_ok = True
+    vo_class = GroupName
