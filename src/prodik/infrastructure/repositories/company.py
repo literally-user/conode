@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from prodik.application.interfaces.repositories import CompanyRepository
 from prodik.domain.company.model import Company, CompanyId, CompanyName
+from prodik.domain.user import UserId
 
 
 @dataclass
@@ -52,6 +53,17 @@ class CompanyRepositoryImpl(CompanyRepository):
             select(Company).where(
                 Company.id == id  # type: ignore
             )
+        )
+
+        return result.scalar_one_or_none()
+
+    async def get_by_user_id(self, id: UserId) -> Company | None:
+        result = await self.session.execute(
+            select(Company)
+            .where(
+                Company.owner_id == id  # type: ignore
+            )
+            .limit(1)
         )
 
         return result.scalar_one_or_none()

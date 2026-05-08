@@ -46,7 +46,13 @@ class RegisterCompanyInteractor:
             )
             if company is not None:
                 raise CompanyAlreadyExistsError(
-                    "Company already exists", [{"key": "name", "value": request.name}]
+                    "Company with this name already exists", [{"key": "name", "value": request.name}]
+                )
+
+            company = await self.company_repository.get_by_user_id(user.id)
+            if company is not None:
+                raise CompanyAlreadyExistsError(
+                    "User can only have one company", [{"key": "name", "value": request.name}]
                 )
 
             company = Company.new(
