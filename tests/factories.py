@@ -10,7 +10,10 @@ from pydantic import BaseModel, EmailStr, Field
 from prodik.application.interfaces.password_hasher import PasswordHasher
 from prodik.application.interfaces.repositories import (
     CompanyRepository,
+    GroupRepository,
     LocalAuthorizationRepository,
+    NodeAssociationRepository,
+    NodeRepository,
     SessionRepository,
     UserRepository,
 )
@@ -25,6 +28,8 @@ from prodik.domain.authorization import (
     SessionId,
 )
 from prodik.domain.company import Company, CompanyId
+from prodik.domain.group import Group, GroupId
+from prodik.domain.node import Node, NodeAssociation, NodeAssociationId, NodeId
 from prodik.domain.user import User, UserId, UserSystemRole
 
 
@@ -134,6 +139,55 @@ class CompanyFactory:
         await self.company_repository.create(company)
 
         return company
+
+
+@dataclass
+class GroupFactory:
+    group_repository: GroupRepository
+    company_factory: CompanyFactory
+
+    async def create_group(
+        self, company: Company | None = None, parent_group: Group | None = None
+    ) -> Group:
+        group = Group.new(
+            id=GroupId(uuid4()),
+            name="",
+            description=generate_random_string(30),
+            company=company if company is not None else await self.company_factory.create_company(),
+            parent_group=parent_group,
+        )
+        await self.group_repository.create(group)
+        return group
+
+
+@dataclass
+class NodeFactory:
+    node_repository: NodeRepository
+    company_factory: CompanyFactory
+
+    async def create_node(self, company: Company | None = None) -> Node:
+        node = Node.new(
+            id=NodeId(uuid4()),
+            name="",
+            description=generate_random_string(30),
+            company=company if company is not None else await self.company_factory.create_company(),
+        )
+        await self.node_repository.create(node)
+        return node
+
+
+@dataclass
+class NodeAssociationFactory:
+    node_association_repository: NodeAssociationRepository
+
+    async def create_association(self, node: Node, group: Group) -> NodeAssociation:
+        association = NodeAssociation.new(
+            id=NodeAssociationId(uuid4()),
+            node=node,
+            group=group,
+        )
+        await self.node_association_repository.create(association)
+        return association
 
 
 def generate_random_string(length: int = 5) -> str:

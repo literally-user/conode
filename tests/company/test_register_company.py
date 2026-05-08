@@ -49,6 +49,6 @@ async def test_register_company_company_already_exists(
 
     assert response.status_code == HTTPStatus.CONFLICT
     assert response.json() == IsPartialDict(
-        detail="Company already exists",
+        detail="Company with this name already exists",
         meta=[{"key": "name", "value": company_factory_response.name.value}],
     )

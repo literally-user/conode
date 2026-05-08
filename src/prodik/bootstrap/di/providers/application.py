@@ -5,6 +5,10 @@ from prodik.application.authorization import (
     RefreshTokenInteractor,
     RegisterInteractor,
 )
+from prodik.application.manage_association import (
+    AttachNodeInteractor,
+    DetachNodeInteractor,
+)
 from prodik.application.manage_company import (
     RegisterCompanyInteractor,
     VerifyCompanyInteractor,
@@ -28,5 +32,7 @@ class ApplicationProvider(Provider):
         VerifyCompanyInteractor,
         CreateGroupInteractor,
         CreateNodeInteractor,
+        DetachNodeInteractor,
+        AttachNodeInteractor,
         scope=Scope.REQUEST,
     )

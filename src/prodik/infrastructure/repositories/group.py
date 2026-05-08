@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 
-from sqlalchemy import insert
+from sqlalchemy import insert, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from prodik.application.interfaces.repositories import GroupRepository
-from prodik.domain.group.model import Group
+from prodik.domain.group.model import Group, GroupId
 
 
 @dataclass
@@ -22,3 +22,12 @@ class GroupRepositoryImpl(GroupRepository):
                 updated_at=group.updated_at,
             )
         )
+
+    async def get_by_id(self, id: GroupId) -> Group | None:
+        result = await self.session.execute(
+            select(Group).where(
+                Group.id == id  # type: ignore
+            )
+        )
+
+        return result.scalar_one_or_none()

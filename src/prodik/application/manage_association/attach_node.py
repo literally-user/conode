@@ -3,44 +3,40 @@ from uuid import uuid4
 
 import structlog
 
-from prodik.application.errors import (
-    CompanyNotFoundError,
-    GroupNotFoundError,
-    UserNotFoundError,
-)
+from prodik.application.errors import GroupNotFoundError, UserNotFoundError
 from prodik.application.interfaces.identity_provider import IdentityProvider
 from prodik.application.interfaces.repositories import (
-    CompanyRepository,
     GroupRepository,
+    NodeAssociationRepository,
     NodeRepository,
     UserRepository,
 )
 from prodik.application.interfaces.transaction_manager import TransactionManager
 from prodik.application.services import AccessControlService
 from prodik.domain.group import GroupId
-from prodik.domain.node import Node, NodeId
+from prodik.domain.node import NodeAssociation, NodeAssociationId, NodeId
+
+
+@dataclass(frozen=True, slots=True, kw_only=True)
+class AttachNodeRequestDTO:
+    group_id: GroupId
+    nodes: list[NodeId]
+
 
 logger = structlog.get_logger()
 
 
-@dataclass(frozen=True, slots=True, kw_only=True)
-class CreateNodeRequestDTO:
-    name: str
-    description: str
-    group_id: GroupId
-
-
 @dataclass
-class CreateNodeInteractor:
-    company_repository: CompanyRepository
+class AttachNodeInteractor:
+    node_association_repository: NodeAssociationRepository
+    access_control_service: AccessControlService
+    transaction_manager: TransactionManager
+    identity_provider: IdentityProvider
     user_repository: UserRepository
     group_repository: GroupRepository
     node_repository: NodeRepository
-    identity_provider: IdentityProvider
-    transaction_manager: TransactionManager
-    access_control_service: AccessControlService
 
-    async def execute(self, request: CreateNodeRequestDTO) -> Node:
+    async def execute(self, request: AttachNodeRequestDTO) -> list[NodeAssociation]:
         async with self.transaction_manager:
             user_meta = self.identity_provider.get_current_user_meta()
 
@@ -50,25 +46,25 @@ class CreateNodeInteractor:
             if user is None:
                 raise UserNotFoundError("User not found", None)
 
-            logger.info("Received user", user_id=user.id)
-
             self.access_control_service.ensure_revision_is_valid(user_meta, user)
-
-            company = await self.company_repository.get_by_user_id(user.id)
-            if company is None:
-                raise CompanyNotFoundError("User must have at least one company", None)
 
             group = await self.group_repository.get_by_id(request.group_id)
             if group is None:
                 raise GroupNotFoundError("Group not found", None)
 
-            node = Node.new(
-                id=NodeId(uuid4()),
-                name=request.name,
-                description=request.description,
-                company=company,
+            existing_nodes = await self.node_repository.get_all_by_ids(
+                list(set(request.nodes))
             )
 
-            await self.node_repository.create(node)
+            associations = [
+                NodeAssociation.new(
+                    id=NodeAssociationId(uuid4()),
+                    node=node,
+                    group=group,
+                )
+                for node in existing_nodes
+            ]
 
-            return node
+            await self.node_association_repository.create_all(associations)
+
+            return associations
