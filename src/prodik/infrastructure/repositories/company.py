@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 
-from sqlalchemy import insert, select
+from sqlalchemy import insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from prodik.application.interfaces.repositories import CompanyRepository
-from prodik.domain.company.model import Company, CompanyName
+from prodik.domain.company.model import Company, CompanyId, CompanyName
 
 
 @dataclass
@@ -24,10 +24,33 @@ class CompanyRepositoryImpl(CompanyRepository):
             )
         )
 
+    async def update(self, company: Company) -> None:
+        await self.session.execute(
+            update(Company)
+            .where(
+                Company.id == company.id  # type: ignore
+            )
+            .values(
+                name=company.name,
+                description=company.description,
+                verified=company.verified,
+                owner_id=company.owner_id,
+            )
+        )
+
     async def get_by_name(self, name: CompanyName) -> Company | None:
         result = await self.session.execute(
             select(Company).where(
                 Company.name == name  # type: ignore
+            )
+        )
+
+        return result.scalar_one_or_none()
+
+    async def get_by_id(self, id: CompanyId) -> Company | None:
+        result = await self.session.execute(
+            select(Company).where(
+                Company.id == id  # type: ignore
             )
         )
 

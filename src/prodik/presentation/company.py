@@ -6,7 +6,9 @@ from fastapi import APIRouter
 from prodik.application.manage_company import (
     RegisterCompanyInteractor,
     RegisterCompanyRequestDTO,
+    VerifyCompanyInteractor,
 )
+from prodik.domain.company import CompanyId
 from prodik.presentation.schemas.company import CompanySchema, RegisterCompanyRequest
 
 router = APIRouter(tags=["companies"], prefix="/companies", route_class=DishkaRoute)
@@ -30,3 +32,10 @@ async def register_company(
         verified=company.verified,
         owner_id=company.owner_id,
     )
+
+
+@router.patch("/{id}/verify", status_code=HTTPStatus.NO_CONTENT)
+async def verify_company(
+    id: CompanyId, interactor: FromDishka[VerifyCompanyInteractor]
+) -> None:
+    await interactor.execute(id)

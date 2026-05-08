@@ -153,3 +153,6 @@ class User(Entity[UserId]):
 
     def increment_revision(self) -> None:
         self.token_revision += 1
+
+    def is_admin(self) -> bool:
+        return self.system_role == UserSystemRole.ADMIN
