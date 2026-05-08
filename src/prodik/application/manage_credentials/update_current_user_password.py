@@ -20,6 +20,7 @@ from prodik.application.interfaces.token_managers import (
     RefreshTokenManager,
 )
 from prodik.application.interfaces.transaction_manager import TransactionManager
+from prodik.application.services import AccessControlService
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
@@ -48,6 +49,7 @@ class UpdateCurrentUserPasswordInteractor:
     password_hasher: PasswordHasher
     access_token_manager: AccessTokenManager
     refresh_token_manager: RefreshTokenManager
+    access_control_service: AccessControlService
 
     async def execute(
         self, request: UpdateCurrentUserPasswordRequestDTO
@@ -63,6 +65,8 @@ class UpdateCurrentUserPasswordInteractor:
                 raise UserNotFoundError("User not found", None)
 
             logger.info("Received user", user_id=user.id)
+
+            self.access_control_service.ensure_revision_is_valid(user_meta, user)
 
             authorization = await self.local_authorization_repository.get_by_user_id(
                 user.id

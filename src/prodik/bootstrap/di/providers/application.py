@@ -11,12 +11,14 @@ from prodik.application.manage_company import (
 )
 from prodik.application.manage_credentials import UpdateCurrentUserPasswordInteractor
 from prodik.application.manage_profile import UpdateCurrentUserProfileInteractor
+from prodik.application.services import AccessControlService
 
 
 class ApplicationProvider(Provider):
     provides = provide_all(
         RegisterInteractor,
         LoginInteractor,
+        AccessControlService,
         RefreshTokenInteractor,
         UpdateCurrentUserProfileInteractor,
         UpdateCurrentUserPasswordInteractor,

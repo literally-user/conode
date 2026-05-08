@@ -7,6 +7,7 @@ from prodik.application.errors import CompanyAlreadyExistsError, UserNotFoundErr
 from prodik.application.interfaces.identity_provider import IdentityProvider
 from prodik.application.interfaces.repositories import CompanyRepository, UserRepository
 from prodik.application.interfaces.transaction_manager import TransactionManager
+from prodik.application.services import AccessControlService
 from prodik.domain.company import Company, CompanyId, CompanyName
 
 logger = structlog.get_logger()
@@ -24,6 +25,7 @@ class RegisterCompanyInteractor:
     user_repository: UserRepository
     company_repository: CompanyRepository
     transaction_manager: TransactionManager
+    access_control_service: AccessControlService
 
     async def execute(self, request: RegisterCompanyRequestDTO) -> Company:
         async with self.transaction_manager:
@@ -36,6 +38,8 @@ class RegisterCompanyInteractor:
                 raise UserNotFoundError("User not found", None)
 
             logger.info("Received user", user_id=user.id)
+
+            self.access_control_service.ensure_revision_is_valid(user_meta, user)
 
             company = await self.company_repository.get_by_name(
                 CompanyName(request.name)

@@ -6,6 +6,7 @@ from prodik.application.errors import UserAlreadyExistsError, UserNotFoundError
 from prodik.application.interfaces.identity_provider import IdentityProvider
 from prodik.application.interfaces.repositories import UserRepository
 from prodik.application.interfaces.transaction_manager import TransactionManager
+from prodik.application.services import AccessControlService
 from prodik.domain.user import Email
 
 logger = structlog.get_logger()
@@ -25,6 +26,7 @@ class UpdateCurrentUserProfileInteractor:
     user_repository: UserRepository
     identity_provider: IdentityProvider
     transaction_manager: TransactionManager
+    access_control_service: AccessControlService
 
     async def execute(self, request: UpdateCurrentUserProfileRequestDTO) -> None:
         async with self.transaction_manager:
@@ -37,6 +39,8 @@ class UpdateCurrentUserProfileInteractor:
                 raise UserNotFoundError("User not found", None)
 
             logger.info("Received user", user_id=user.id)
+
+            self.access_control_service.ensure_revision_is_valid(user_meta, user)
 
             unique_user = await self.user_repository.get_by_email(Email(request.email))
             if unique_user is not None and unique_user != user:
