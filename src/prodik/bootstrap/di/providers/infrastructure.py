@@ -3,6 +3,7 @@ from dishka import Provider, Scope, WithParents, provide_all
 from prodik.infrastructure.identity_provider import IdentityProviderImpl
 from prodik.infrastructure.password_hasher import PasswordHasherImpl
 from prodik.infrastructure.repositories import (
+    CompanyRepositoryImpl,
     LocalAuthorizationRepositoryImpl,
     SessionRepositoryImpl,
     UserRepositoryImpl,
@@ -23,6 +24,7 @@ class InfrastructureProvider(Provider):
         WithParents[RefreshTokenManagerImpl],
         WithParents[LocalAuthorizationRepositoryImpl],
         WithParents[SessionRepositoryImpl],
+        WithParents[CompanyRepositoryImpl],
         WithParents[UserRepositoryImpl],
         scope=Scope.REQUEST,
     )

@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 
 from prodik.application.interfaces.password_hasher import PasswordHasher
 from prodik.application.interfaces.repositories import (
+    CompanyRepository,
     LocalAuthorizationRepository,
     SessionRepository,
     UserRepository,
@@ -27,7 +28,7 @@ from prodik.infrastructure.config import (
     load_config,
 )
 from prodik.infrastructure.persistence import start_mapper
-from tests.factories import UserFactory
+from tests.factories import CompanyFactory, UserFactory
 
 
 @pytest.fixture(scope="session")
@@ -50,6 +51,17 @@ async def user_factory(test_container: AsyncContainer) -> UserFactory:
             user_repository=await container.get(UserRepository),
             session_repository=await container.get(SessionRepository),
             authorization_repository=await container.get(LocalAuthorizationRepository),
+        )
+
+
+@pytest.fixture
+async def company_factory(
+    test_container: AsyncContainer, user_factory: UserFactory
+) -> CompanyFactory:
+    async with test_container() as container:
+        return CompanyFactory(
+            company_repository=await container.get(CompanyRepository),
+            user_factory=user_factory,
         )
 
 

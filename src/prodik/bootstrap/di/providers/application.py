@@ -5,6 +5,7 @@ from prodik.application.authorization import (
     RefreshTokenInteractor,
     RegisterInteractor,
 )
+from prodik.application.manage_company import RegisterCompanyInteractor
 from prodik.application.manage_credentials import UpdateCurrentUserPasswordInteractor
 from prodik.application.manage_profile import UpdateCurrentUserProfileInteractor
 
@@ -16,5 +17,6 @@ class ApplicationProvider(Provider):
         RefreshTokenInteractor,
         UpdateCurrentUserProfileInteractor,
         UpdateCurrentUserPasswordInteractor,
+        RegisterCompanyInteractor,
         scope=Scope.REQUEST,
     )

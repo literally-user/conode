@@ -1,5 +1,6 @@
 from sqlalchemy import (
     UUID,
+    Boolean,
     Column,
     DateTime,
     Enum,
@@ -12,9 +13,12 @@ from sqlalchemy import (
 from sqlalchemy.orm import registry
 
 from prodik.domain.authorization import LocalAuthorization, Session
+from prodik.domain.company import Company
 from prodik.domain.user import User, UserSystemRole
 from prodik.infrastructure.persistence.types import (
     BioType,
+    CompanyDescriptionType,
+    CompanyNameType,
     EmailType,
     FirstNameType,
     LastNameType,
@@ -60,6 +64,18 @@ local_authorization_record_table = Table(
     Column("updated_at", DateTime(timezone=True), nullable=False),
 )
 
+company_record_table = Table(
+    "company_record",
+    metadata,
+    Column("id", UUID, primary_key=True, nullable=False),
+    Column("owner_id", ForeignKey("user_record.id"), nullable=False),
+    Column("name", CompanyNameType, nullable=False),
+    Column("description", CompanyDescriptionType, nullable=False),
+    Column("verified", Boolean, nullable=False),
+    Column("created_at", DateTime(timezone=True), nullable=False),
+    Column("updated_at", DateTime(timezone=True), nullable=False),
+)
+
 
 def start_mapper() -> None:
     registry_mapper.map_imperatively(User, user_record_table)
@@ -67,3 +83,4 @@ def start_mapper() -> None:
     registry_mapper.map_imperatively(
         LocalAuthorization, local_authorization_record_table
     )
+    registry_mapper.map_imperatively(Company, company_record_table)

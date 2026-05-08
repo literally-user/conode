@@ -13,6 +13,7 @@ from structlog.contextvars import bind_contextvars
 from prodik.application.errors import (
     ApplicationError,
     AuthorizationNotFoundError,
+    CompanyAlreadyExistsError,
     FailedToReadClientError,
     InvalidCredentialsError,
     InvalidOldPasswordError,
@@ -22,6 +23,7 @@ from prodik.application.errors import (
     UserNotFoundError,
 )
 from prodik.presentation.auth import router as auth_router
+from prodik.presentation.company import router as company_router
 from prodik.presentation.root import router as root_router
 from prodik.presentation.user import router as user_router
 
@@ -29,6 +31,7 @@ logger = structlog.get_logger()
 
 EXCEPTION_HANDLERS: Final[dict[type[ApplicationError], HTTPStatus]] = {
     UserAlreadyExistsError: HTTPStatus.CONFLICT,
+    CompanyAlreadyExistsError: HTTPStatus.CONFLICT,
     InvalidTokenError: HTTPStatus.UNAUTHORIZED,
     InvalidCredentialsError: HTTPStatus.UNAUTHORIZED,
     SessionNotFoundError: HTTPStatus.UNAUTHORIZED,
@@ -92,6 +95,7 @@ async def default_error_handler(
 
 
 def include_handlers(app: FastAPI) -> None:
+    app.include_router(company_router)
     app.include_router(root_router)
     app.include_router(auth_router)
     app.include_router(user_router)

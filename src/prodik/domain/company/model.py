@@ -15,7 +15,7 @@ CompanyId = NewType("CompanyId", UUID)
 MIN_ALLOWED_COMPANY_NAME_LENGTH: Final = 1
 MAX_ALLOWED_COMPANY_NAME_LENGTH: Final = 50
 MIN_ALLOWED_COMPANY_DESCRIPTION_LENGTH: Final = 20
-MAX_ALLOWED_COMPANY_DESCRIPTION_LENGTH: Final = 300
+MAX_ALLOWED_COMPANY_DESCRIPTION_LENGTH: Final = 3000
 
 
 class CompanyName(ValueObject[str]):
@@ -23,12 +23,12 @@ class CompanyName(ValueObject[str]):
         value = value.strip()
 
         if (
-            MIN_ALLOWED_COMPANY_NAME_LENGTH
+            MAX_ALLOWED_COMPANY_NAME_LENGTH
             <= len(value)
-            <= MAX_ALLOWED_COMPANY_NAME_LENGTH
+            <= MIN_ALLOWED_COMPANY_NAME_LENGTH
         ):
             raise InvalidCompanyNameFormatError(
-                "Company name must be between"
+                "Company name must be between "
                 f"{MIN_ALLOWED_COMPANY_NAME_LENGTH} and "
                 f"{MAX_ALLOWED_COMPANY_NAME_LENGTH}",
                 [{"key": "name", "value": value}],

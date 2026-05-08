@@ -3,11 +3,13 @@ from dataclasses import dataclass
 from typing import Annotated
 from uuid import uuid4
 
+import structlog
 from polyfactory.factories.pydantic_factory import ModelFactory
 from pydantic import BaseModel, EmailStr, Field
 
 from prodik.application.interfaces.password_hasher import PasswordHasher
 from prodik.application.interfaces.repositories import (
+    CompanyRepository,
     LocalAuthorizationRepository,
     SessionRepository,
     UserRepository,
@@ -22,6 +24,7 @@ from prodik.domain.authorization import (
     Session,
     SessionId,
 )
+from prodik.domain.company import Company, CompanyId
 from prodik.domain.user import User, UserId, UserSystemRole
 
 
@@ -35,6 +38,18 @@ class RegisterRequest(BaseModel):
 
 class RegisterRequestFactory(ModelFactory[RegisterRequest]):
     __model__ = RegisterRequest
+
+
+class RegisterCompanyRequest(BaseModel):
+    name: Annotated[str, Field(min_length=1, max_length=50)]
+    description: Annotated[str, Field(min_length=20, max_length=3000)]
+
+
+class RegisterCompanyRequestFactory(ModelFactory[RegisterCompanyRequest]):
+    __model__ = RegisterCompanyRequest
+
+
+logger = structlog.get_logger()
 
 
 @dataclass
@@ -99,6 +114,26 @@ class UserFactory:
             refresh_token=refresh_token,
             password=password,
         )
+
+
+@dataclass
+class CompanyFactory:
+    company_repository: CompanyRepository
+    user_factory: UserFactory
+
+    async def create_company(self, user: User | None = None) -> Company:
+        company = Company.new(
+            id=CompanyId(uuid4()),
+            name=generate_random_string(10),
+            description=generate_random_string(300),
+            owner=user
+            if user is not None
+            else (await self.user_factory.create_user()).user,
+        )
+
+        await self.company_repository.create(company)
+
+        return company
 
 
 def generate_random_string(length: int = 5) -> str:

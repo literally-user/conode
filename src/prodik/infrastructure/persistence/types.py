@@ -3,6 +3,7 @@ from typing import Any, ClassVar, override
 from sqlalchemy import Dialect, String
 from sqlalchemy.types import TypeDecorator
 
+from prodik.domain.company import CompanyDescription, CompanyName
 from prodik.domain.shared import ValueObject
 from prodik.domain.user import Bio, Email, FirstName, LastName, Username
 
@@ -50,3 +51,15 @@ class BioType(BaseVOTypeDecorator[Bio]):
     impl = String
     cache_ok = True
     vo_class = Bio
+
+
+class CompanyNameType(BaseVOTypeDecorator[CompanyName]):
+    impl = String
+    cache_ok = True
+    vo_class = CompanyName
+
+
+class CompanyDescriptionType(BaseVOTypeDecorator[CompanyDescription]):
+    impl = String
+    cache_ok = True
+    vo_class = CompanyDescription

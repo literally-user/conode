@@ -1,0 +1,32 @@
+from http import HTTPStatus
+
+from dishka.integrations.fastapi import DishkaRoute, FromDishka
+from fastapi import APIRouter
+
+from prodik.application.manage_company import (
+    RegisterCompanyInteractor,
+    RegisterCompanyRequestDTO,
+)
+from prodik.presentation.schemas.company import CompanySchema, RegisterCompanyRequest
+
+router = APIRouter(tags=["companies"], prefix="/companies", route_class=DishkaRoute)
+
+
+@router.post("/", status_code=HTTPStatus.CREATED)
+async def register_company(
+    request: RegisterCompanyRequest, interactor: FromDishka[RegisterCompanyInteractor]
+) -> CompanySchema:
+    company = await interactor.execute(
+        RegisterCompanyRequestDTO(
+            name=request.name,
+            description=request.description,
+        )
+    )
+
+    return CompanySchema(
+        id=company.id,
+        name=company.name.value,
+        description=company.description.value,
+        verified=company.verified,
+        owner_id=company.owner_id,
+    )
