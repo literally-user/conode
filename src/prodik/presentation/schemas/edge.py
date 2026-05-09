@@ -14,6 +14,10 @@ class CreateEdgeRequest(BaseModel):
     context_id: ContextId
 
 
+class UpdateEdgeWeightRequest(BaseModel):
+    weight: float
+
+
 class EdgeSchema(BaseModel):
     id: EdgeId
     node_a_id: NodeId

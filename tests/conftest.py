@@ -12,6 +12,7 @@ from prodik.application.interfaces.password_hasher import PasswordHasher
 from prodik.application.interfaces.repositories import (
     CompanyRepository,
     ContextRepository,
+    EdgeRepository,
     GroupRepository,
     LocalAuthorizationRepository,
     NodeAssociationRepository,
@@ -36,6 +37,7 @@ from prodik.infrastructure.persistence import start_mapper
 from tests.factories import (
     CompanyFactory,
     ContextFactory,
+    EdgeFactory,
     GroupFactory,
     NodeAssociationFactory,
     NodeFactory,
@@ -97,6 +99,12 @@ async def context_repository(test_container: AsyncContainer) -> ContextRepositor
 
 
 @pytest.fixture
+async def edge_repository(test_container: AsyncContainer) -> EdgeRepository:
+    async with test_container() as container:
+        return cast("EdgeRepository", await container.get(EdgeRepository))
+
+
+@pytest.fixture
 async def group_repository(test_container: AsyncContainer) -> GroupRepository:
     async with test_container() as container:
         return cast("GroupRepository", await container.get(GroupRepository))
@@ -121,6 +129,14 @@ async def context_factory(
         return ContextFactory(
             context_repository=await container.get(ContextRepository),
             company_factory=company_factory,
+        )
+
+
+@pytest.fixture
+async def edge_factory(test_container: AsyncContainer) -> EdgeFactory:
+    async with test_container() as container:
+        return EdgeFactory(
+            edge_repository=await container.get(EdgeRepository),
         )
 
 

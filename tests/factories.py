@@ -11,6 +11,7 @@ from prodik.application.interfaces.password_hasher import PasswordHasher
 from prodik.application.interfaces.repositories import (
     CompanyRepository,
     ContextRepository,
+    EdgeRepository,
     GroupRepository,
     LocalAuthorizationRepository,
     NodeAssociationRepository,
@@ -30,6 +31,7 @@ from prodik.domain.authorization import (
 )
 from prodik.domain.company import Company, CompanyId
 from prodik.domain.context import Context, ContextId
+from prodik.domain.edge import Edge, EdgeId
 from prodik.domain.group import Group, GroupId
 from prodik.domain.node import Node, NodeAssociation, NodeAssociationId, NodeId
 from prodik.domain.user import User, UserId, UserSystemRole
@@ -186,11 +188,14 @@ class NodeFactory:
 class NodeAssociationFactory:
     node_association_repository: NodeAssociationRepository
 
-    async def create_association(self, node: Node, group: Group) -> NodeAssociation:
+    async def create_association(
+        self, node: Node, group: Group, company: Company
+    ) -> NodeAssociation:
         association = NodeAssociation.new(
             id=NodeAssociationId(uuid4()),
             node=node,
             group=group,
+            company=company,
         )
         await self.node_association_repository.create(association)
         return association
@@ -214,6 +219,30 @@ class ContextFactory:
         await self.context_repository.create(context)
 
         return context
+
+
+@dataclass
+class EdgeFactory:
+    edge_repository: EdgeRepository
+
+    async def create_edge(
+        self,
+        node_a: Node,
+        node_b: Node,
+        company: Company,
+        context: Context,
+        weight: float = 0,
+    ) -> Edge:
+        edge = Edge.new(
+            id=EdgeId(uuid4()),
+            node_a=node_a,
+            node_b=node_b,
+            company=company,
+            context=context,
+            weight=weight,
+        )
+        await self.edge_repository.create(edge)
+        return edge
 
 
 def generate_random_string(length: int = 5) -> str:

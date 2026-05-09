@@ -73,14 +73,18 @@ class Node(Entity[NodeId]):
 class NodeAssociation(Entity[NodeAssociationId]):
     node_id: NodeId
     group_id: GroupId
+    company_id: CompanyId
 
     @classmethod
-    def new(cls, id: NodeAssociationId, node: Node, group: Group) -> "NodeAssociation":
+    def new(
+        cls, id: NodeAssociationId, node: Node, group: Group, company: Company
+    ) -> "NodeAssociation":
         now = datetime.now(UTC)
         return NodeAssociation(
             id=id,
             node_id=node.id,
             group_id=group.id,
+            company_id=company.id,
             created_at=now,
             updated_at=now,
         )

@@ -80,6 +80,7 @@ class NodeAssociationRepositoryImpl(NodeAssociationRepository):
                 id=node_association.id,
                 group_id=node_association.group_id,
                 node_id=node_association.node_id,
+                company_id=node_association.company_id,
                 created_at=node_association.created_at,
                 updated_at=node_association.updated_at,
             )
@@ -126,6 +127,7 @@ class NodeAssociationRepositoryImpl(NodeAssociationRepository):
                         "id": association.id,
                         "group_id": association.group_id,
                         "node_id": association.node_id,
+                        "company_id": association.company_id,
                         "created_at": association.created_at,
                         "updated_at": association.updated_at,
                     }

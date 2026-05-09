@@ -50,3 +50,12 @@ class Edge(Entity[EdgeId]):
             created_at=now,
             updated_at=now,
         )
+
+    def increment_weight(self) -> None:
+        self.weight += 1
+
+    def decrement_weight(self) -> None:
+        self.weight -= 1
+
+    def update_weight(self, weight: float) -> None:
+        self.weight = weight

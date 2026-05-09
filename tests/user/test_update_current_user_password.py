@@ -5,17 +5,14 @@ from dirty_equals import IsInt, IsPartialDict, IsStr
 from httpx import AsyncClient
 
 from tests.factories import UserFactory
-from tests.services import EntityExistenceService
 
 
 @pytest.mark.asyncio
 async def test_update_current_user_password_ok(
     test_client: AsyncClient,
     user_factory: UserFactory,
-    entity_existence_service: EntityExistenceService,
 ) -> None:
     factory_result = await user_factory.create_user(admin=False)
-    assert await entity_existence_service.exists(factory_result.user) is True
 
     response = await test_client.put(
         "/users/me/password",
@@ -38,10 +35,8 @@ async def test_update_current_user_password_ok(
 async def test_update_current_user_password_invalid_old_password(
     test_client: AsyncClient,
     user_factory: UserFactory,
-    entity_existence_service: EntityExistenceService,
 ) -> None:
     factory_result = await user_factory.create_user(admin=False)
-    assert await entity_existence_service.exists(factory_result.user) is True
 
     response = await test_client.put(
         "/users/me/password",

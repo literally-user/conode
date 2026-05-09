@@ -20,10 +20,7 @@ async def test_create_context_ok(
     entity_existence_service: EntityExistenceService,
 ) -> None:
     user_factory_response = await user_factory.create_user(admin=False)
-    assert await entity_existence_service.exists(user_factory_response.user) is True
-
     company = await company_factory.create_company(user_factory_response.user)
-    assert await entity_existence_service.exists(company) is True
 
     response = await test_client.post(
         "/contexts/",
@@ -45,7 +42,6 @@ async def test_create_context_ok(
     )
 
     context = await context_repository.get_by_id(ContextId(UUID(response.json()["id"])))
-    assert context is not None
     assert await entity_existence_service.exists(context) is True
 
 
@@ -53,10 +49,8 @@ async def test_create_context_ok(
 async def test_create_context_company_not_found(
     test_client: AsyncClient,
     user_factory: UserFactory,
-    entity_existence_service: EntityExistenceService,
 ) -> None:
     user_factory_response = await user_factory.create_user(admin=False)
-    assert await entity_existence_service.exists(user_factory_response.user) is True
 
     response = await test_client.post(
         "/contexts/",

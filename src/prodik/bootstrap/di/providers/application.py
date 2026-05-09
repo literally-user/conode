@@ -15,7 +15,13 @@ from prodik.application.manage_company import (
 )
 from prodik.application.manage_contexts import CreateContextInteractor
 from prodik.application.manage_credentials import UpdateCurrentUserPasswordInteractor
-from prodik.application.manage_edges import CreateEdgeInteractor
+from prodik.application.manage_edges import (
+    CreateEdgeInteractor,
+    DecrementEdgeWeightInteractor,
+    DeleteEdgeInteractor,
+    IncrementEdgeWeightInteractor,
+    UpdateEdgeWeightInteractor,
+)
 from prodik.application.manage_group import CreateGroupInteractor, DeleteGroupInteractor
 from prodik.application.manage_node import CreateNodeInteractor, DeleteNodeInteractor
 from prodik.application.manage_profile import UpdateCurrentUserProfileInteractor
@@ -27,6 +33,10 @@ class ApplicationProvider(Provider):
         RegisterInteractor,
         LoginInteractor,
         AccessControlService,
+        DecrementEdgeWeightInteractor,
+        DeleteEdgeInteractor,
+        IncrementEdgeWeightInteractor,
+        UpdateEdgeWeightInteractor,
         RefreshTokenInteractor,
         UpdateCurrentUserProfileInteractor,
         UpdateCurrentUserPasswordInteractor,

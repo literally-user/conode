@@ -34,10 +34,8 @@ async def test_register_ok(
 async def test_register_user_already_exists(
     test_client: AsyncClient,
     user_factory: UserFactory,
-    entity_existence_service: EntityExistenceService,
 ) -> None:
     factory_result = await user_factory.create_user(admin=False)
-    assert await entity_existence_service.exists(factory_result.user) is True
     request = RegisterRequestFactory.build().model_dump()
 
     request.update({"email": factory_result.user.email.value})

@@ -3,9 +3,14 @@ from uuid import uuid4
 
 import structlog
 
-from prodik.application.errors import GroupNotFoundError, UserNotFoundError
+from prodik.application.errors import (
+    CompanyNotFoundError,
+    GroupNotFoundError,
+    UserNotFoundError,
+)
 from prodik.application.interfaces.identity_provider import IdentityProvider
 from prodik.application.interfaces.repositories import (
+    CompanyRepository,
     GroupRepository,
     NodeAssociationRepository,
     NodeRepository,
@@ -35,6 +40,7 @@ class AttachNodeInteractor:
     user_repository: UserRepository
     group_repository: GroupRepository
     node_repository: NodeRepository
+    company_repository: CompanyRepository
 
     async def execute(self, request: AttachNodeRequestDTO) -> list[NodeAssociation]:
         async with self.transaction_manager:
@@ -48,6 +54,10 @@ class AttachNodeInteractor:
 
             self.access_control_service.ensure_revision_is_valid(user_meta, user)
 
+            company = await self.company_repository.get_by_user_id(user.id)
+            if company is None:
+                raise CompanyNotFoundError("Company not found", None)
+
             group = await self.group_repository.get_by_id(request.group_id)
             if group is None:
                 raise GroupNotFoundError("Group not found", None)
@@ -56,11 +66,19 @@ class AttachNodeInteractor:
                 list(set(request.nodes))
             )
 
+            for node in existing_nodes:
+                self.access_control_service.ensure_user_can_manipulate_node(
+                    user,
+                    company,
+                    node,
+                )
+
             associations = [
                 NodeAssociation.new(
                     id=NodeAssociationId(uuid4()),
                     node=node,
                     group=group,
+                    company=company,
                 )
                 for node in existing_nodes
             ]

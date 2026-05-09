@@ -10,7 +10,6 @@ from prodik.domain.edge import Edge, EdgeId
 from tests.factories import (
     CompanyFactory,
     ContextFactory,
-    GroupFactory,
     NodeFactory,
     UserFactory,
 )
@@ -22,27 +21,15 @@ async def test_create_edge_ok(
     test_client: AsyncClient,
     user_factory: UserFactory,
     company_factory: CompanyFactory,
-    group_factory: GroupFactory,
     node_factory: NodeFactory,
     context_factory: ContextFactory,
     entity_existence_service: EntityExistenceService,
 ) -> None:
     user_factory_response = await user_factory.create_user(admin=False)
-    assert await entity_existence_service.exists(user_factory_response.user) is True
-
     company = await company_factory.create_company(user_factory_response.user)
-    assert await entity_existence_service.exists(company) is True
-
-    group = await group_factory.create_group(company=company)
-    assert await entity_existence_service.exists(group) is True
-
     node_a = await node_factory.create_node(company=company)
     node_b = await node_factory.create_node(company=company)
-    assert await entity_existence_service.exists(node_a) is True
-    assert await entity_existence_service.exists(node_b) is True
-
     context = await context_factory.create_context(company=company)
-    assert await entity_existence_service.exists(context) is True
 
     response = await test_client.post(
         "/edges/",
@@ -84,23 +71,12 @@ async def test_create_edge_context_not_found(
     test_client: AsyncClient,
     user_factory: UserFactory,
     company_factory: CompanyFactory,
-    group_factory: GroupFactory,
     node_factory: NodeFactory,
-    entity_existence_service: EntityExistenceService,
 ) -> None:
     user_factory_response = await user_factory.create_user(admin=False)
-    assert await entity_existence_service.exists(user_factory_response.user) is True
-
     company = await company_factory.create_company(user_factory_response.user)
-    assert await entity_existence_service.exists(company) is True
-
-    group = await group_factory.create_group(company=company)
-    assert await entity_existence_service.exists(group) is True
-
     node_a = await node_factory.create_node(company=company)
     node_b = await node_factory.create_node(company=company)
-    assert await entity_existence_service.exists(node_a) is True
-    assert await entity_existence_service.exists(node_b) is True
 
     response = await test_client.post(
         "/edges/",
@@ -121,25 +97,13 @@ async def test_create_edge_node_not_found(
     test_client: AsyncClient,
     user_factory: UserFactory,
     company_factory: CompanyFactory,
-    group_factory: GroupFactory,
     node_factory: NodeFactory,
     context_factory: ContextFactory,
-    entity_existence_service: EntityExistenceService,
 ) -> None:
     user_factory_response = await user_factory.create_user(admin=False)
-    assert await entity_existence_service.exists(user_factory_response.user) is True
-
     company = await company_factory.create_company(user_factory_response.user)
-    assert await entity_existence_service.exists(company) is True
-
-    group = await group_factory.create_group(company=company)
-    assert await entity_existence_service.exists(group) is True
-
     node_a = await node_factory.create_node(company=company)
-    assert await entity_existence_service.exists(node_a) is True
-
     context = await context_factory.create_context(company=company)
-    assert await entity_existence_service.exists(context) is True
 
     missing_node_id = str(uuid4())
     response = await test_client.post(
