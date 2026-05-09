@@ -8,8 +8,12 @@ from prodik.application.manage_association import (
     AttachNodeRequestDTO,
     DetachNodeInteractor,
 )
-from prodik.application.manage_node import CreateNodeInteractor, CreateNodeRequestDTO
-from prodik.domain.node import NodeAssociationId
+from prodik.application.manage_node import (
+    CreateNodeInteractor,
+    CreateNodeRequestDTO,
+    DeleteNodeInteractor,
+)
+from prodik.domain.node import NodeAssociationId, NodeId
 from prodik.presentation.schemas.node import (
     AttachNodeRequest,
     CreateNodeRequest,
@@ -38,6 +42,14 @@ async def create_node(
         description=result.description.value,
         company_id=result.company_id,
     )
+
+
+@router.delete("/{node_id}", status_code=HTTPStatus.NO_CONTENT)
+async def delete_node(
+    node_id: NodeId,
+    interactor: FromDishka[DeleteNodeInteractor],
+) -> None:
+    await interactor.execute(node_id)
 
 
 @router.post("/attach", status_code=HTTPStatus.CREATED)

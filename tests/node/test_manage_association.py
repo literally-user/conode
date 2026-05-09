@@ -1,4 +1,5 @@
 from http import HTTPStatus
+from typing import Final
 from uuid import uuid4
 
 import pytest
@@ -14,6 +15,8 @@ from tests.factories import (
     NodeFactory,
     UserFactory,
 )
+
+NODES_COUNT: Final = 2
 
 
 @pytest.mark.asyncio
@@ -41,7 +44,7 @@ async def test_attach_nodes_ok(
 
     assert response.status_code == HTTPStatus.CREATED
     result = response.json()
-    assert len(result) == 2
+    assert len(result) == NODES_COUNT
     for item in result:
         assert item == IsPartialDict(
             id=IsUUID(),
@@ -87,7 +90,9 @@ async def test_detach_node_ok(
     company = await company_factory.create_company(user_factory_response.user)
     group = await group_factory.create_group(company=company)
     node = await node_factory.create_node(company=company)
-    association = await node_association_factory.create_association(node=node, group=group)
+    association = await node_association_factory.create_association(
+        node=node, group=group
+    )
 
     response = await test_client.delete(
         f"/nodes/attach/{association.id}",
@@ -112,5 +117,45 @@ async def test_detach_node_association_not_found(
     assert response.status_code == HTTPStatus.NOT_FOUND
     assert response.json() == IsPartialDict(
         detail="Association not found error",
+        meta=None,
+    )
+
+
+@pytest.mark.asyncio
+async def test_delete_node_ok(
+    test_client: AsyncClient,
+    user_factory: UserFactory,
+    node_factory: NodeFactory,
+    company_factory: CompanyFactory,
+) -> None:
+    user_factory_response = await user_factory.create_user(admin=False)
+    company = await company_factory.create_company(user_factory_response.user)
+    node = await node_factory.create_node(company=company)
+
+    response = await test_client.delete(
+        f"/nodes/{node.id}",
+        headers={"Authorization": f"Bearer {user_factory_response.access_token}"},
+    )
+
+    assert response.status_code == HTTPStatus.NO_CONTENT
+
+
+@pytest.mark.asyncio
+async def test_delete_node_not_found(
+    test_client: AsyncClient,
+    user_factory: UserFactory,
+    company_factory: CompanyFactory,
+) -> None:
+    user_factory_response = await user_factory.create_user(admin=False)
+    await company_factory.create_company(user_factory_response.user)
+
+    response = await test_client.delete(
+        f"/nodes/{uuid4()}",
+        headers={"Authorization": f"Bearer {user_factory_response.access_token}"},
+    )
+
+    assert response.status_code == HTTPStatus.NOT_FOUND
+    assert response.json() == IsPartialDict(
+        detail="Node not found",
         meta=None,
     )

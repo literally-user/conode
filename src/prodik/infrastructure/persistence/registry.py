@@ -108,8 +108,10 @@ node_association_record_table = Table(
     "node_association_record",
     metadata,
     Column("id", UUID, primary_key=True, nullable=False),
-    Column("group_id", ForeignKey("group_record.id"), nullable=False),
-    Column("node_id", ForeignKey("node_record.id"), nullable=False),
+    Column(
+        "group_id", ForeignKey("group_record.id", ondelete="CASCADE"), nullable=False
+    ),
+    Column("node_id", ForeignKey("node_record.id", ondelete="CASCADE"), nullable=False),
     Column("created_at", DateTime(timezone=True), nullable=False),
     Column("updated_at", DateTime(timezone=True), nullable=False),
 )

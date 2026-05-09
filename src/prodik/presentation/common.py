@@ -11,8 +11,8 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from structlog.contextvars import bind_contextvars
 
 from prodik.application.errors import (
-    AssociationNotFoundError,
     ApplicationError,
+    AssociationNotFoundError,
     AuthorizationNotFoundError,
     CompanyAlreadyExistsError,
     CompanyNotFoundError,
@@ -21,6 +21,7 @@ from prodik.application.errors import (
     InvalidCredentialsError,
     InvalidOldPasswordError,
     InvalidTokenError,
+    NodeNotFoundError,
     NotEnoughRightsError,
     SessionNotFoundError,
     UserAlreadyExistsError,
@@ -44,6 +45,7 @@ EXCEPTION_HANDLERS: Final[dict[type[ApplicationError], HTTPStatus]] = {
     AuthorizationNotFoundError: HTTPStatus.NOT_FOUND,
     UserNotFoundError: HTTPStatus.NOT_FOUND,
     CompanyNotFoundError: HTTPStatus.NOT_FOUND,
+    NodeNotFoundError: HTTPStatus.NOT_FOUND,
     GroupNotFoundError: HTTPStatus.NOT_FOUND,
     AssociationNotFoundError: HTTPStatus.NOT_FOUND,
     FailedToReadClientError: HTTPStatus.BAD_REQUEST,

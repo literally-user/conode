@@ -153,7 +153,9 @@ class GroupFactory:
             id=GroupId(uuid4()),
             name="",
             description=generate_random_string(30),
-            company=company if company is not None else await self.company_factory.create_company(),
+            company=company
+            if company is not None
+            else await self.company_factory.create_company(),
             parent_group=parent_group,
         )
         await self.group_repository.create(group)
@@ -170,7 +172,9 @@ class NodeFactory:
             id=NodeId(uuid4()),
             name="",
             description=generate_random_string(30),
-            company=company if company is not None else await self.company_factory.create_company(),
+            company=company
+            if company is not None
+            else await self.company_factory.create_company(),
         )
         await self.node_repository.create(node)
         return node

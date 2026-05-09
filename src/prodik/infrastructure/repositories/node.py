@@ -38,6 +38,22 @@ class NodeRepositoryImpl(NodeRepository):
 
         return list(result.scalars().all())
 
+    async def delete(self, node: Node) -> None:
+        await self.session.execute(
+            delete(Node).where(
+                Node.id == node.id  # type: ignore
+            )
+        )
+
+    async def get_by_id(self, id: NodeId) -> Node | None:
+        result = await self.session.execute(
+            select(Node).where(
+                Node.id == id  # type: ignore
+            )
+        )
+
+        return result.scalar_one_or_none()
+
 
 @dataclass
 class NodeAssociationRepositoryImpl(NodeAssociationRepository):
