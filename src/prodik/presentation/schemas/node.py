@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Annotated
 
 from pydantic import BaseModel, Field
@@ -5,11 +6,25 @@ from pydantic import BaseModel, Field
 from prodik.domain.company import CompanyId
 from prodik.domain.group import GroupId
 from prodik.domain.node import NodeAssociationId, NodeId
+from prodik.domain.node.model import (
+    MAX_ALLOWED_NODE_DESCRIPTION_LENGTH,
+    MAX_ALLOWED_NODE_NAME_LENGTH,
+    MIN_ALLOWED_NODE_NAME_LENGTH,
+)
 
 
 class CreateNodeRequest(BaseModel):
-    name: Annotated[str, Field(min_length=1, max_length=50)]
-    description: Annotated[str, Field(max_length=300)]
+    name: Annotated[
+        str,
+        Field(
+            min_length=MIN_ALLOWED_NODE_NAME_LENGTH,
+            max_length=MAX_ALLOWED_NODE_NAME_LENGTH,
+        ),
+    ]
+    description: Annotated[
+        str,
+        Field(max_length=MAX_ALLOWED_NODE_DESCRIPTION_LENGTH),
+    ]
     group_id: GroupId
 
 
@@ -18,6 +33,8 @@ class NodeSchema(BaseModel):
     name: str
     description: str
     company_id: CompanyId
+    created_at: datetime
+    updated_at: datetime
 
 
 class AttachNodeRequest(BaseModel):
@@ -29,3 +46,5 @@ class NodeAssociationSchema(BaseModel):
     id: NodeAssociationId
     node_id: NodeId
     group_id: GroupId
+    created_at: datetime
+    updated_at: datetime

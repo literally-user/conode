@@ -4,6 +4,8 @@ from prodik.infrastructure.identity_provider import IdentityProviderImpl
 from prodik.infrastructure.password_hasher import PasswordHasherImpl
 from prodik.infrastructure.repositories import (
     CompanyRepositoryImpl,
+    ContextRepositoryImpl,
+    EdgeRepositoryImpl,
     GroupRepositoryImpl,
     LocalAuthorizationRepositoryImpl,
     NodeAssociationRepositoryImpl,
@@ -32,5 +34,7 @@ class InfrastructureProvider(Provider):
         WithParents[CompanyRepositoryImpl],
         WithParents[UserRepositoryImpl],
         WithParents[NodeRepositoryImpl],
+        WithParents[ContextRepositoryImpl],
+        WithParents[EdgeRepositoryImpl],
         scope=Scope.REQUEST,
     )

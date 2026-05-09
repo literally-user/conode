@@ -4,6 +4,7 @@ from typing import NewType
 from uuid import UUID
 
 from prodik.domain.company import Company, CompanyId
+from prodik.domain.context import Context, ContextId
 from prodik.domain.edge.errors import EdgeCannotConnectTwoSameNodesError
 from prodik.domain.node import Node, NodeId
 from prodik.domain.shared import Entity
@@ -14,13 +15,20 @@ EdgeId = NewType("EdgeId", UUID)
 @dataclass
 class Edge(Entity[EdgeId]):
     company_id: CompanyId
+    context_id: ContextId
     node_a_id: NodeId
     node_b_id: NodeId
     weight: float
 
     @classmethod
     def new(
-        cls, id: EdgeId, node_a: Node, node_b: Node, company: Company, weight: float
+        cls,
+        id: EdgeId,
+        node_a: Node,
+        node_b: Node,
+        company: Company,
+        context: Context,
+        weight: float,
     ) -> "Edge":
         if node_a == node_b:
             raise EdgeCannotConnectTwoSameNodesError(
@@ -35,6 +43,7 @@ class Edge(Entity[EdgeId]):
         return Edge(
             id=id,
             company_id=company.id,
+            context_id=context.id,
             node_a_id=node_a.id,
             node_b_id=node_b.id,
             weight=weight,

@@ -1,0 +1,8 @@
+from typing import Protocol
+
+from prodik.domain.context import Context, ContextId
+
+
+class ContextRepository(Protocol):
+    async def create(self, context: Context) -> None: ...
+    async def get_by_id(self, id: ContextId) -> Context | None: ...

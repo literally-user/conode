@@ -21,7 +21,7 @@ class ContextName(ValueObject[str]):
     def __init__(self, value: str) -> None:
         value = value.strip()
 
-        if (
+        if not (
             MIN_ALLOWED_CONTEXT_NAME_LENGTH
             <= len(value)
             <= MAX_ALLOWED_CONTEXT_NAME_LENGTH

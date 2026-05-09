@@ -13,7 +13,9 @@ from prodik.application.manage_company import (
     RegisterCompanyInteractor,
     VerifyCompanyInteractor,
 )
+from prodik.application.manage_contexts import CreateContextInteractor
 from prodik.application.manage_credentials import UpdateCurrentUserPasswordInteractor
+from prodik.application.manage_edges import CreateEdgeInteractor
 from prodik.application.manage_group import CreateGroupInteractor, DeleteGroupInteractor
 from prodik.application.manage_node import CreateNodeInteractor, DeleteNodeInteractor
 from prodik.application.manage_profile import UpdateCurrentUserProfileInteractor
@@ -36,5 +38,7 @@ class ApplicationProvider(Provider):
         DeleteNodeInteractor,
         DetachNodeInteractor,
         AttachNodeInteractor,
+        CreateEdgeInteractor,
+        CreateContextInteractor,
         scope=Scope.REQUEST,
     )

@@ -10,6 +10,7 @@ from pydantic import BaseModel, EmailStr, Field
 from prodik.application.interfaces.password_hasher import PasswordHasher
 from prodik.application.interfaces.repositories import (
     CompanyRepository,
+    ContextRepository,
     GroupRepository,
     LocalAuthorizationRepository,
     NodeAssociationRepository,
@@ -28,6 +29,7 @@ from prodik.domain.authorization import (
     SessionId,
 )
 from prodik.domain.company import Company, CompanyId
+from prodik.domain.context import Context, ContextId
 from prodik.domain.group import Group, GroupId
 from prodik.domain.node import Node, NodeAssociation, NodeAssociationId, NodeId
 from prodik.domain.user import User, UserId, UserSystemRole
@@ -192,6 +194,26 @@ class NodeAssociationFactory:
         )
         await self.node_association_repository.create(association)
         return association
+
+
+@dataclass
+class ContextFactory:
+    context_repository: ContextRepository
+    company_factory: CompanyFactory
+
+    async def create_context(self, company: Company | None = None) -> Context:
+        context = Context.new(
+            id=ContextId(uuid4()),
+            name=generate_random_string(10),
+            description=generate_random_string(30),
+            company=company
+            if company is not None
+            else await self.company_factory.create_company(),
+        )
+
+        await self.context_repository.create(context)
+
+        return context
 
 
 def generate_random_string(length: int = 5) -> str:

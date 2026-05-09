@@ -11,6 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from prodik.application.interfaces.password_hasher import PasswordHasher
 from prodik.application.interfaces.repositories import (
     CompanyRepository,
+    ContextRepository,
     GroupRepository,
     LocalAuthorizationRepository,
     NodeAssociationRepository,
@@ -34,6 +35,7 @@ from prodik.infrastructure.config import (
 from prodik.infrastructure.persistence import start_mapper
 from tests.factories import (
     CompanyFactory,
+    ContextFactory,
     GroupFactory,
     NodeAssociationFactory,
     NodeFactory,
@@ -89,6 +91,12 @@ async def company_repository(test_container: AsyncContainer) -> CompanyRepositor
 
 
 @pytest.fixture
+async def context_repository(test_container: AsyncContainer) -> ContextRepository:
+    async with test_container() as container:
+        return cast("ContextRepository", await container.get(ContextRepository))
+
+
+@pytest.fixture
 async def group_repository(test_container: AsyncContainer) -> GroupRepository:
     async with test_container() as container:
         return cast("GroupRepository", await container.get(GroupRepository))
@@ -101,6 +109,17 @@ async def group_factory(
     async with test_container() as container:
         return GroupFactory(
             group_repository=await container.get(GroupRepository),
+            company_factory=company_factory,
+        )
+
+
+@pytest.fixture
+async def context_factory(
+    test_container: AsyncContainer, company_factory: CompanyFactory
+) -> ContextFactory:
+    async with test_container() as container:
+        return ContextFactory(
+            context_repository=await container.get(ContextRepository),
             company_factory=company_factory,
         )
 

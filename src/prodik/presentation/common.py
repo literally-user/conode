@@ -16,6 +16,7 @@ from prodik.application.errors import (
     AuthorizationNotFoundError,
     CompanyAlreadyExistsError,
     CompanyNotFoundError,
+    ContextNotFoundError,
     FailedToReadClientError,
     GroupNotFoundError,
     InvalidCredentialsError,
@@ -27,8 +28,11 @@ from prodik.application.errors import (
     UserAlreadyExistsError,
     UserNotFoundError,
 )
+from prodik.domain.edge.errors import EdgeDomainValidationError
 from prodik.presentation.auth import router as auth_router
 from prodik.presentation.company import router as company_router
+from prodik.presentation.context import router as context_router
+from prodik.presentation.edge import router as edge_router
 from prodik.presentation.group import router as group_router
 from prodik.presentation.node import router as node_router
 from prodik.presentation.root import router as root_router
@@ -45,10 +49,12 @@ EXCEPTION_HANDLERS: Final[dict[type[ApplicationError], HTTPStatus]] = {
     AuthorizationNotFoundError: HTTPStatus.NOT_FOUND,
     UserNotFoundError: HTTPStatus.NOT_FOUND,
     CompanyNotFoundError: HTTPStatus.NOT_FOUND,
+    ContextNotFoundError: HTTPStatus.NOT_FOUND,
     NodeNotFoundError: HTTPStatus.NOT_FOUND,
     GroupNotFoundError: HTTPStatus.NOT_FOUND,
     AssociationNotFoundError: HTTPStatus.NOT_FOUND,
     FailedToReadClientError: HTTPStatus.BAD_REQUEST,
+    EdgeDomainValidationError: HTTPStatus.BAD_REQUEST,
     InvalidOldPasswordError: HTTPStatus.FORBIDDEN,
     NotEnoughRightsError: HTTPStatus.FORBIDDEN,
 }
@@ -113,6 +119,8 @@ def include_handlers(app: FastAPI) -> None:
     app.include_router(auth_router)
     app.include_router(user_router)
     app.include_router(node_router)
+    app.include_router(edge_router)
+    app.include_router(context_router)
 
 
 def include_middlewares(app: FastAPI) -> None:
