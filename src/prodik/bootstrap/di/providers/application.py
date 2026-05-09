@@ -14,7 +14,7 @@ from prodik.application.manage_company import (
     VerifyCompanyInteractor,
 )
 from prodik.application.manage_credentials import UpdateCurrentUserPasswordInteractor
-from prodik.application.manage_group import CreateGroupInteractor
+from prodik.application.manage_group import CreateGroupInteractor, DeleteGroupInteractor
 from prodik.application.manage_node import CreateNodeInteractor, DeleteNodeInteractor
 from prodik.application.manage_profile import UpdateCurrentUserProfileInteractor
 from prodik.application.services import AccessControlService
@@ -31,6 +31,7 @@ class ApplicationProvider(Provider):
         RegisterCompanyInteractor,
         VerifyCompanyInteractor,
         CreateGroupInteractor,
+        DeleteGroupInteractor,
         CreateNodeInteractor,
         DeleteNodeInteractor,
         DetachNodeInteractor,

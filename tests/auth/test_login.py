@@ -9,7 +9,7 @@ from tests.services import EntityExistenceService
 
 
 @pytest.mark.asyncio
-async def test_update_current_user_password_ok(
+async def test_login_ok(
     test_client: AsyncClient,
     user_factory: UserFactory,
     entity_existence_service: EntityExistenceService,
@@ -17,13 +17,12 @@ async def test_update_current_user_password_ok(
     factory_result = await user_factory.create_user(admin=False)
     assert await entity_existence_service.exists(factory_result.user) is True
 
-    response = await test_client.put(
-        "/users/me/password",
+    response = await test_client.post(
+        "/auth/login",
         json={
-            "old_password": factory_result.password,
-            "new_password": "NewSuperSecretPassword123456",
+            "email": factory_result.user.email.value,
+            "password": factory_result.password,
         },
-        headers={"Authorization": f"Bearer {factory_result.access_token}"},
     )
 
     assert response.status_code == HTTPStatus.OK
@@ -35,7 +34,7 @@ async def test_update_current_user_password_ok(
 
 
 @pytest.mark.asyncio
-async def test_update_current_user_password_invalid_old_password(
+async def test_login_invalid_credentials(
     test_client: AsyncClient,
     user_factory: UserFactory,
     entity_existence_service: EntityExistenceService,
@@ -43,19 +42,19 @@ async def test_update_current_user_password_invalid_old_password(
     factory_result = await user_factory.create_user(admin=False)
     assert await entity_existence_service.exists(factory_result.user) is True
 
-    response = await test_client.put(
-        "/users/me/password",
+    response = await test_client.post(
+        "/auth/login",
         json={
-            "old_password": "TOTALYINVALIDPASSWORD12348904567890",
-            "new_password": "NewSuperSecretPassword123456",
+            "email": factory_result.user.email.value,
+            "password": "TotallyInvalidPassword123456789",
         },
-        headers={"Authorization": f"Bearer {factory_result.access_token}"},
     )
 
-    assert response.status_code == HTTPStatus.FORBIDDEN
+    assert response.status_code == HTTPStatus.UNAUTHORIZED
     assert response.json() == IsPartialDict(
-        detail="Invalid old password",
+        detail="Invalid email or password",
         meta=[
-            {"key": "old_password", "value": "TOTALYINVALIDPASSWORD12348904567890"},
+            {"key": "email", "value": factory_result.user.email.value},
+            {"key": "password", "value": "TotallyInvalidPassword123456789"},
         ],
     )

@@ -1,4 +1,5 @@
 from collections.abc import AsyncGenerator
+from typing import cast
 from unittest.mock import AsyncMock
 
 import pytest
@@ -38,6 +39,7 @@ from tests.factories import (
     NodeFactory,
     UserFactory,
 )
+from tests.services import EntityExistenceService
 
 
 @pytest.fixture(scope="session")
@@ -75,6 +77,24 @@ async def company_factory(
 
 
 @pytest.fixture
+async def user_repository(test_container: AsyncContainer) -> UserRepository:
+    async with test_container() as container:
+        return cast("UserRepository", await container.get(UserRepository))
+
+
+@pytest.fixture
+async def company_repository(test_container: AsyncContainer) -> CompanyRepository:
+    async with test_container() as container:
+        return cast("CompanyRepository", await container.get(CompanyRepository))
+
+
+@pytest.fixture
+async def group_repository(test_container: AsyncContainer) -> GroupRepository:
+    async with test_container() as container:
+        return cast("GroupRepository", await container.get(GroupRepository))
+
+
+@pytest.fixture
 async def group_factory(
     test_container: AsyncContainer, company_factory: CompanyFactory
 ) -> GroupFactory:
@@ -104,6 +124,13 @@ async def node_association_factory(
         return NodeAssociationFactory(
             node_association_repository=await container.get(NodeAssociationRepository),
         )
+
+
+@pytest.fixture
+async def entity_existence_service(
+    test_session: AsyncSession,
+) -> EntityExistenceService:
+    return EntityExistenceService(session=test_session)
 
 
 @pytest.fixture

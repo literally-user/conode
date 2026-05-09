@@ -22,7 +22,9 @@ class GroupName(ValueObject[str]):
     def __init__(self, value: str) -> None:
         value = value.strip()
 
-        if MIN_ALLOWED_GROUP_NAME_LENGTH <= len(value) <= MAX_ALLOWED_GROUP_NAME_LENGTH:
+        if not (
+            MIN_ALLOWED_GROUP_NAME_LENGTH <= len(value) <= MAX_ALLOWED_GROUP_NAME_LENGTH
+        ):
             raise InvalidGroupNameFormatError(
                 "Group name must be between"
                 f"{MIN_ALLOWED_GROUP_NAME_LENGTH} and "

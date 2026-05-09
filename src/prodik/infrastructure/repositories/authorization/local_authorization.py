@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+import structlog
 from sqlalchemy import insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -7,12 +8,17 @@ from prodik.application.interfaces.repositories import LocalAuthorizationReposit
 from prodik.domain.authorization import LocalAuthorization
 from prodik.domain.user import UserId
 
+logger = structlog.get_logger()
+
 
 @dataclass
 class LocalAuthorizationRepositoryImpl(LocalAuthorizationRepository):
     session: AsyncSession
 
     async def create(self, authorization: LocalAuthorization) -> None:
+        logger.info(
+            "Repository create local authorization", authorization_id=authorization.id
+        )
         await self.session.execute(
             insert(LocalAuthorization).values(
                 id=authorization.id,
@@ -24,6 +30,9 @@ class LocalAuthorizationRepositoryImpl(LocalAuthorizationRepository):
         )
 
     async def update(self, authorization: LocalAuthorization) -> None:
+        logger.info(
+            "Repository update local authorization", authorization_id=authorization.id
+        )
         await self.session.execute(
             update(LocalAuthorization)
             .where(
@@ -36,8 +45,15 @@ class LocalAuthorizationRepositoryImpl(LocalAuthorizationRepository):
         )
 
     async def get_by_user_id(self, id: UserId) -> LocalAuthorization | None:
+        logger.info("Repository get local authorization by user id", user_id=id)
         result = await self.session.execute(
             select(LocalAuthorization).where(LocalAuthorization.user_id == id)  # type: ignore
         )
 
-        return result.scalar_one_or_none()
+        authorization = result.scalar_one_or_none()
+        logger.info(
+            "Repository fetched local authorization by user id",
+            user_id=id,
+            found=authorization is not None,
+        )
+        return authorization

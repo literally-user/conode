@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+import structlog
 from sqlalchemy import delete, insert, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -9,12 +10,15 @@ from prodik.application.interfaces.repositories import (
 )
 from prodik.domain.node.model import Node, NodeAssociation, NodeAssociationId, NodeId
 
+logger = structlog.get_logger()
+
 
 @dataclass
 class NodeRepositoryImpl(NodeRepository):
     session: AsyncSession
 
     async def create(self, node: Node) -> None:
+        logger.info("Repository create node", node_id=node.id)
         await self.session.execute(
             insert(Node).values(
                 id=node.id,
@@ -28,17 +32,22 @@ class NodeRepositoryImpl(NodeRepository):
 
     async def get_all_by_ids(self, nodes: list[NodeId]) -> list[Node]:
         if not nodes:
+            logger.info("Repository get nodes by ids", ids_count=0)
             return []
 
+        logger.info("Repository get nodes by ids", ids_count=len(nodes))
         result = await self.session.execute(
             select(Node).where(
                 Node.id.in_(nodes)  # type: ignore
             )
         )
 
-        return list(result.scalars().all())
+        result_nodes = list(result.scalars().all())
+        logger.info("Repository fetched nodes by ids", found_count=len(result_nodes))
+        return result_nodes
 
     async def delete(self, node: Node) -> None:
+        logger.info("Repository delete node", node_id=node.id)
         await self.session.execute(
             delete(Node).where(
                 Node.id == node.id  # type: ignore
@@ -46,13 +55,16 @@ class NodeRepositoryImpl(NodeRepository):
         )
 
     async def get_by_id(self, id: NodeId) -> Node | None:
+        logger.info("Repository get node by id", node_id=id)
         result = await self.session.execute(
             select(Node).where(
                 Node.id == id  # type: ignore
             )
         )
 
-        return result.scalar_one_or_none()
+        node = result.scalar_one_or_none()
+        logger.info("Repository fetched node by id", node_id=id, found=node is not None)
+        return node
 
 
 @dataclass
@@ -60,6 +72,9 @@ class NodeAssociationRepositoryImpl(NodeAssociationRepository):
     session: AsyncSession
 
     async def create(self, node_association: NodeAssociation) -> None:
+        logger.info(
+            "Repository create node association", association_id=node_association.id
+        )
         await self.session.execute(
             insert(NodeAssociation).values(
                 id=node_association.id,
@@ -71,6 +86,9 @@ class NodeAssociationRepositoryImpl(NodeAssociationRepository):
         )
 
     async def delete(self, node_association: NodeAssociation) -> None:
+        logger.info(
+            "Repository delete node association", association_id=node_association.id
+        )
         await self.session.execute(
             delete(NodeAssociation).where(
                 NodeAssociation.id == node_association.id  # type: ignore
@@ -78,18 +96,29 @@ class NodeAssociationRepositoryImpl(NodeAssociationRepository):
         )
 
     async def get_by_id(self, id: NodeAssociationId) -> NodeAssociation | None:
+        logger.info("Repository get node association by id", association_id=id)
         result = await self.session.execute(
             select(NodeAssociation).where(
                 NodeAssociation.id == id  # type: ignore
             )
         )
 
-        return result.scalar_one_or_none()
+        association = result.scalar_one_or_none()
+        logger.info(
+            "Repository fetched node association by id",
+            association_id=id,
+            found=association is not None,
+        )
+        return association
 
     async def create_all(self, node_association: list[NodeAssociation]) -> None:
         if not node_association:
+            logger.info("Repository create node associations batch", count=0)
             return
 
+        logger.info(
+            "Repository create node associations batch", count=len(node_association)
+        )
         await self.session.execute(
             insert(NodeAssociation).values(
                 [

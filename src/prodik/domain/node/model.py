@@ -23,7 +23,9 @@ class NodeName(ValueObject[str]):
     def __init__(self, value: str) -> None:
         value = value.strip()
 
-        if MIN_ALLOWED_NODE_NAME_LENGTH <= len(value) <= MAX_ALLOWED_NODE_NAME_LENGTH:
+        if not (
+            MIN_ALLOWED_NODE_NAME_LENGTH <= len(value) <= MAX_ALLOWED_NODE_NAME_LENGTH
+        ):
             raise InvalidNodeNameFormatError(
                 "Node name must be between"
                 f"{MIN_ALLOWED_NODE_NAME_LENGTH} and "

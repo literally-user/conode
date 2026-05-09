@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+import structlog
 from sqlalchemy import insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -7,12 +8,15 @@ from prodik.application.interfaces.repositories import CompanyRepository
 from prodik.domain.company.model import Company, CompanyId, CompanyName
 from prodik.domain.user import UserId
 
+logger = structlog.get_logger()
+
 
 @dataclass
 class CompanyRepositoryImpl(CompanyRepository):
     session: AsyncSession
 
     async def create(self, company: Company) -> None:
+        logger.info("Repository create company", company_id=company.id)
         await self.session.execute(
             insert(Company).values(
                 id=company.id,
@@ -26,6 +30,7 @@ class CompanyRepositoryImpl(CompanyRepository):
         )
 
     async def update(self, company: Company) -> None:
+        logger.info("Repository update company", company_id=company.id)
         await self.session.execute(
             update(Company)
             .where(
@@ -40,24 +45,33 @@ class CompanyRepositoryImpl(CompanyRepository):
         )
 
     async def get_by_name(self, name: CompanyName) -> Company | None:
+        logger.info("Repository get company by name", company_name=name)
         result = await self.session.execute(
             select(Company).where(
                 Company.name == name  # type: ignore
             )
         )
 
-        return result.scalar_one_or_none()
+        company = result.scalar_one_or_none()
+        logger.info("Repository fetched company by name", found=company is not None)
+        return company
 
     async def get_by_id(self, id: CompanyId) -> Company | None:
+        logger.info("Repository get company by id", company_id=id)
         result = await self.session.execute(
             select(Company).where(
                 Company.id == id  # type: ignore
             )
         )
 
-        return result.scalar_one_or_none()
+        company = result.scalar_one_or_none()
+        logger.info(
+            "Repository fetched company by id", company_id=id, found=company is not None
+        )
+        return company
 
     async def get_by_user_id(self, id: UserId) -> Company | None:
+        logger.info("Repository get company by user id", user_id=id)
         result = await self.session.execute(
             select(Company)
             .where(
@@ -66,4 +80,10 @@ class CompanyRepositoryImpl(CompanyRepository):
             .limit(1)
         )
 
-        return result.scalar_one_or_none()
+        company = result.scalar_one_or_none()
+        logger.info(
+            "Repository fetched company by user id",
+            user_id=id,
+            found=company is not None,
+        )
+        return company

@@ -151,7 +151,7 @@ class GroupFactory:
     ) -> Group:
         group = Group.new(
             id=GroupId(uuid4()),
-            name="",
+            name=generate_random_string(10),
             description=generate_random_string(30),
             company=company
             if company is not None
@@ -170,7 +170,7 @@ class NodeFactory:
     async def create_node(self, company: Company | None = None) -> Node:
         node = Node.new(
             id=NodeId(uuid4()),
-            name="",
+            name=generate_random_string(10),
             description=generate_random_string(30),
             company=company
             if company is not None

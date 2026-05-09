@@ -1,10 +1,13 @@
 from dataclasses import dataclass
 
+import structlog
 from sqlalchemy import insert, or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from prodik.application.interfaces.repositories import UserRepository
 from prodik.domain.user import Email, User, UserId, Username
+
+logger = structlog.get_logger()
 
 
 @dataclass
@@ -12,6 +15,7 @@ class UserRepositoryImpl(UserRepository):
     session: AsyncSession
 
     async def create(self, user: User) -> None:
+        logger.info("Repository create user", user_id=user.id)
         await self.session.execute(
             insert(User).values(
                 id=user.id,
@@ -28,6 +32,7 @@ class UserRepositoryImpl(UserRepository):
         )
 
     async def update(self, user: User) -> None:
+        logger.info("Repository update user", user_id=user.id)
         await self.session.execute(
             update(User)
             .where(
@@ -47,6 +52,11 @@ class UserRepositoryImpl(UserRepository):
     async def get_by_username_or_email(
         self, username: Username, email: Email
     ) -> User | None:
+        logger.info(
+            "Repository get user by username or email",
+            username=username,
+            email=email,
+        )
         result = await self.session.execute(
             select(User)
             .where(
@@ -57,18 +67,30 @@ class UserRepositoryImpl(UserRepository):
             )
             .limit(1)
         )
-        return result.scalar_one_or_none()
+        user = result.scalar_one_or_none()
+        logger.info(
+            "Repository fetched user by username or email", found=user is not None
+        )
+        return user
 
     async def get_by_id(self, id: UserId) -> User | None:
+        logger.info("Repository get user by id", user_id=id)
         result = await self.session.execute(
             select(User).where(User.id == id)  # type: ignore
         )
 
-        return result.scalar_one_or_none()
+        user = result.scalar_one_or_none()
+        logger.info("Repository fetched user by id", user_id=id, found=user is not None)
+        return user
 
     async def get_by_email(self, email: Email) -> User | None:
+        logger.info("Repository get user by email", email=email)
         result = await self.session.execute(
             select(User).where(User.email == email)  # type: ignore
         )
 
-        return result.scalar_one_or_none()
+        user = result.scalar_one_or_none()
+        logger.info(
+            "Repository fetched user by email", email=email, found=user is not None
+        )
+        return user
