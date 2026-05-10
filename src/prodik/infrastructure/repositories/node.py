@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 import structlog
-from sqlalchemy import delete, insert, select
+from sqlalchemy import delete, insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from prodik.application.interfaces.repositories import (
@@ -65,6 +65,19 @@ class NodeRepositoryImpl(NodeRepository):
         node = result.scalar_one_or_none()
         logger.info("Repository fetched node by id", node_id=id, found=node is not None)
         return node
+
+    async def update(self, node: Node) -> None:
+        logger.info("Repository update node", node_id=node.id)
+        await self.session.execute(
+            update(Node)
+            .where(
+                Node.id == node.id  # type: ignore
+            )
+            .values(
+                name=node.name,
+                description=node.description,
+            )
+        )
 
 
 @dataclass

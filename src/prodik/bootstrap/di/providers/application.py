@@ -26,13 +26,18 @@ from prodik.application.manage_edges import (
     UpdateEdgeWeightInteractor,
 )
 from prodik.application.manage_group import CreateGroupInteractor, DeleteGroupInteractor
-from prodik.application.manage_node import CreateNodeInteractor, DeleteNodeInteractor
+from prodik.application.manage_node import (
+    CreateNodeInteractor,
+    DeleteNodeInteractor,
+    UpdateNodeInteractor,
+)
 from prodik.application.manage_profile import UpdateCurrentUserProfileInteractor
 from prodik.application.services import AccessControlService
 
 
 class ApplicationProvider(Provider):
     provides = provide_all(
+        UpdateNodeInteractor,
         RegisterInteractor,
         LoginInteractor,
         AccessControlService,

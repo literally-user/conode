@@ -28,6 +28,20 @@ class CreateNodeRequest(BaseModel):
     group_id: GroupId
 
 
+class UpdateNodeRequest(BaseModel):
+    name: Annotated[
+        str,
+        Field(
+            min_length=MIN_ALLOWED_NODE_NAME_LENGTH,
+            max_length=MAX_ALLOWED_NODE_NAME_LENGTH,
+        ),
+    ]
+    description: Annotated[
+        str,
+        Field(max_length=MAX_ALLOWED_NODE_DESCRIPTION_LENGTH),
+    ]
+
+
 class NodeSchema(BaseModel):
     id: NodeId
     name: str

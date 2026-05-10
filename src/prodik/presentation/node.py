@@ -12,6 +12,8 @@ from prodik.application.manage_node import (
     CreateNodeInteractor,
     CreateNodeRequestDTO,
     DeleteNodeInteractor,
+    UpdateNodeInteractor,
+    UpdateNodeRequestDTO,
 )
 from prodik.domain.node import NodeAssociationId, NodeId
 from prodik.presentation.schemas.node import (
@@ -19,6 +21,7 @@ from prodik.presentation.schemas.node import (
     CreateNodeRequest,
     NodeAssociationSchema,
     NodeSchema,
+    UpdateNodeRequest,
 )
 
 router = APIRouter(tags=["nodes"], prefix="/nodes", route_class=DishkaRoute)
@@ -33,6 +36,30 @@ async def create_node(
             name=request.name,
             description=request.description,
             group_id=request.group_id,
+        )
+    )
+
+    return NodeSchema(
+        id=result.id,
+        name=result.name.value,
+        description=result.description.value,
+        company_id=result.company_id,
+        created_at=result.created_at,
+        updated_at=result.updated_at,
+    )
+
+
+@router.put("/{node_id}")
+async def update_node(
+    node_id: NodeId,
+    request: UpdateNodeRequest,
+    interactor: FromDishka[UpdateNodeInteractor],
+) -> NodeSchema:
+    result = await interactor.execute(
+        UpdateNodeRequestDTO(
+            name=request.name,
+            description=request.description,
+            node_id=node_id,
         )
     )
 

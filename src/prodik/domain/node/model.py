@@ -68,6 +68,12 @@ class Node(Entity[NodeId]):
             updated_at=now,
         )
 
+    def set_name(self, name: str) -> None:
+        self.name = NodeName(name)
+
+    def set_description(self, description: str) -> None:
+        self.description = NodeDescription(description)
+
 
 @dataclass
 class NodeAssociation(Entity[NodeAssociationId]):
