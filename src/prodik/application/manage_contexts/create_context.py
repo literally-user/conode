@@ -2,11 +2,9 @@ from dataclasses import dataclass
 from uuid import uuid4
 
 from prodik.application.errors import CompanyNotFoundError
-from prodik.application.interfaces.identity_provider import IdentityProvider
 from prodik.application.interfaces.repositories import (
     CompanyRepository,
     ContextRepository,
-    UserRepository,
 )
 from prodik.application.interfaces.transaction_manager import TransactionManager
 from prodik.application.services import AccessControlService
@@ -22,8 +20,6 @@ class CreateContextRequestDTO:
 @dataclass
 class CreateContextInteractor:
     transaction_manager: TransactionManager
-    identity_provider: IdentityProvider
-    user_repository: UserRepository
     company_repository: CompanyRepository
     context_repository: ContextRepository
     access_control_service: AccessControlService

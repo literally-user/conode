@@ -7,11 +7,9 @@ from prodik.application.errors import (
     CompanyNotFoundError,
     GroupNotFoundError,
 )
-from prodik.application.interfaces.identity_provider import IdentityProvider
 from prodik.application.interfaces.repositories import (
     CompanyRepository,
     GroupRepository,
-    UserRepository,
 )
 from prodik.application.interfaces.transaction_manager import TransactionManager
 from prodik.application.services import AccessControlService
@@ -30,9 +28,7 @@ class CreateGroupRequestDTO:
 @dataclass
 class CreateGroupInteractor:
     company_repository: CompanyRepository
-    user_repository: UserRepository
     group_repository: GroupRepository
-    identity_provider: IdentityProvider
     transaction_manager: TransactionManager
     access_control_service: AccessControlService
 

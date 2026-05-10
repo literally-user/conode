@@ -5,11 +5,9 @@ from prodik.application.errors import (
     NodeNotFoundError,
     NotEnoughRightsError,
 )
-from prodik.application.interfaces.identity_provider import IdentityProvider
 from prodik.application.interfaces.repositories import (
     CompanyRepository,
     NodeRepository,
-    UserRepository,
 )
 from prodik.application.interfaces.transaction_manager import TransactionManager
 from prodik.application.services import AccessControlService
@@ -18,10 +16,8 @@ from prodik.domain.node import NodeId
 
 @dataclass
 class DeleteNodeInteractor:
-    identity_provider: IdentityProvider
     transaction_manager: TransactionManager
     node_repository: NodeRepository
-    user_repository: UserRepository
     company_repository: CompanyRepository
     access_control_service: AccessControlService
 

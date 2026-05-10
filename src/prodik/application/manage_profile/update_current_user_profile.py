@@ -3,7 +3,6 @@ from dataclasses import dataclass
 import structlog
 
 from prodik.application.errors import UserAlreadyExistsError
-from prodik.application.interfaces.identity_provider import IdentityProvider
 from prodik.application.interfaces.repositories import UserRepository
 from prodik.application.interfaces.transaction_manager import TransactionManager
 from prodik.application.services import AccessControlService
@@ -24,7 +23,6 @@ class UpdateCurrentUserProfileRequestDTO:
 @dataclass
 class UpdateCurrentUserProfileInteractor:
     user_repository: UserRepository
-    identity_provider: IdentityProvider
     transaction_manager: TransactionManager
     access_control_service: AccessControlService
 

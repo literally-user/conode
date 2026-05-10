@@ -7,7 +7,6 @@ from prodik.application.errors import (
     ContextNotFoundError,
     NodeNotFoundError,
 )
-from prodik.application.interfaces.identity_provider import IdentityProvider
 from prodik.application.interfaces.repositories import (
     CompanyRepository,
     ContextRepository,
@@ -36,7 +35,6 @@ class CreateEdgeInteractor:
     transaction_manager: TransactionManager
     context_repository: ContextRepository
     company_repository: CompanyRepository
-    identity_provider: IdentityProvider
     node_repository: NodeRepository
     edge_repository: EdgeRepository
 

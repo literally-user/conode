@@ -4,11 +4,9 @@ from prodik.application.errors import (
     CompanyNotFoundError,
     ContextNotFoundError,
 )
-from prodik.application.interfaces.identity_provider import IdentityProvider
 from prodik.application.interfaces.repositories import (
     CompanyRepository,
     ContextRepository,
-    UserRepository,
 )
 from prodik.application.interfaces.transaction_manager import TransactionManager
 from prodik.application.services import AccessControlService
@@ -17,10 +15,8 @@ from prodik.domain.context import ContextId
 
 @dataclass
 class DeleteContextInteractor:
-    user_repository: UserRepository
     company_repository: CompanyRepository
     context_repository: ContextRepository
-    identity_provider: IdentityProvider
     access_control_service: AccessControlService
     transaction_manager: TransactionManager
 

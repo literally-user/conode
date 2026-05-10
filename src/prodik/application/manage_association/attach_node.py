@@ -7,7 +7,6 @@ from prodik.application.errors import (
     CompanyNotFoundError,
     GroupNotFoundError,
 )
-from prodik.application.interfaces.identity_provider import IdentityProvider
 from prodik.application.interfaces.repositories import (
     CompanyRepository,
     GroupRepository,
@@ -34,7 +33,6 @@ class AttachNodeInteractor:
     node_association_repository: NodeAssociationRepository
     access_control_service: AccessControlService
     transaction_manager: TransactionManager
-    identity_provider: IdentityProvider
     group_repository: GroupRepository
     node_repository: NodeRepository
     company_repository: CompanyRepository

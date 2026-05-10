@@ -4,11 +4,9 @@ from prodik.application.errors import (
     CompanyNotFoundError,
     EdgeNotFoundError,
 )
-from prodik.application.interfaces.identity_provider import IdentityProvider
 from prodik.application.interfaces.repositories import (
     CompanyRepository,
     EdgeRepository,
-    UserRepository,
 )
 from prodik.application.interfaces.transaction_manager import TransactionManager
 from prodik.application.services import AccessControlService
@@ -17,10 +15,8 @@ from prodik.domain.edge import EdgeId
 
 @dataclass
 class IncrementEdgeWeightInteractor:
-    identity_provider: IdentityProvider
     company_repository: CompanyRepository
     edge_repository: EdgeRepository
-    user_repository: UserRepository
     transaction_manager: TransactionManager
     access_control_service: AccessControlService
 

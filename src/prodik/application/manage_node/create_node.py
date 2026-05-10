@@ -7,12 +7,10 @@ from prodik.application.errors import (
     CompanyNotFoundError,
     GroupNotFoundError,
 )
-from prodik.application.interfaces.identity_provider import IdentityProvider
 from prodik.application.interfaces.repositories import (
     CompanyRepository,
     GroupRepository,
     NodeRepository,
-    UserRepository,
 )
 from prodik.application.interfaces.transaction_manager import TransactionManager
 from prodik.application.services import AccessControlService
@@ -32,10 +30,8 @@ class CreateNodeRequestDTO:
 @dataclass
 class CreateNodeInteractor:
     company_repository: CompanyRepository
-    user_repository: UserRepository
     group_repository: GroupRepository
     node_repository: NodeRepository
-    identity_provider: IdentityProvider
     transaction_manager: TransactionManager
     access_control_service: AccessControlService
 

@@ -4,7 +4,6 @@ from uuid import uuid4
 import structlog
 
 from prodik.application.errors import CompanyAlreadyExistsError
-from prodik.application.interfaces.identity_provider import IdentityProvider
 from prodik.application.interfaces.repositories import CompanyRepository
 from prodik.application.interfaces.transaction_manager import TransactionManager
 from prodik.application.services import AccessControlService
@@ -21,7 +20,6 @@ class RegisterCompanyRequestDTO:
 
 @dataclass
 class RegisterCompanyInteractor:
-    identity_provider: IdentityProvider
     company_repository: CompanyRepository
     transaction_manager: TransactionManager
     access_control_service: AccessControlService

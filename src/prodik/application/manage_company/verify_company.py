@@ -6,7 +6,6 @@ from prodik.application.errors import (
     CompanyNotFoundError,
     NotEnoughRightsError,
 )
-from prodik.application.interfaces.identity_provider import IdentityProvider
 from prodik.application.interfaces.repositories import CompanyRepository
 from prodik.application.interfaces.transaction_manager import TransactionManager
 from prodik.application.services import AccessControlService
@@ -19,7 +18,6 @@ logger = structlog.get_logger()
 class VerifyCompanyInteractor:
     transaction_manager: TransactionManager
     company_repository: CompanyRepository
-    identity_provider: IdentityProvider
     access_control_service: AccessControlService
 
     async def execute(self, company_id: CompanyId) -> None:

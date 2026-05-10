@@ -6,11 +6,9 @@ from prodik.application.errors import (
     AssociationNotFoundError,
     CompanyNotFoundError,
 )
-from prodik.application.interfaces.identity_provider import IdentityProvider
 from prodik.application.interfaces.repositories import (
     CompanyRepository,
     NodeAssociationRepository,
-    UserRepository,
 )
 from prodik.application.interfaces.transaction_manager import TransactionManager
 from prodik.application.services import AccessControlService
@@ -25,8 +23,6 @@ class DetachNodeInteractor:
     access_control_service: AccessControlService
     transaction_manager: TransactionManager
     company_repository: CompanyRepository
-    identity_provider: IdentityProvider
-    user_repository: UserRepository
 
     async def execute(self, association_id: NodeAssociationId) -> None:
         async with self.transaction_manager:
