@@ -1,6 +1,6 @@
 from datetime import datetime
 from http import HTTPStatus
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 import pytest
 from dirty_equals import IsPartialDict, IsStr, IsUUID
@@ -54,7 +54,7 @@ async def test_create_edge_ok(
 
     payload = response.json()
     edge = Edge(
-        id=EdgeId(UUID(payload["id"])),
+        id=EdgeId(payload["id"]),
         company_id=company.id,
         context_id=context.id,
         node_a_id=node_a.id,
@@ -105,12 +105,12 @@ async def test_create_edge_node_not_found(
     node_a = await node_factory.create_node(company=company)
     context = await context_factory.create_context(company=company)
 
-    missing_node_id = str(uuid4())
+    missing_node_id = uuid4()
     response = await test_client.post(
         "/edges/",
         json={
             "node_a_id": str(node_a.id),
-            "node_b_id": missing_node_id,
+            "node_b_id": str(missing_node_id),
             "context_id": str(context.id),
         },
         headers={"Authorization": f"Bearer {user_factory_response.access_token}"},
@@ -121,6 +121,6 @@ async def test_create_edge_node_not_found(
         detail="Some of nodes not found",
         meta=[
             {"key": "node_a_id", "value": str(node_a.id)},
-            {"key": "node_b_id", "value": missing_node_id},
+            {"key": "node_b_id", "value": str(missing_node_id)},
         ],
     )

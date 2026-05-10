@@ -54,3 +54,25 @@ async def test_update_current_user_password_invalid_old_password(
             {"key": "old_password", "value": "TOTALYINVALIDPASSWORD12348904567890"},
         ],
     )
+
+
+@pytest.mark.asyncio
+async def test_update_current_user_password_invalid_access_token(
+    test_client: AsyncClient,
+    user_factory: UserFactory,
+) -> None:
+    factory_result = await user_factory.create_user(admin=False)
+
+    response = await test_client.put(
+        "/users/me/password",
+        json={
+            "old_password": factory_result.password,
+            "new_password": "NewSuperSecretPassword123456",
+        },
+        headers={"Authorization": "Bearer totally-invalid-access-token"},
+    )
+
+    assert response.status_code == HTTPStatus.UNAUTHORIZED
+    assert response.json() == IsPartialDict(
+        detail="Invalid authorization token",
+    )

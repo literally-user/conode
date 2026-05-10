@@ -53,3 +53,20 @@ async def test_login_invalid_credentials(
             {"key": "password", "value": "TotallyInvalidPassword123456789"},
         ],
     )
+
+
+@pytest.mark.asyncio
+async def test_login_user_not_found(test_client: AsyncClient) -> None:
+    response = await test_client.post(
+        "/auth/login",
+        json={
+            "email": "unknown-user@conode.team",
+            "password": "TotallyInvalidPassword123456789",
+        },
+    )
+
+    assert response.status_code == HTTPStatus.NOT_FOUND
+    assert response.json() == IsPartialDict(
+        detail="User not found",
+        meta=None,
+    )

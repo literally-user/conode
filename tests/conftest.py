@@ -162,6 +162,17 @@ async def node_association_factory(
 
 
 @pytest.fixture
+async def node_association_repository(
+    test_container: AsyncContainer,
+) -> NodeAssociationRepository:
+    async with test_container() as container:
+        return cast(
+            "NodeAssociationRepository",
+            await container.get(NodeAssociationRepository),
+        )
+
+
+@pytest.fixture
 async def entity_existence_service(
     test_session: AsyncSession,
 ) -> EntityExistenceService:
