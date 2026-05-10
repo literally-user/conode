@@ -6,7 +6,9 @@ from fastapi import APIRouter
 from prodik.application.manage_contexts import (
     CreateContextInteractor,
     CreateContextRequestDTO,
+    DeleteContextInteractor,
 )
+from prodik.domain.context import ContextId
 from prodik.presentation.schemas.context import ContextSchema, CreateContextRequest
 
 router = APIRouter(tags=["contexts"], prefix="/contexts", route_class=DishkaRoute)
@@ -27,3 +29,10 @@ async def create_context(
         created_at=result.created_at,
         updated_at=result.updated_at,
     )
+
+
+@router.delete("/{context_id}", status_code=HTTPStatus.NO_CONTENT)
+async def delete_context(
+    context_id: ContextId, interactor: FromDishka[DeleteContextInteractor]
+) -> None:
+    await interactor.execute(context_id)

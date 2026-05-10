@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 import structlog
-from sqlalchemy import insert, select
+from sqlalchemy import delete, insert, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from prodik.application.interfaces.repositories import ContextRepository
@@ -40,3 +40,11 @@ class ContextRepositoryImpl(ContextRepository):
             "Repository fetched context by id", context_id=id, found=context is not None
         )
         return context
+
+    async def delete(self, context: Context) -> None:
+        logger.info("Repository delete context", context_id=context.id)
+        await self.session.execute(
+            delete(Context).where(
+                Context.id == context.id  # type: ignore
+            )
+        )
