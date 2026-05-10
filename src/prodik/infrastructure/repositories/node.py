@@ -8,7 +8,8 @@ from prodik.application.interfaces.repositories import (
     NodeAssociationRepository,
     NodeRepository,
 )
-from prodik.domain.node.model import Node, NodeAssociation, NodeAssociationId, NodeId
+from prodik.domain.group import GroupId
+from prodik.domain.node import Node, NodeAssociation, NodeAssociationId, NodeId
 
 logger = structlog.get_logger()
 
@@ -79,6 +80,29 @@ class NodeRepositoryImpl(NodeRepository):
             )
         )
 
+    async def get_all_by_associations(self, nodes: list[NodeAssociation]) -> list[Node]:
+        if not nodes:
+            logger.info("Repository get nodes by associations", associations_count=0)
+            return []
+
+        node_ids = [association.node_id for association in nodes]
+        logger.info(
+            "Repository get nodes by associations",
+            associations_count=len(nodes),
+            node_ids_count=len(node_ids),
+        )
+        result = await self.session.execute(
+            select(Node).where(
+                Node.id.in_(node_ids)  # type: ignore
+            )
+        )
+
+        result_nodes = list(result.scalars().all())
+        logger.info(
+            "Repository fetched nodes by associations", found_count=len(result_nodes)
+        )
+        return result_nodes
+
 
 @dataclass
 class NodeAssociationRepositoryImpl(NodeAssociationRepository):
@@ -148,3 +172,19 @@ class NodeAssociationRepositoryImpl(NodeAssociationRepository):
                 ]
             )
         )
+
+    async def get_all_by_group_id(self, group_id: GroupId) -> list[NodeAssociation]:
+        logger.info("Repository get node associations by group id", group_id=group_id)
+        result = await self.session.execute(
+            select(NodeAssociation).where(
+                NodeAssociation.group_id == group_id  # type: ignore
+            )
+        )
+
+        associations = list(result.scalars())
+        logger.info(
+            "Repository fetched node associations by group id",
+            group_id=group_id,
+            count=len(associations),
+        )
+        return associations

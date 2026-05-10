@@ -5,7 +5,8 @@ from sqlalchemy import delete, insert, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from prodik.application.interfaces.repositories import GroupRepository
-from prodik.domain.group.model import Group, GroupId
+from prodik.domain.company import CompanyId
+from prodik.domain.group import Group, GroupId
 
 logger = structlog.get_logger()
 
@@ -48,3 +49,13 @@ class GroupRepositoryImpl(GroupRepository):
                 Group.id == group.id  # type: ignore
             )
         )
+
+    async def get_all_by_company_id(self, company_id: CompanyId) -> list[Group]:
+        logger.info("Repository get groups by company id", company_id=company_id)
+        result = await self.session.execute(
+            delete(Group).where(
+                Group.company_id == company_id  # type: ignore
+            )
+        )
+
+        return list(result.scalars())

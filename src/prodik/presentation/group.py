@@ -8,6 +8,7 @@ from prodik.application.manage_group import (
     CreateGroupRequestDTO,
     DeleteGroupInteractor,
 )
+from prodik.application.receive_group_info import GetGroupsByCurrentCompanyInteractor
 from prodik.domain.group import GroupId
 from prodik.presentation.schemas.group import CreateGroupRequest, GroupSchema
 
@@ -35,6 +36,13 @@ async def create_group(
         created_at=result.created_at,
         updated_at=result.updated_at,
     )
+
+
+@router.get("/")
+async def get_all_current_company_groups(
+    interactor: FromDishka[GetGroupsByCurrentCompanyInteractor],
+) -> None:
+    await interactor.execute()
 
 
 @router.delete("/{group_id}", status_code=HTTPStatus.NO_CONTENT)

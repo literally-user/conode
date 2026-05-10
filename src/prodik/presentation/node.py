@@ -15,6 +15,8 @@ from prodik.application.manage_node import (
     UpdateNodeInteractor,
     UpdateNodeRequestDTO,
 )
+from prodik.application.receive_nodes_info import GetNodesByGroupInteractor
+from prodik.domain.group import GroupId
 from prodik.domain.node import NodeAssociationId, NodeId
 from prodik.presentation.schemas.node import (
     AttachNodeRequest,
@@ -107,3 +109,22 @@ async def detach_node(
     interactor: FromDishka[DetachNodeInteractor],
 ) -> None:
     await interactor.execute(association_id)
+
+
+@router.get("/{group_id}")
+async def get_all_nodes_by_group(
+    group_id: GroupId,
+    interactor: FromDishka[GetNodesByGroupInteractor],
+) -> list[NodeSchema]:
+    result = await interactor.execute(group_id)
+    return [
+        NodeSchema(
+            id=node.id,
+            name=node.name.value,
+            description=node.description.value,
+            company_id=node.company_id,
+            created_at=node.created_at,
+            updated_at=node.updated_at,
+        )
+        for node in result
+    ]

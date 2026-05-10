@@ -32,6 +32,8 @@ from prodik.application.manage_node import (
     UpdateNodeInteractor,
 )
 from prodik.application.manage_profile import UpdateCurrentUserProfileInteractor
+from prodik.application.receive_group_info import GetGroupsByCurrentCompanyInteractor
+from prodik.application.receive_nodes_info import GetNodesByGroupInteractor
 from prodik.application.receive_user_info import (
     GetCurrentUserInteractor,
     GetUserByUsernameInteractor,
@@ -49,10 +51,12 @@ class ApplicationProvider(Provider):
         RefreshTokenInteractor,
         UpdateEdgeWeightInteractor,
         IncrementEdgeWeightInteractor,
+        GetGroupsByCurrentCompanyInteractor,
         UpdateCurrentUserProfileInteractor,
         UpdateCurrentUserPasswordInteractor,
         DecrementEdgeWeightInteractor,
         GetUserByUsernameInteractor,
+        GetNodesByGroupInteractor,
         RegisterCompanyInteractor,
         GetCurrentUserInteractor,
         CreateContextInteractor,
