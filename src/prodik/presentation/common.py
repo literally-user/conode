@@ -1,122 +1,22 @@
-import time
-from collections.abc import Awaitable, Callable
-from http import HTTPStatus
-from typing import Final
-from uuid import uuid4
-
 import structlog
-from fastapi import FastAPI, Request, status
-from fastapi.encoders import jsonable_encoder
-from fastapi.responses import JSONResponse, Response
-from starlette.middleware.base import BaseHTTPMiddleware
-from structlog.contextvars import bind_contextvars
+from fastapi import FastAPI
 
-from prodik.application.errors import (
-    ApplicationError,
-    AssociationNotFoundError,
-    AuthorizationNotFoundError,
-    CompanyAlreadyExistsError,
-    CompanyNotFoundError,
-    ContextNotFoundError,
-    EdgeAlreadyExistsError,
-    EdgeNotFoundError,
-    FailedToReadClientError,
-    GroupNotFoundError,
-    InvalidCredentialsError,
-    InvalidOldPasswordError,
-    InvalidTokenError,
-    NodeNotFoundError,
-    NotEnoughRightsError,
-    SessionNotFoundError,
-    UserAlreadyExistsError,
-    UserNotFoundError,
-)
-from prodik.domain.edge.errors import EdgeDomainValidationError
+from prodik.application.errors import ApplicationError
 from prodik.presentation.auth import router as auth_router
 from prodik.presentation.company import router as company_router
 from prodik.presentation.context import router as context_router
 from prodik.presentation.edge import router as edge_router
+from prodik.presentation.exceptions import (
+    application_error_handler,
+    default_error_handler,
+)
 from prodik.presentation.group import router as group_router
+from prodik.presentation.middlewares import LoggerMiddleware
 from prodik.presentation.node import router as node_router
 from prodik.presentation.root import router as root_router
 from prodik.presentation.user import router as user_router
 
 logger = structlog.get_logger()
-
-EXCEPTION_HANDLERS: Final[dict[type[ApplicationError], HTTPStatus]] = {
-    UserAlreadyExistsError: HTTPStatus.CONFLICT,
-    CompanyAlreadyExistsError: HTTPStatus.CONFLICT,
-    EdgeAlreadyExistsError: HTTPStatus.CONFLICT,
-    InvalidTokenError: HTTPStatus.UNAUTHORIZED,
-    InvalidCredentialsError: HTTPStatus.UNAUTHORIZED,
-    SessionNotFoundError: HTTPStatus.UNAUTHORIZED,
-    AuthorizationNotFoundError: HTTPStatus.NOT_FOUND,
-    UserNotFoundError: HTTPStatus.NOT_FOUND,
-    CompanyNotFoundError: HTTPStatus.NOT_FOUND,
-    ContextNotFoundError: HTTPStatus.NOT_FOUND,
-    EdgeNotFoundError: HTTPStatus.NOT_FOUND,
-    NodeNotFoundError: HTTPStatus.NOT_FOUND,
-    GroupNotFoundError: HTTPStatus.NOT_FOUND,
-    AssociationNotFoundError: HTTPStatus.NOT_FOUND,
-    FailedToReadClientError: HTTPStatus.BAD_REQUEST,
-    EdgeDomainValidationError: HTTPStatus.BAD_REQUEST,
-    InvalidOldPasswordError: HTTPStatus.FORBIDDEN,
-    NotEnoughRightsError: HTTPStatus.FORBIDDEN,
-}
-
-
-class LoggerMiddleware(BaseHTTPMiddleware):
-    async def dispatch(
-        self,
-        request: Request,
-        call_next: Callable[[Request], Awaitable[Response]],
-    ) -> Response:
-        bind_contextvars(request_id=uuid4())
-
-        start_time = time.perf_counter()
-        response = await call_next(request)
-        process_time = time.perf_counter() - start_time
-
-        logger.debug(
-            "Processed request",
-            method=request.method,
-            url=request.url.path,
-            time=process_time,
-        )
-
-        return response
-
-
-async def application_error_handler(
-    _request: Request, exception: ApplicationError
-) -> JSONResponse:
-    status_code = EXCEPTION_HANDLERS.get(
-        type(exception), status.HTTP_500_INTERNAL_SERVER_ERROR
-    )
-    logger.warning(
-        "Handled application error",
-        error_type=type(exception).__name__,
-        detail=exception.detail,
-        status_code=status_code,
-        meta=exception.meta,
-    )
-    return JSONResponse(
-        status_code=status_code,
-        content=jsonable_encoder({"detail": exception.detail, "meta": exception.meta}),
-    )
-
-
-async def default_error_handler(
-    _request: Request, exception: Exception
-) -> JSONResponse:
-    logger.exception(
-        "Unhandled exception",
-        error_type=type(exception).__name__,
-    )
-    return JSONResponse(
-        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        content={"detail": "Internal Server Error"},
-    )
 
 
 def include_handlers(app: FastAPI) -> None:
