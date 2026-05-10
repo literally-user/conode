@@ -1,11 +1,13 @@
 from dataclasses import dataclass
 
 import structlog
-from sqlalchemy import delete, insert, select, update
+from sqlalchemy import and_, delete, insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from prodik.application.interfaces.repositories import EdgeRepository
+from prodik.domain.context import ContextId
 from prodik.domain.edge.model import Edge, EdgeId
+from prodik.domain.node import NodeId
 
 logger = structlog.get_logger()
 
@@ -60,4 +62,34 @@ class EdgeRepositoryImpl(EdgeRepository):
 
         edge = result.scalar_one_or_none()
         logger.info("Repository fetched edge by id", edge_id=id, found=edge is not None)
+        return edge
+
+    async def get_by_nodes_and_context(
+        self, node_a_id: NodeId, node_b_id: NodeId, context_id: ContextId
+    ) -> Edge | None:
+        logger.info(
+            "Repository get edge by nodes and context",
+            node_a_id=node_a_id,
+            node_b_id=node_b_id,
+            context_id=context_id,
+        )
+        result = await self.session.execute(
+            select(Edge).where(
+                and_(
+                    Edge.node_a_id == node_a_id,  # type: ignore
+                    Edge.node_b_id == node_b_id,  # type: ignore
+                    Edge.context_id == context_id,  # type: ignore
+                )
+            )
+        )
+
+        edge = result.scalar_one_or_none()
+        logger.info(
+            "Repository get edge by nodes and context",
+            node_a_id=node_a_id,
+            node_b_id=node_b_id,
+            context_id=context_id,
+            found=edge is not None,
+        )
+
         return edge

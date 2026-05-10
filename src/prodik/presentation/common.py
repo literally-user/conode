@@ -6,6 +6,7 @@ from uuid import uuid4
 
 import structlog
 from fastapi import FastAPI, Request, status
+from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 from structlog.contextvars import bind_contextvars
@@ -17,6 +18,7 @@ from prodik.application.errors import (
     CompanyAlreadyExistsError,
     CompanyNotFoundError,
     ContextNotFoundError,
+    EdgeAlreadyExistsError,
     EdgeNotFoundError,
     FailedToReadClientError,
     GroupNotFoundError,
@@ -44,6 +46,7 @@ logger = structlog.get_logger()
 EXCEPTION_HANDLERS: Final[dict[type[ApplicationError], HTTPStatus]] = {
     UserAlreadyExistsError: HTTPStatus.CONFLICT,
     CompanyAlreadyExistsError: HTTPStatus.CONFLICT,
+    EdgeAlreadyExistsError: HTTPStatus.CONFLICT,
     InvalidTokenError: HTTPStatus.UNAUTHORIZED,
     InvalidCredentialsError: HTTPStatus.UNAUTHORIZED,
     SessionNotFoundError: HTTPStatus.UNAUTHORIZED,
@@ -68,7 +71,7 @@ class LoggerMiddleware(BaseHTTPMiddleware):
         request: Request,
         call_next: Callable[[Request], Awaitable[Response]],
     ) -> Response:
-        bind_contextvars(request_id=str(uuid4()))
+        bind_contextvars(request_id=uuid4())
 
         start_time = time.perf_counter()
         response = await call_next(request)
@@ -97,8 +100,10 @@ async def application_error_handler(
         status_code=status_code,
         meta=exception.meta,
     )
-    result = {"detail": exception.detail, "meta": exception.meta}
-    return JSONResponse(status_code=status_code, content=result)
+    return JSONResponse(
+        status_code=status_code,
+        content=jsonable_encoder({"detail": exception.detail, "meta": exception.meta}),
+    )
 
 
 async def default_error_handler(

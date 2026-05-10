@@ -10,6 +10,7 @@ from prodik.domain.edge import Edge, EdgeId
 from tests.factories import (
     CompanyFactory,
     ContextFactory,
+    EdgeFactory,
     NodeFactory,
     UserFactory,
 )
@@ -93,34 +94,37 @@ async def test_create_edge_context_not_found(
 
 
 @pytest.mark.asyncio
-async def test_create_edge_node_not_found(
+async def test_create_edge_already_exists(
     test_client: AsyncClient,
     user_factory: UserFactory,
     company_factory: CompanyFactory,
     node_factory: NodeFactory,
     context_factory: ContextFactory,
+    edge_factory: EdgeFactory,
 ) -> None:
     user_factory_response = await user_factory.create_user(admin=False)
     company = await company_factory.create_company(user_factory_response.user)
-    node_a = await node_factory.create_node(company=company)
     context = await context_factory.create_context(company=company)
+    node_a = await node_factory.create_node(company=company)
+    node_b = await node_factory.create_node(company=company)
+    await edge_factory.create_edge(node_a, node_b, company, context)
 
-    missing_node_id = uuid4()
     response = await test_client.post(
         "/edges/",
         json={
             "node_a_id": str(node_a.id),
-            "node_b_id": str(missing_node_id),
+            "node_b_id": str(node_b.id),
             "context_id": str(context.id),
         },
         headers={"Authorization": f"Bearer {user_factory_response.access_token}"},
     )
 
-    assert response.status_code == HTTPStatus.NOT_FOUND
+    assert response.status_code == HTTPStatus.CONFLICT
     assert response.json() == IsPartialDict(
-        detail="Some of nodes not found",
+        detail="Edge between nodes in this context already exists",
         meta=[
             {"key": "node_a_id", "value": str(node_a.id)},
-            {"key": "node_b_id", "value": str(missing_node_id)},
+            {"key": "node_b_id", "value": str(node_b.id)},
+            {"key": "context_id", "value": str(context.id)},
         ],
     )

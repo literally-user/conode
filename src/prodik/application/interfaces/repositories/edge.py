@@ -1,6 +1,8 @@
 from typing import Protocol
 
+from prodik.domain.context import ContextId
 from prodik.domain.edge import Edge, EdgeId
+from prodik.domain.node import NodeId
 
 
 class EdgeRepository(Protocol):
@@ -8,3 +10,6 @@ class EdgeRepository(Protocol):
     async def delete(self, edge: Edge) -> None: ...
     async def update(self, edge: Edge) -> None: ...
     async def get_by_id(self, id: EdgeId) -> Edge | None: ...
+    async def get_by_nodes_and_context(
+        self, node_a_id: NodeId, node_b_id: NodeId, context_id: ContextId
+    ) -> Edge | None: ...
