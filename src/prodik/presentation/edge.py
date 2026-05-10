@@ -11,12 +11,15 @@ from prodik.application.manage_edges import (
     IncrementEdgeWeightInteractor,
     UpdateEdgeWeightInteractor,
 )
+from prodik.application.receive_edge_info import GetEdgesByContextInteractor
+from prodik.domain.context import ContextId
 from prodik.domain.edge import EdgeId
 from prodik.presentation.schemas.edge import (
     CreateEdgeRequest,
     EdgeSchema,
     UpdateEdgeWeightRequest,
 )
+from prodik.presentation.schemas.node import NodeSchema
 
 router = APIRouter(tags=["edges"], prefix="/edges", route_class=DishkaRoute)
 
@@ -74,3 +77,23 @@ async def update_edge_weight(
     interactor: FromDishka[UpdateEdgeWeightInteractor],
 ) -> None:
     await interactor.execute(edge_id, request.weight)
+
+
+@router.get("/{context_id}")
+async def get_all_edges_by_context(
+    context_id: ContextId,
+    interactor: FromDishka[GetEdgesByContextInteractor],
+) -> list[NodeSchema]:
+    result = await interactor.execute(context_id)
+
+    return [
+        NodeSchema(
+            id=node.id,
+            name=node.name.value,
+            description=node.description.value,
+            company_id=node.company_id,
+            created_at=node.created_at,
+            updated_at=node.updated_at,
+        )
+        for node in result
+    ]

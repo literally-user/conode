@@ -8,6 +8,9 @@ from prodik.application.manage_contexts import (
     CreateContextRequestDTO,
     DeleteContextInteractor,
 )
+from prodik.application.receive_context_info import (
+    GetContextsByCurrentCompanyInteractor,
+)
 from prodik.domain.context import ContextId
 from prodik.presentation.schemas.context import ContextSchema, CreateContextRequest
 
@@ -36,3 +39,22 @@ async def delete_context(
     context_id: ContextId, interactor: FromDishka[DeleteContextInteractor]
 ) -> None:
     await interactor.execute(context_id)
+
+
+@router.get("/")
+async def get_all_current_company_contexts(
+    interactor: FromDishka[GetContextsByCurrentCompanyInteractor],
+) -> list[ContextSchema]:
+    result = await interactor.execute()
+
+    return [
+        ContextSchema(
+            id=context.id,
+            name=context.name.value,
+            description=context.description.value,
+            company_id=context.company_id,
+            created_at=context.created_at,
+            updated_at=context.updated_at,
+        )
+        for context in result
+    ]

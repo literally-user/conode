@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from prodik.application.interfaces.repositories import EdgeRepository
 from prodik.domain.context import ContextId
-from prodik.domain.edge.model import Edge, EdgeId
+from prodik.domain.edge import Edge, EdgeId
 from prodik.domain.node import NodeId
 
 logger = structlog.get_logger()
@@ -93,3 +93,13 @@ class EdgeRepositoryImpl(EdgeRepository):
         )
 
         return edge
+
+    async def get_all_by_context_id(self, context_id: ContextId) -> list[Edge]:
+        logger.info("Repository get edges by context id", context_id=context_id)
+        result = await self.session.execute(
+            select(Edge).where(
+                Edge.context_id == context_id  # type: ignore
+            )
+        )
+
+        return list(result.scalars())

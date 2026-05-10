@@ -15,7 +15,7 @@ from prodik.application.manage_node import (
     UpdateNodeInteractor,
     UpdateNodeRequestDTO,
 )
-from prodik.application.receive_nodes_info import GetNodesByGroupInteractor
+from prodik.application.receive_node_info import GetNodesByGroupInteractor
 from prodik.domain.group import GroupId
 from prodik.domain.node import NodeAssociationId, NodeId
 from prodik.presentation.schemas.node import (

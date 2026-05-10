@@ -5,7 +5,8 @@ from sqlalchemy import delete, insert, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from prodik.application.interfaces.repositories import ContextRepository
-from prodik.domain.context.model import Context, ContextId
+from prodik.domain.company import CompanyId
+from prodik.domain.context import Context, ContextId
 
 logger = structlog.get_logger()
 
@@ -48,3 +49,13 @@ class ContextRepositoryImpl(ContextRepository):
                 Context.id == context.id  # type: ignore
             )
         )
+
+    async def get_all_by_company_id(self, company_id: CompanyId) -> list[Context]:
+        logger.info("Repository get groups by contexts id", company_id=company_id)
+        result = await self.session.execute(
+            select(Context).where(
+                Context.company_id == company_id  # type: ignore
+            )
+        )
+
+        return list(result.scalars())
