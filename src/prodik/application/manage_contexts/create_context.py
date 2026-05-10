@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from uuid import uuid4
 
-from prodik.application.errors import CompanyNotFoundError, UserNotFoundError
+from prodik.application.errors import CompanyNotFoundError
 from prodik.application.interfaces.identity_provider import IdentityProvider
 from prodik.application.interfaces.repositories import (
     CompanyRepository,
@@ -30,13 +30,7 @@ class CreateContextInteractor:
 
     async def execute(self, request: CreateContextRequestDTO) -> Context:
         async with self.transaction_manager:
-            user_meta = self.identity_provider.get_current_user_meta()
-
-            user = await self.user_repository.get_by_id(user_meta["user_id"])
-            if user is None:
-                raise UserNotFoundError("User not found", None)
-
-            self.access_control_service.ensure_revision_is_valid(user_meta, user)
+            user = await self.access_control_service.get_authorized_user()
 
             company = await self.company_repository.get_by_user_id(user.id)
             if company is None:

@@ -3,9 +3,9 @@ from uuid import uuid4
 
 import structlog
 
-from prodik.application.errors import CompanyAlreadyExistsError, UserNotFoundError
+from prodik.application.errors import CompanyAlreadyExistsError
 from prodik.application.interfaces.identity_provider import IdentityProvider
-from prodik.application.interfaces.repositories import CompanyRepository, UserRepository
+from prodik.application.interfaces.repositories import CompanyRepository
 from prodik.application.interfaces.transaction_manager import TransactionManager
 from prodik.application.services import AccessControlService
 from prodik.domain.company import Company, CompanyId, CompanyName
@@ -22,20 +22,13 @@ class RegisterCompanyRequestDTO:
 @dataclass
 class RegisterCompanyInteractor:
     identity_provider: IdentityProvider
-    user_repository: UserRepository
     company_repository: CompanyRepository
     transaction_manager: TransactionManager
     access_control_service: AccessControlService
 
     async def execute(self, request: RegisterCompanyRequestDTO) -> Company:
         async with self.transaction_manager:
-            user_meta = self.identity_provider.get_current_user_meta()
-
-            user = await self.user_repository.get_by_id(user_meta["user_id"])
-            if user is None:
-                raise UserNotFoundError("User not found", None)
-
-            self.access_control_service.ensure_revision_is_valid(user_meta, user)
+            user = await self.access_control_service.get_authorized_user()
 
             company = await self.company_repository.get_by_name(
                 CompanyName(request.name)

@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 import structlog
 
-from prodik.application.errors import UserAlreadyExistsError, UserNotFoundError
+from prodik.application.errors import UserAlreadyExistsError
 from prodik.application.interfaces.identity_provider import IdentityProvider
 from prodik.application.interfaces.repositories import UserRepository
 from prodik.application.interfaces.transaction_manager import TransactionManager
@@ -30,13 +30,7 @@ class UpdateCurrentUserProfileInteractor:
 
     async def execute(self, request: UpdateCurrentUserProfileRequestDTO) -> None:
         async with self.transaction_manager:
-            user_meta = self.identity_provider.get_current_user_meta()
-
-            user = await self.user_repository.get_by_id(user_meta["user_id"])
-            if user is None:
-                raise UserNotFoundError("User not found", None)
-
-            self.access_control_service.ensure_revision_is_valid(user_meta, user)
+            user = await self.access_control_service.get_authorized_user()
 
             unique_user = await self.user_repository.get_by_email(Email(request.email))
             if unique_user is not None and unique_user != user:
