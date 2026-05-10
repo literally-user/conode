@@ -58,13 +58,9 @@ class LoginInteractor:
             if user is None:
                 raise UserNotFoundError("User not found", None)
 
-            logger.debug("Received user", user_id=user.id)
-
             authorization = await self.authorization_repository.get_by_user_id(user.id)
             if authorization is None:
                 raise AuthorizationNotFoundError("Authorization not found", None)
-
-            logger.debug("Received authorization", authorization_id=authorization.id)
 
             logger.debug("Verifying authorization password")
             if not self.password_hasher.verify(
@@ -80,11 +76,6 @@ class LoginInteractor:
 
             access_token, expires_in = self.access_token_manager.encode(user)
             refresh_token = self.refresh_token_manager.encode()
-            logger.debug(
-                "Generated credentials",
-                access_token=access_token,
-                refresh_token=refresh_token,
-            )
 
             session = await self.session_repository.get_by_host(host)
             if session is None:
@@ -92,10 +83,8 @@ class LoginInteractor:
                     id=SessionId(uuid4()), user=user, host=host, token=refresh_token
                 )
                 await self.session_repository.create(session)
-                logger.debug("Session created", session_id=session.id)
             else:
                 session.update_token(refresh_token)
-                logger.debug("Token updated", token=refresh_token)
 
             return LoginResponseDTO(
                 access_token=access_token,

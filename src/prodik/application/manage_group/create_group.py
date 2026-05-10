@@ -41,13 +41,9 @@ class CreateGroupInteractor:
         async with self.transaction_manager:
             user_meta = self.identity_provider.get_current_user_meta()
 
-            logger.info("Received user meta")
-
             user = await self.user_repository.get_by_id(user_meta["user_id"])
             if user is None:
                 raise UserNotFoundError("User not found", None)
-
-            logger.info("Received user", user_id=user.id)
 
             self.access_control_service.ensure_revision_is_valid(user_meta, user)
 

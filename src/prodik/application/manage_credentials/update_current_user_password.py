@@ -58,13 +58,9 @@ class UpdateCurrentUserPasswordInteractor:
             host = self.identity_provider.get_current_ip()
             user_meta = self.identity_provider.get_current_user_meta()
 
-            logger.info("Received user meta")
-
             user = await self.user_repository.get_by_id(user_meta["user_id"])
             if user is None:
                 raise UserNotFoundError("User not found", None)
-
-            logger.info("Received user", user_id=user.id)
 
             self.access_control_service.ensure_revision_is_valid(user_meta, user)
 
@@ -73,8 +69,6 @@ class UpdateCurrentUserPasswordInteractor:
             )
             if authorization is None:
                 raise AuthorizationNotFoundError("Authorization not found", None)
-
-            logger.info("Received authorization", authorization_id=authorization.id)
 
             if not self.password_hasher.verify(
                 authorization.password, request.old_password
@@ -93,8 +87,6 @@ class UpdateCurrentUserPasswordInteractor:
             session = await self.session_repository.get_by_host(host)
             if session is None:
                 raise SessionNotFoundError("Session not found", None)
-
-            logger.info("Received session", authorization_id=authorization.id)
 
             access_token, expires_in = self.access_token_manager.encode(user)
             refresh_token = self.refresh_token_manager.encode()
