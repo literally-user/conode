@@ -32,6 +32,10 @@ from prodik.application.manage_node import (
     UpdateNodeInteractor,
 )
 from prodik.application.manage_profile import UpdateCurrentUserProfileInteractor
+from prodik.application.receive_user_info import (
+    GetCurrentUserInteractor,
+    GetUserByUsernameInteractor,
+)
 from prodik.application.services import AccessControlService
 
 
@@ -48,9 +52,12 @@ class ApplicationProvider(Provider):
         UpdateCurrentUserProfileInteractor,
         UpdateCurrentUserPasswordInteractor,
         DecrementEdgeWeightInteractor,
+        GetUserByUsernameInteractor,
         RegisterCompanyInteractor,
-        DeleteContextInteractor,
+        GetCurrentUserInteractor,
+        CreateContextInteractor,
         VerifyCompanyInteractor,
+        DeleteContextInteractor,
         CreateGroupInteractor,
         DeleteGroupInteractor,
         CreateNodeInteractor,
@@ -58,6 +65,5 @@ class ApplicationProvider(Provider):
         DetachNodeInteractor,
         AttachNodeInteractor,
         CreateEdgeInteractor,
-        CreateContextInteractor,
         scope=Scope.REQUEST,
     )

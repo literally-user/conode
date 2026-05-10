@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Annotated
 
 from pydantic import BaseModel, EmailStr, Field
@@ -43,3 +44,13 @@ class UpdateCurrentUserProfileRequest(BaseModel):
 class UpdateCurrentUserPasswordRequest(BaseModel):
     old_password: Annotated[str, Field(min_length=7, max_length=100)]
     new_password: Annotated[str, Field(min_length=7, max_length=100)]
+
+
+class UserSchema(BaseModel):
+    username: str
+    first_name: str
+    last_name: str
+    email: EmailStr
+    bio: str
+    created_at: datetime
+    updated_at: datetime

@@ -11,10 +11,12 @@ from prodik.application.manage_profile import (
     UpdateCurrentUserProfileInteractor,
     UpdateCurrentUserProfileRequestDTO,
 )
+from prodik.application.receive_user_info import GetUserByUsernameInteractor
 from prodik.presentation.schemas.auth import AuthResponse
 from prodik.presentation.schemas.user import (
     UpdateCurrentUserPasswordRequest,
     UpdateCurrentUserProfileRequest,
+    UserSchema,
 )
 
 router = APIRouter(tags=["users"], route_class=DishkaRoute, prefix="/users")
@@ -50,4 +52,21 @@ async def update_current_user_password(
         access_token=result.access_token,
         refresh_token=result.access_token,
         expires_in=result.expires_in,
+    )
+
+
+@router.get("/{username}")
+async def get_user_by_username(
+    username: str, interactor: FromDishka[GetUserByUsernameInteractor]
+) -> UserSchema:
+    result = await interactor.execute(username)
+
+    return UserSchema(
+        username=result.username.value,
+        first_name=result.first_name.value,
+        last_name=result.last_name.value,
+        email=result.email.value,
+        bio=result.bio.value,
+        created_at=result.created_at,
+        updated_at=result.updated_at,
     )
