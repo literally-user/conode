@@ -19,6 +19,7 @@ from prodik.domain.context import Context
 from prodik.domain.edge import Edge
 from prodik.domain.group import Group
 from prodik.domain.node import Node, NodeAssociation
+from prodik.domain.role import EntityType, Role
 from prodik.domain.user import User, UserSystemRole
 from prodik.infrastructure.persistence.types import (
     BioType,
@@ -181,6 +182,75 @@ edge_record_table = Table(
     Column("updated_at", DateTime(timezone=True), nullable=False),
 )
 
+role_record_table = Table(
+    "role_record",
+    metadata,
+    Column("id", UUID, primary_key=True, nullable=False),
+    Column(
+        "owner_company_id",
+        ForeignKey("company_record.id", ondelete="CASCADE"),
+        nullable=False,
+    ),
+    Column("created_at", DateTime(timezone=True), nullable=False),
+    Column("updated_at", DateTime(timezone=True), nullable=False),
+)
+
+permission_record_table = Table(
+    "permission_record",
+    metadata,
+    Column("id", UUID, primary_key=True, nullable=False),
+    Column(
+        "role_id",
+        ForeignKey("role_record.id", ondelete="CASCADE"),
+        nullable=False,
+    ),
+    Column(
+        "owner_company_id",
+        ForeignKey("company_record.id", ondelete="CASCADE"),
+        nullable=False,
+    ),
+    Column("entity_id", UUID, nullable=False),
+    Column("entity_type", Enum(EntityType), nullable=False),
+    Column("created_at", DateTime(timezone=True), nullable=False),
+    Column("updated_at", DateTime(timezone=True), nullable=False),
+)
+
+user_grant_record_table = Table(
+    "user_grant_record",
+    metadata,
+    Column("id", UUID, primary_key=True, nullable=False),
+    Column(
+        "role_id",
+        ForeignKey("role_record.id", ondelete="CASCADE"),
+        nullable=False,
+    ),
+    Column(
+        "user_id",
+        ForeignKey("user_record.id", ondelete="CASCADE"),
+        nullable=False,
+    ),
+    Column("created_at", DateTime(timezone=True), nullable=False),
+    Column("updated_at", DateTime(timezone=True), nullable=False),
+)
+
+company_grant_record_table = Table(
+    "company_grant_record",
+    metadata,
+    Column("id", UUID, primary_key=True, nullable=False),
+    Column(
+        "role_id",
+        ForeignKey("role_record.id", ondelete="CASCADE"),
+        nullable=False,
+    ),
+    Column(
+        "company_id",
+        ForeignKey("company_record.id", ondelete="CASCADE"),
+        nullable=False,
+    ),
+    Column("created_at", DateTime(timezone=True), nullable=False),
+    Column("updated_at", DateTime(timezone=True), nullable=False),
+)
+
 
 def start_mapper() -> None:
     registry_mapper.map_imperatively(User, user_record_table)
@@ -193,6 +263,7 @@ def start_mapper() -> None:
     registry_mapper.map_imperatively(Group, group_record_table)
     registry_mapper.map_imperatively(NodeAssociation, node_association_record_table)
     registry_mapper.map_imperatively(Context, context_record_table)
+    registry_mapper.map_imperatively(Role, role_record_table)
     registry_mapper.map_imperatively(
         Edge,
         edge_record_table,

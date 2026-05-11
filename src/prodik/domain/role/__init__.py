@@ -1,6 +1,10 @@
-from .model import Role, RoleId
+from .model import EntityType, PermissionType, Role, RoleId, RoleName, RolePermission
 
 __all__ = (
+    "EntityType",
+    "PermissionType",
     "Role",
     "RoleId",
+    "RoleName",
+    "RolePermission",
 )

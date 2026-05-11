@@ -22,10 +22,11 @@ class EntityType(StrEnum):
     NODE = "NODE"
     GROUP = "GROUP"
     CONTEXT = "CONTEXT"
+    COMPANY = "COMPANY"
 
 
 class PermissionType(StrEnum):
-    VIEW = "VIEW"
+    READ = "READ"
     MODIFY = "MODIFY"
 
 
@@ -70,7 +71,7 @@ class RolePermission(Entity[RolePermissionId]):
     role_id: RoleId
     permission: PermissionType
     entity_type: EntityType
-    entity_id: NodeId | ContextId | GroupId
+    entity_id: NodeId | ContextId | GroupId | CompanyId
 
     @classmethod
     def new(
@@ -79,7 +80,7 @@ class RolePermission(Entity[RolePermissionId]):
         role: Role,
         permission: PermissionType,
         entity_type: EntityType,
-        entity_id: NodeId | ContextId | GroupId,
+        entity_id: NodeId | ContextId | GroupId | CompanyId,
     ) -> "RolePermission":
         now = datetime.now(UTC)
         return RolePermission(

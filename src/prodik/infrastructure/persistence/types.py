@@ -7,6 +7,7 @@ from prodik.domain.company import CompanyDescription, CompanyName
 from prodik.domain.context import ContextDescription, ContextName
 from prodik.domain.group import GroupDescription, GroupName
 from prodik.domain.node import NodeDescription, NodeName
+from prodik.domain.role import RoleName
 from prodik.domain.shared import ValueObject
 from prodik.domain.user import Bio, Email, FirstName, LastName, Username
 
@@ -102,3 +103,9 @@ class ContextDescriptionType(BaseVOTypeDecorator[ContextDescription]):
     impl = String
     cache_ok = True
     vo_class = ContextDescription
+
+
+class RoleNameType(BaseVOTypeDecorator[RoleName]):
+    impl = String
+    cache_ok = True
+    vo_class = RoleName
