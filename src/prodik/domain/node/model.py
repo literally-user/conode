@@ -70,9 +70,11 @@ class Node(Entity[NodeId]):
 
     def set_name(self, name: str) -> None:
         self.name = NodeName(name)
+        self.touch()
 
     def set_description(self, description: str) -> None:
         self.description = NodeDescription(description)
+        self.touch()
 
 
 @dataclass
