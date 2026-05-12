@@ -10,12 +10,13 @@ from prodik.application.errors import (
 from prodik.application.interfaces.repositories import (
     CompanyRepository,
     GroupRepository,
+    NodeAssociationRepository,
     NodeRepository,
 )
 from prodik.application.interfaces.transaction_manager import TransactionManager
 from prodik.application.services import AccessControlService
 from prodik.domain.group import GroupId
-from prodik.domain.node import Node, NodeId
+from prodik.domain.node import Node, NodeAssociation, NodeAssociationId, NodeId
 
 logger = structlog.get_logger()
 
@@ -29,6 +30,7 @@ class CreateNodeRequestDTO:
 
 @dataclass
 class CreateNodeInteractor:
+    node_association_repository: NodeAssociationRepository
     company_repository: CompanyRepository
     group_repository: GroupRepository
     node_repository: NodeRepository
@@ -54,6 +56,14 @@ class CreateNodeInteractor:
                 company=company,
             )
 
+            association = NodeAssociation.new(
+                id=NodeAssociationId(uuid4()),
+                node=node,
+                group=group,
+                company=company,
+            )
+
             await self.node_repository.create(node)
+            await self.node_association_repository.create(association)
 
             return node

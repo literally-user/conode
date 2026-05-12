@@ -51,11 +51,11 @@ class Role(Entity[RoleId]):
     name: RoleName
 
     @classmethod
-    def new(cls, id: RoleId, name: str, owner: Company) -> "Role":
+    def new(cls, id: RoleId, name: str, company: Company) -> "Role":
         now = datetime.now(UTC)
         return Role(
             id=id,
-            owner_company_id=owner.id,
+            owner_company_id=company.id,
             name=RoleName(name),
             created_at=now,
             updated_at=now,
@@ -72,6 +72,7 @@ class RolePermission(Entity[RolePermissionId]):
     permission: PermissionType
     entity_type: EntityType
     entity_id: NodeId | ContextId | GroupId | CompanyId
+    company_scope_id: CompanyId
 
     @classmethod
     def new(
@@ -81,6 +82,7 @@ class RolePermission(Entity[RolePermissionId]):
         permission: PermissionType,
         entity_type: EntityType,
         entity_id: NodeId | ContextId | GroupId | CompanyId,
+        company_scope: Company,
     ) -> "RolePermission":
         now = datetime.now(UTC)
         return RolePermission(
@@ -89,6 +91,7 @@ class RolePermission(Entity[RolePermissionId]):
             permission=permission,
             entity_type=entity_type,
             entity_id=entity_id,
+            company_scope_id=company_scope.id,
             created_at=now,
             updated_at=now,
         )

@@ -6,6 +6,8 @@ import structlog
 from prodik.application.errors import (
     CompanyNotFoundError,
     GroupNotFoundError,
+    NodeCannotHaveSameAssociationsError,
+    NodeNotFoundError,
 )
 from prodik.application.interfaces.repositories import (
     CompanyRepository,
@@ -49,8 +51,18 @@ class AttachNodeInteractor:
             if group is None:
                 raise GroupNotFoundError("Group not found", None)
 
+            request_nodes = set(request.nodes)
             existing_nodes = await self.node_repository.get_all_by_ids(
-                list(set(request.nodes))
+                list(request_nodes)
+            )
+
+            if len(existing_nodes) != len(request_nodes):
+                raise NodeNotFoundError("Some of nodes not found", None)
+
+            existing_associations = (
+                await self.node_association_repository.get_all_by_group_id(
+                    request.group_id
+                )
             )
 
             for node in existing_nodes:
@@ -59,6 +71,14 @@ class AttachNodeInteractor:
                     company,
                     node,
                 )
+
+            existing_node_ids = {a.node_id for a in existing_associations}
+
+            for node in existing_nodes:
+                if node.id in existing_node_ids:
+                    raise NodeCannotHaveSameAssociationsError(
+                        "Node cannot have same associations", None
+                    )
 
             associations = [
                 NodeAssociation.new(
