@@ -29,7 +29,7 @@ async def test_detach_node_ok(
     group = await group_factory.create_group(company=company)
     node = await node_factory.create_node(company=company)
     association = await node_association_factory.create_association(
-        node=node, group=group, company=company
+        node=node, group=group
     )
 
     response = await test_client.delete(
@@ -74,7 +74,7 @@ async def test_detach_node_forbidden(
     owner_group = await group_factory.create_group(company=owner_company)
     owner_node = await node_factory.create_node(company=owner_company)
     association = await node_association_factory.create_association(
-        node=owner_node, group=owner_group, company=owner_company
+        node=owner_node, group=owner_group
     )
 
     executor = await user_factory.create_user(admin=False)

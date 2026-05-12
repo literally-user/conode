@@ -1,3 +1,3 @@
-from .get_contexts_by_current_company import GetContextsByCurrentCompanyInteractor
+from .get_context_by_id import GetContextByIdInteractor
 
-__all__ = ("GetContextsByCurrentCompanyInteractor",)
+__all__ = ("GetContextByIdInteractor",)

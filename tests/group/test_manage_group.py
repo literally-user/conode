@@ -66,7 +66,7 @@ async def test_delete_group_ok_and_cascade_association(
     group = await group_factory.create_group(company=company)
     node = await node_factory.create_node(company=company)
     association = await node_association_factory.create_association(
-        node=node, group=group, company=company
+        node=node, group=group
     )
 
     response = await test_client.delete(

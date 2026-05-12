@@ -188,14 +188,11 @@ class NodeFactory:
 class NodeAssociationFactory:
     node_association_repository: NodeAssociationRepository
 
-    async def create_association(
-        self, node: Node, group: Group, company: Company
-    ) -> NodeAssociation:
+    async def create_association(self, node: Node, group: Group) -> NodeAssociation:
         association = NodeAssociation.new(
             id=NodeAssociationId(uuid4()),
             node=node,
             group=group,
-            company=company,
         )
         await self.node_association_repository.create(association)
         return association

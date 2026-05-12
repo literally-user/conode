@@ -24,6 +24,7 @@ class CreateContextRequest(BaseModel):
         str,
         Field(max_length=MAX_ALLOWED_CONTEXT_DESCRIPTION_LENGTH),
     ]
+    company_id: CompanyId
 
 
 class ContextSchema(BaseModel):

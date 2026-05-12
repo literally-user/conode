@@ -33,6 +33,7 @@ async def create_edge(
             node_a_id=request.node_a_id,
             node_b_id=request.node_b_id,
             context_id=request.context_id,
+            company_id=request.company_id,
         )
     )
     return EdgeSchema(

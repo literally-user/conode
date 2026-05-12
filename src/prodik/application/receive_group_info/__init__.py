@@ -1,3 +1,3 @@
-from .get_groups_by_current_company import GetGroupsByCurrentCompanyInteractor
+from .get_group_by_id import GetGroupByIdInteractor
 
-__all__ = ("GetGroupsByCurrentCompanyInteractor",)
+__all__ = ("GetGroupByIdInteractor",)

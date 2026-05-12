@@ -25,6 +25,7 @@ class CreateGroupRequest(BaseModel):
         Field(max_length=MAX_ALLOWED_GROUP_DESCRIPTION_LENGTH),
     ]
     parent_group_id: GroupId | None = None
+    company_id: CompanyId
 
 
 class GroupSchema(BaseModel):

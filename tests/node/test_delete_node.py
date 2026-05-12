@@ -30,7 +30,7 @@ async def test_delete_node_ok(
     node = await node_factory.create_node(company=company)
     group = await group_factory.create_group(company=company)
     association = await node_association_factory.create_association(
-        node=node, group=group, company=company
+        node=node, group=group
     )
 
     response = await test_client.delete(

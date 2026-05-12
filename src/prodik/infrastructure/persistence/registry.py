@@ -125,11 +125,6 @@ node_association_record_table = Table(
     metadata,
     Column("id", UUID, primary_key=True, nullable=False),
     Column(
-        "company_id",
-        ForeignKey("company_record.id", ondelete="CASCADE"),
-        nullable=False,
-    ),
-    Column(
         "group_id", ForeignKey("group_record.id", ondelete="CASCADE"), nullable=False
     ),
     Column("node_id", ForeignKey("node_record.id", ondelete="CASCADE"), nullable=False),
