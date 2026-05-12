@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from prodik.application.errors import CompanyNotFoundError, GroupNotFoundError
+from prodik.application.errors import GroupNotFoundError
 from prodik.application.interfaces.repositories import (
     CompanyRepository,
     GroupRepository,
@@ -23,17 +23,12 @@ class GetNodesByGroupInteractor:
     async def execute(self, group_id: GroupId) -> list[Node]:
         user = await self.access_control_service.get_authorized_user()
 
-        company = await self.company_repository.get_by_user_id(user.id)
-        if company is None:
-            raise CompanyNotFoundError("Company not found", None)
-
         group = await self.group_repository.get_by_id(group_id)
         if group is None:
             raise GroupNotFoundError("Group not found", None)
 
-        self.access_control_service.ensure_user_can_manipulate_group(
+        await self.access_control_service.ensure_user_can_view_group(
             user,
-            company,
             group,
         )
 

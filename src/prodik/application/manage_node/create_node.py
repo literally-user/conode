@@ -41,13 +41,18 @@ class CreateNodeInteractor:
         async with self.transaction_manager:
             user = await self.access_control_service.get_authorized_user()
 
-            company = await self.company_repository.get_by_user_id(user.id)
-            if company is None:
-                raise CompanyNotFoundError("User must have at least one company", None)
-
             group = await self.group_repository.get_by_id(request.group_id)
             if group is None:
                 raise GroupNotFoundError("Group not found", None)
+
+            company = await self.company_repository.get_by_id(group.company_id)
+            if company is None:
+                raise CompanyNotFoundError("Company not found", None)
+
+            await self.access_control_service.ensure_user_can_manipulate_group(
+                user,
+                group,
+            )
 
             node = Node.new(
                 id=NodeId(uuid4()),
@@ -60,7 +65,6 @@ class CreateNodeInteractor:
                 id=NodeAssociationId(uuid4()),
                 node=node,
                 group=group,
-                company=company,
             )
 
             await self.node_repository.create(node)

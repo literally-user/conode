@@ -13,6 +13,7 @@ from prodik.application.interfaces.repositories import (
 )
 from prodik.application.interfaces.transaction_manager import TransactionManager
 from prodik.application.services import AccessControlService
+from prodik.domain.company import CompanyId
 from prodik.domain.group import Group, GroupId
 
 logger = structlog.get_logger()
@@ -23,6 +24,7 @@ class CreateGroupRequestDTO:
     name: str
     description: str
     parent_group_id: GroupId | None
+    company_id: CompanyId
 
 
 @dataclass
@@ -36,9 +38,14 @@ class CreateGroupInteractor:
         async with self.transaction_manager:
             user = await self.access_control_service.get_authorized_user()
 
-            company = await self.company_repository.get_by_user_id(user.id)
+            company = await self.company_repository.get_by_id(request.company_id)
             if company is None:
                 raise CompanyNotFoundError("User must have at least one company", None)
+
+            await self.access_control_service.ensure_user_can_create_groups(
+                user,
+                company,
+            )
 
             parent_group = None
             if request.parent_group_id:

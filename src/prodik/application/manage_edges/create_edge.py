@@ -16,6 +16,7 @@ from prodik.application.interfaces.repositories import (
 )
 from prodik.application.interfaces.transaction_manager import TransactionManager
 from prodik.application.services import AccessControlService
+from prodik.domain.company import CompanyId
 from prodik.domain.context import ContextId
 from prodik.domain.edge import Edge, EdgeId
 from prodik.domain.node import NodeId
@@ -28,6 +29,7 @@ class CreateEdgeRequestDTO:
     node_a_id: NodeId
     node_b_id: NodeId
     context_id: ContextId
+    company_id: CompanyId
 
 
 @dataclass
@@ -43,13 +45,18 @@ class CreateEdgeInteractor:
         async with self.transaction_manager:
             user = await self.access_control_service.get_authorized_user()
 
-            company = await self.company_repository.get_by_user_id(user.id)
+            company = await self.company_repository.get_by_id(request.company_id)
             if company is None:
                 raise CompanyNotFoundError("Company not found", None)
 
             context = await self.context_repository.get_by_id(request.context_id)
             if context is None:
                 raise ContextNotFoundError("Context not found", None)
+
+            await self.access_control_service.ensure_user_can_manipulate_context(
+                user,
+                context,
+            )
 
             nodes = await self.node_repository.get_all_by_ids(
                 [request.node_a_id, request.node_b_id]

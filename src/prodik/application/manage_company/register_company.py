@@ -4,10 +4,24 @@ from uuid import uuid4
 import structlog
 
 from prodik.application.errors import CompanyAlreadyExistsError
-from prodik.application.interfaces.repositories import CompanyRepository
+from prodik.application.interfaces.repositories import (
+    CompanyRepository,
+    RolePermissionsRepository,
+    RoleRepository,
+    UserGrantRepository,
+)
 from prodik.application.interfaces.transaction_manager import TransactionManager
 from prodik.application.services import AccessControlService
 from prodik.domain.company import Company, CompanyId, CompanyName
+from prodik.domain.grant import UserGrant, UserGrantId
+from prodik.domain.role import (
+    EntityType,
+    PermissionType,
+    Role,
+    RoleId,
+    RolePermission,
+    RolePermissionId,
+)
 
 logger = structlog.get_logger()
 
@@ -23,6 +37,9 @@ class RegisterCompanyInteractor:
     company_repository: CompanyRepository
     transaction_manager: TransactionManager
     access_control_service: AccessControlService
+    role_permissions_repository: RolePermissionsRepository
+    user_grant_repository: UserGrantRepository
+    role_repository: RoleRepository
 
     async def execute(self, request: RegisterCompanyRequestDTO) -> Company:
         async with self.transaction_manager:
@@ -51,8 +68,34 @@ class RegisterCompanyInteractor:
                 owner=user,
             )
 
-            logger.info("Created company", company_id=company.id)
+            role = Role.new(id=RoleId(uuid4()), name="owner", company=company)
+
+            permissions = [
+                RolePermission.new(
+                    id=RolePermissionId(uuid4()),
+                    role=role,
+                    permission=PermissionType.READ,
+                    entity_type=EntityType.COMPANY,
+                    entity_id=company.id,
+                ),
+                RolePermission.new(
+                    id=RolePermissionId(uuid4()),
+                    role=role,
+                    permission=PermissionType.MODIFY,
+                    entity_type=EntityType.COMPANY,
+                    entity_id=company.id,
+                ),
+            ]
+
+            grant = UserGrant.new(
+                id=UserGrantId(uuid4()),
+                role=role,
+                user=user,
+            )
 
             await self.company_repository.create(company)
+            await self.role_repository.create(role)
+            await self.role_permissions_repository.create_all(permissions)
+            await self.user_grant_repository.create(grant)
 
             return company

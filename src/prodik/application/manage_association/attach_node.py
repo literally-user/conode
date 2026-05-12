@@ -4,7 +4,6 @@ from uuid import uuid4
 import structlog
 
 from prodik.application.errors import (
-    CompanyNotFoundError,
     GroupNotFoundError,
     NodeCannotHaveSameAssociationsError,
     NodeNotFoundError,
@@ -43,10 +42,6 @@ class AttachNodeInteractor:
         async with self.transaction_manager:
             user = await self.access_control_service.get_authorized_user()
 
-            company = await self.company_repository.get_by_user_id(user.id)
-            if company is None:
-                raise CompanyNotFoundError("Company not found", None)
-
             group = await self.group_repository.get_by_id(request.group_id)
             if group is None:
                 raise GroupNotFoundError("Group not found", None)
@@ -65,12 +60,10 @@ class AttachNodeInteractor:
                 )
             )
 
-            for node in existing_nodes:
-                self.access_control_service.ensure_user_can_manipulate_node(
-                    user,
-                    company,
-                    node,
-                )
+            await self.access_control_service.ensure_user_can_manipulate_group(
+                user,
+                group,
+            )
 
             existing_node_ids = {a.node_id for a in existing_associations}
 
@@ -85,7 +78,6 @@ class AttachNodeInteractor:
                     id=NodeAssociationId(uuid4()),
                     node=node,
                     group=group,
-                    company=company,
                 )
                 for node in existing_nodes
             ]

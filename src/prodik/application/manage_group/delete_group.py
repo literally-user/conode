@@ -3,7 +3,6 @@ from dataclasses import dataclass
 from prodik.application.errors import (
     CompanyNotFoundError,
     GroupNotFoundError,
-    NotEnoughRightsError,
 )
 from prodik.application.interfaces.repositories import (
     CompanyRepository,
@@ -25,17 +24,17 @@ class DeleteGroupInteractor:
         async with self.transaction_manager:
             user = await self.access_control_service.get_authorized_user()
 
-            company = await self.company_repository.get_by_user_id(user.id)
-            if company is None:
-                raise CompanyNotFoundError("Company not found", None)
-
             group = await self.group_repository.get_by_id(group_id)
             if group is None:
                 raise GroupNotFoundError("Group not found", None)
 
-            if group.company_id != company.id and not user.is_admin():
-                raise NotEnoughRightsError(
-                    "Not enough rights to perform operation", None
-                )
+            company = await self.company_repository.get_by_id(group.company_id)
+            if company is None:
+                raise CompanyNotFoundError("Company not found", None)
+
+            await self.access_control_service.ensure_user_can_manipulate_group(
+                user,
+                group,
+            )
 
             await self.group_repository.delete(group)

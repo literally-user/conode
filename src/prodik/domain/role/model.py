@@ -7,7 +7,6 @@ from uuid import UUID
 from prodik.domain.company import Company, CompanyId
 from prodik.domain.context import ContextId
 from prodik.domain.group import GroupId
-from prodik.domain.node import NodeId
 from prodik.domain.role.errors import InvalidRoleNameFormatError
 from prodik.domain.shared import Entity, ValueObject
 
@@ -17,9 +16,10 @@ RolePermissionId = NewType("RolePermissionId", UUID)
 MIN_ALLOWED_ROLE_NAME_LENGTH: Final = 1
 MAX_ALLOWED_ROLE_NAME_LENGTH: Final = 50
 
+type RolePermissionEntityId = ContextId | CompanyId | GroupId
+
 
 class EntityType(StrEnum):
-    NODE = "NODE"
     GROUP = "GROUP"
     CONTEXT = "CONTEXT"
     COMPANY = "COMPANY"
@@ -71,8 +71,7 @@ class RolePermission(Entity[RolePermissionId]):
     role_id: RoleId
     permission: PermissionType
     entity_type: EntityType
-    entity_id: NodeId | ContextId | GroupId | CompanyId
-    company_scope_id: CompanyId
+    entity_id: RolePermissionEntityId
 
     @classmethod
     def new(
@@ -81,8 +80,7 @@ class RolePermission(Entity[RolePermissionId]):
         role: Role,
         permission: PermissionType,
         entity_type: EntityType,
-        entity_id: NodeId | ContextId | GroupId | CompanyId,
-        company_scope: Company,
+        entity_id: RolePermissionEntityId,
     ) -> "RolePermission":
         now = datetime.now(UTC)
         return RolePermission(
@@ -91,7 +89,6 @@ class RolePermission(Entity[RolePermissionId]):
             permission=permission,
             entity_type=entity_type,
             entity_id=entity_id,
-            company_scope_id=company_scope.id,
             created_at=now,
             updated_at=now,
         )

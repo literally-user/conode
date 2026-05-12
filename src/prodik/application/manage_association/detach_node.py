@@ -4,11 +4,12 @@ import structlog
 
 from prodik.application.errors import (
     AssociationNotFoundError,
-    CompanyNotFoundError,
+    GroupNotFoundError,
     NodeMustHaveAtLeastOneAssociationError,
 )
 from prodik.application.interfaces.repositories import (
     CompanyRepository,
+    GroupRepository,
     NodeAssociationRepository,
     NodeRepository,
 )
@@ -25,21 +26,27 @@ class DetachNodeInteractor:
     node_association_repository: NodeAssociationRepository
     access_control_service: AccessControlService
     transaction_manager: TransactionManager
+    group_repository: GroupRepository
     company_repository: CompanyRepository
 
     async def execute(self, association_id: NodeAssociationId) -> None:
         async with self.transaction_manager:
             user = await self.access_control_service.get_authorized_user()
 
-            company = await self.company_repository.get_by_user_id(user.id)
-            if company is None:
-                raise CompanyNotFoundError("Company not found", None)
-
             association = await self.node_association_repository.get_by_id(
                 association_id
             )
             if association is None:
                 raise AssociationNotFoundError("Association not found error", None)
+
+            group = await self.group_repository.get_by_id(association.group_id)
+            if group is None:
+                raise GroupNotFoundError("Group not found", None)
+
+            await self.access_control_service.ensure_user_can_manipulate_group(
+                user,
+                group,
+            )
 
             existing_node_association = (
                 await self.node_association_repository.get_by_node_id(
@@ -50,11 +57,5 @@ class DetachNodeInteractor:
                 raise NodeMustHaveAtLeastOneAssociationError(
                     "Node must have at least one association", None
                 )
-
-            self.access_control_service.ensure_user_can_manipulate_node_association(
-                user,
-                company,
-                association,
-            )
 
             await self.node_association_repository.delete(association)

@@ -8,6 +8,7 @@ from prodik.application.interfaces.repositories import (
 )
 from prodik.application.interfaces.transaction_manager import TransactionManager
 from prodik.application.services import AccessControlService
+from prodik.domain.company import CompanyId
 from prodik.domain.context import Context, ContextId
 
 
@@ -15,6 +16,7 @@ from prodik.domain.context import Context, ContextId
 class CreateContextRequestDTO:
     name: str
     description: str
+    company_id: CompanyId
 
 
 @dataclass
@@ -28,9 +30,13 @@ class CreateContextInteractor:
         async with self.transaction_manager:
             user = await self.access_control_service.get_authorized_user()
 
-            company = await self.company_repository.get_by_user_id(user.id)
+            company = await self.company_repository.get_by_id(request.company_id)
             if company is None:
                 raise CompanyNotFoundError("Company not found", None)
+
+            await self.access_control_service.ensure_user_can_create_contexts(
+                user, company
+            )
 
             context = Context.new(
                 id=ContextId(uuid4()),

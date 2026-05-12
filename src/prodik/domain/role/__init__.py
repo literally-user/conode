@@ -5,6 +5,7 @@ from .model import (
     RoleId,
     RoleName,
     RolePermission,
+    RolePermissionEntityId,
     RolePermissionId,
 )
 
@@ -15,5 +16,6 @@ __all__ = (
     "RoleId",
     "RoleName",
     "RolePermission",
+    "RolePermissionEntityId",
     "RolePermissionId",
 )
