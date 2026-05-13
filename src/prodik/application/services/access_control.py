@@ -1,13 +1,16 @@
 import asyncio
 from dataclasses import dataclass
+from typing import Final
 
 from prodik.application.errors import (
+    GroupNotFoundError,
     NotEnoughRightsError,
     SessionExpiredError,
     UserNotFoundError,
 )
 from prodik.application.interfaces.identity_provider import IdentityProvider
 from prodik.application.interfaces.repositories import (
+    CompanyRepository,
     RolePermissionsRepository,
     RoleRepository,
     UserGrantRepository,
@@ -25,7 +28,12 @@ from prodik.domain.role import (
 )
 from prodik.domain.user import User
 
-type RolesPermissions = list[list[RolePermission]]
+type RolesPermissions = list[RolePermission]
+
+PERMISSION_LEVEL: Final = {
+    PermissionType.MODIFY: 2,
+    PermissionType.READ: 1,
+}
 
 
 @dataclass
@@ -33,6 +41,7 @@ class AccessControlService:
     role_permissions_repository: RolePermissionsRepository
     user_grant_repository: UserGrantRepository
     role_repository: RoleRepository
+    company_repository: CompanyRepository
     identity_provider: IdentityProvider
     user_repository: UserRepository
 
@@ -40,31 +49,20 @@ class AccessControlService:
         if meta["revision"] != user.token_revision:
             raise SessionExpiredError("Session has expired", None)
 
-    async def _get_all_permissions(self, user: User) -> RolesPermissions:
+    async def _get_all_permissions(self, user: User) -> list[RolePermission]:
         grants = await self.user_grant_repository.get_all_by_user_id(user.id)
-        user_role_ids = [grant.role_id for grant in grants]
-        roles = await self.role_repository.get_all_by_ids(user_role_ids)
-        return await asyncio.gather(
+        role_ids = [g.role_id for g in grants]
+
+        roles = await self.role_repository.get_all_by_ids(role_ids)
+
+        role_permissions = await asyncio.gather(
             *[
                 self.role_permissions_repository.get_all_by_role_id(role.id)
                 for role in roles
             ]
         )
 
-    def _find_permission(
-        self,
-        permissions: RolesPermissions,
-        permission_type: PermissionType,
-        entity_type: EntityType,
-        entity_id: RolePermissionEntityId,
-    ) -> bool:
-        return any(
-            permission.permission == permission_type
-            and permission.entity_type == entity_type
-            and permission.entity_id == entity_id
-            for role_permissions in permissions
-            for permission in role_permissions
-        )
+        return [p for group in role_permissions for p in group]
 
     async def get_authorized_user(self) -> User:
         meta = self.identity_provider.get_current_user_meta()
@@ -77,102 +75,142 @@ class AccessControlService:
 
         return user
 
-    async def ensure_user_can_create_contexts(
-        self, executor: User, target_company: Company
-    ) -> None:
-        permissions = await self._get_all_permissions(executor)
+    def check(
+        self,
+        *,
+        permissions: RolesPermissions,
+        required_permission: PermissionType,
+        required_entity: EntityType,
+        entity_id: RolePermissionEntityId | None,
+        company: Company,
+    ) -> bool:
+        for perm in permissions:
+            if (
+                PERMISSION_LEVEL[perm.permission]
+                < PERMISSION_LEVEL[required_permission]
+            ):
+                continue
 
-        if self._find_permission(
-            permissions, PermissionType.MODIFY, EntityType.COMPANY, target_company.id
-        ):
-            return
+            if perm.entity_type == EntityType.COMPANY and perm.entity_id == company.id:
+                return True
 
-        raise NotEnoughRightsError("Not enough rights to perform operation", None)
+            if (
+                entity_id is not None
+                and perm.entity_type == required_entity
+                and perm.entity_id == entity_id
+            ):
+                return True
 
-    async def ensure_user_can_manipulate_context(
-        self, executor: User, context: Context
-    ) -> None:
-        permissions = await self._get_all_permissions(executor)
-
-        if self._find_permission(
-            permissions, PermissionType.MODIFY, EntityType.COMPANY, context.company_id
-        ):
-            return
-
-        if self._find_permission(
-            permissions, PermissionType.MODIFY, EntityType.CONTEXT, context.id
-        ):
-            return
-
-        raise NotEnoughRightsError("Not enough rights to perform operation", None)
-
-    async def ensure_user_can_create_groups(
-        self, executor: User, target_company: Company
-    ) -> None:
-        permissions = await self._get_all_permissions(executor)
-
-        if self._find_permission(
-            permissions, PermissionType.MODIFY, EntityType.COMPANY, target_company.id
-        ):
-            return
-
-        raise NotEnoughRightsError("Not enough rights to perform operation", None)
+        return False
 
     async def ensure_user_can_manipulate_group(
-        self, executor: User, group: Group
+        self,
+        user: User,
+        group: Group,
     ) -> None:
-        permissions = await self._get_all_permissions(executor)
+        permissions = await self._get_all_permissions(user)
 
-        if self._find_permission(
-            permissions, PermissionType.MODIFY, EntityType.COMPANY, group.company_id
+        group_company = await self.company_repository.get_by_id(group.company_id)
+        if group_company is None:
+            raise GroupNotFoundError("Group company not found", None)
+
+        if not self.check(
+            permissions=permissions,
+            required_permission=PermissionType.MODIFY,
+            required_entity=EntityType.GROUP,
+            entity_id=group.id,
+            company=group_company,
         ):
-            return
+            raise NotEnoughRightsError("Not enough rights to perform operation", None)
 
-        if self._find_permission(
-            permissions, PermissionType.MODIFY, EntityType.GROUP, group.id
+    async def ensure_user_can_manipulate_context(
+        self,
+        user: User,
+        context: Context,
+    ) -> None:
+        permissions = await self._get_all_permissions(user)
+
+        context_company = await self.company_repository.get_by_id(context.company_id)
+        if context_company is None:
+            raise GroupNotFoundError("Context company not found", None)
+
+        if not self.check(
+            permissions=permissions,
+            required_permission=PermissionType.MODIFY,
+            required_entity=EntityType.GROUP,
+            entity_id=context.id,
+            company=context_company,
         ):
-            return
+            raise NotEnoughRightsError("Not enough rights to perform operation", None)
 
-        raise NotEnoughRightsError("Not enough rights to perform operation", None)
+    async def ensure_user_can_view_group(
+        self,
+        user: User,
+        context: Group,
+    ) -> None:
+        permissions = await self._get_all_permissions(user)
+
+        group_company = await self.company_repository.get_by_id(context.company_id)
+        if group_company is None:
+            raise GroupNotFoundError("Group company not found", None)
+
+        if not self.check(
+            permissions=permissions,
+            required_permission=PermissionType.READ,
+            required_entity=EntityType.GROUP,
+            entity_id=context.id,
+            company=group_company,
+        ):
+            raise NotEnoughRightsError("Not enough rights to perform operation", None)
 
     async def ensure_user_can_view_context(
-        self, executor: User, context: Context
+        self,
+        user: User,
+        context: Context,
     ) -> None:
-        permissions = await self._get_all_permissions(executor)
+        permissions = await self._get_all_permissions(user)
 
-        if self._find_permission(
-            permissions, PermissionType.MODIFY, EntityType.COMPANY, context.company_id
+        context_company = await self.company_repository.get_by_id(context.company_id)
+        if context_company is None:
+            raise GroupNotFoundError("Group company not found", None)
+
+        if not self.check(
+            permissions=permissions,
+            required_permission=PermissionType.READ,
+            required_entity=EntityType.CONTEXT,
+            entity_id=context.id,
+            company=context_company,
         ):
-            return
+            raise NotEnoughRightsError("Not enough rights to perform operation", None)
 
-        if self._find_permission(
-            permissions, PermissionType.MODIFY, EntityType.CONTEXT, context.id
+    async def ensure_user_can_create_groups(
+        self,
+        user: User,
+        target_company: Company,
+    ) -> None:
+        permissions = await self._get_all_permissions(user)
+
+        if not self.check(
+            permissions=permissions,
+            required_permission=PermissionType.MODIFY,
+            required_entity=EntityType.COMPANY,
+            entity_id=None,
+            company=target_company,
         ):
-            return
+            raise NotEnoughRightsError("Not enough rights to perform operation", None)
 
-        if self._find_permission(
-            permissions, PermissionType.READ, EntityType.CONTEXT, context.id
+    async def ensure_user_can_create_contexts(
+        self,
+        user: User,
+        target_company: Company,
+    ) -> None:
+        permissions = await self._get_all_permissions(user)
+
+        if not self.check(
+            permissions=permissions,
+            required_permission=PermissionType.MODIFY,
+            required_entity=EntityType.COMPANY,
+            entity_id=None,
+            company=target_company,
         ):
-            return
-
-        raise NotEnoughRightsError("Not enough rights to perform operation", None)
-
-    async def ensure_user_can_view_group(self, executor: User, group: Group) -> None:
-        permissions = await self._get_all_permissions(executor)
-
-        if self._find_permission(
-            permissions, PermissionType.MODIFY, EntityType.COMPANY, group.company_id
-        ):
-            return
-
-        if self._find_permission(
-            permissions, PermissionType.MODIFY, EntityType.GROUP, group.id
-        ):
-            return
-
-        if self._find_permission(
-            permissions, PermissionType.READ, EntityType.GROUP, group.id
-        ):
-            return
-
-        raise NotEnoughRightsError("Not enough rights to perform operation", None)
+            raise NotEnoughRightsError("Not enough rights to perform operation", None)
