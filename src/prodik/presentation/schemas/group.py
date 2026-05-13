@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import Annotated
 
 from pydantic import BaseModel, Field
@@ -34,5 +33,3 @@ class GroupSchema(BaseModel):
     description: str
     company_id: CompanyId
     parent_group_id: GroupId | None
-    created_at: datetime
-    updated_at: datetime

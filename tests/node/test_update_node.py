@@ -41,8 +41,6 @@ async def test_update_node_ok(
         name=name,
         description=description,
         company_id=str(company.id),
-        created_at=IsStr(),
-        updated_at=IsStr(),
     )
 
 

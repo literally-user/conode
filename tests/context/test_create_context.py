@@ -40,8 +40,6 @@ async def test_create_context_ok(
         name=name,
         description=description,
         company_id=str(company.id),
-        created_at=IsStr(),
-        updated_at=IsStr(),
     )
 
 

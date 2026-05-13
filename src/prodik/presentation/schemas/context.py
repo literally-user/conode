@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import Annotated
 
 from pydantic import BaseModel, Field
@@ -32,5 +31,3 @@ class ContextSchema(BaseModel):
     name: str
     description: str
     company_id: CompanyId
-    created_at: datetime
-    updated_at: datetime

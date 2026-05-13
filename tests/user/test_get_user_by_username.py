@@ -26,8 +26,6 @@ async def test_get_user_by_username_ok(
         username=users[0].user.username.value,
         email=users[0].user.email.value,
         bio=users[0].user.bio.value,
-        created_at=IsStr(),
-        updated_at=IsStr(),
     )
 
 

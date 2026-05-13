@@ -46,8 +46,6 @@ async def create_node(
         name=result.name.value,
         description=result.description.value,
         company_id=result.company_id,
-        created_at=result.created_at,
-        updated_at=result.updated_at,
     )
 
 
@@ -70,8 +68,6 @@ async def update_node(
         name=result.name.value,
         description=result.description.value,
         company_id=result.company_id,
-        created_at=result.created_at,
-        updated_at=result.updated_at,
     )
 
 
@@ -96,8 +92,6 @@ async def attach_nodes(
             id=association.id,
             node_id=association.node_id,
             group_id=association.group_id,
-            created_at=association.created_at,
-            updated_at=association.updated_at,
         )
         for association in result
     ]
@@ -123,8 +117,6 @@ async def get_all_nodes_by_group(
             name=node.name.value,
             description=node.description.value,
             company_id=node.company_id,
-            created_at=node.created_at,
-            updated_at=node.updated_at,
         )
         for node in result
     ]

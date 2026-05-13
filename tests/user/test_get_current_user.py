@@ -26,6 +26,4 @@ async def test_get_current_user_ok(
         username=user_factory_response.user.username.value,
         email=user_factory_response.user.email.value,
         bio=user_factory_response.user.bio.value,
-        created_at=IsStr(),
-        updated_at=IsStr(),
     )

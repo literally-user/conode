@@ -33,8 +33,6 @@ async def create_group(
         description=result.description.value,
         company_id=result.company_id,
         parent_group_id=result.parent_group_id,
-        created_at=result.created_at,
-        updated_at=result.updated_at,
     )
 
 

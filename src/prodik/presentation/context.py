@@ -30,8 +30,6 @@ async def create_context(
         name=result.name.value,
         description=result.description.value,
         company_id=result.company_id,
-        created_at=result.created_at,
-        updated_at=result.updated_at,
     )
 
 

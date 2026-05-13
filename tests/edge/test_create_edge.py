@@ -44,8 +44,6 @@ async def test_create_edge_ok(
         node_b_id=str(nodes[1].id),
         context_id=str(context.id),
         company_id=str(company.id),
-        created_at=IsStr(),
-        updated_at=IsStr(),
     )
 
 

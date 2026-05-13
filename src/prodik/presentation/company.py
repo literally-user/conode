@@ -31,8 +31,6 @@ async def register_company(
         description=company.description.value,
         verified=company.verified,
         owner_id=company.owner_id,
-        created_at=company.created_at,
-        updated_at=company.updated_at,
     )
 
 

@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import Annotated
 
 from pydantic import BaseModel, Field
@@ -47,8 +46,6 @@ class NodeSchema(BaseModel):
     name: str
     description: str
     company_id: CompanyId
-    created_at: datetime
-    updated_at: datetime
 
 
 class AttachNodeRequest(BaseModel):
@@ -60,5 +57,3 @@ class NodeAssociationSchema(BaseModel):
     id: NodeAssociationId
     node_id: NodeId
     group_id: GroupId
-    created_at: datetime
-    updated_at: datetime

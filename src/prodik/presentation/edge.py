@@ -41,8 +41,6 @@ async def create_edge(
         node_b_id=result.node_b_id,
         context_id=result.context_id,
         company_id=result.company_id,
-        created_at=result.created_at,
-        updated_at=result.updated_at,
     )
 
 
@@ -92,8 +90,6 @@ async def get_all_edges_by_context(
             name=node.name.value,
             description=node.description.value,
             company_id=node.company_id,
-            created_at=node.created_at,
-            updated_at=node.updated_at,
         )
         for node in result
     ]

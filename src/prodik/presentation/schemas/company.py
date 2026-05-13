@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import Annotated
 
 from pydantic import BaseModel, Field
@@ -19,8 +18,6 @@ class CompanySchema(BaseModel):
     owner_id: UserId
     description: str
     verified: bool
-    created_at: datetime
-    updated_at: datetime
 
 
 class RegisterCompanyRequest(BaseModel):

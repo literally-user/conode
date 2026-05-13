@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import Annotated
 
 from pydantic import BaseModel, EmailStr, Field
@@ -54,5 +53,3 @@ class UserSchema(BaseModel):
     last_name: str
     email: EmailStr
     bio: str
-    created_at: datetime
-    updated_at: datetime

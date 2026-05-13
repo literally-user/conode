@@ -53,8 +53,6 @@ async def get_current_user_profile(
         last_name=result.last_name.value,
         email=result.email.value,
         bio=result.bio.value,
-        created_at=result.created_at,
-        updated_at=result.updated_at,
     )
 
 
@@ -88,6 +86,4 @@ async def get_user_by_username(
         last_name=result.last_name.value,
         email=result.email.value,
         bio=result.bio.value,
-        created_at=result.created_at,
-        updated_at=result.updated_at,
     )
