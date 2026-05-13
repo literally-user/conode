@@ -103,7 +103,7 @@ async def attach_nodes(
     ]
 
 
-@router.delete("/attach/{association_id}", status_code=HTTPStatus.NO_CONTENT)
+@router.delete("/association/{association_id}", status_code=HTTPStatus.NO_CONTENT)
 async def detach_node(
     association_id: NodeAssociationId,
     interactor: FromDishka[DetachNodeInteractor],

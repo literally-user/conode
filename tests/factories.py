@@ -253,12 +253,14 @@ class NodeFactory:
 
         if group is None:
             group = await self.group_factory.create_group(company)
+
+        await self.node_repository.create(node)
+
         if association is None:
             association = await self.node_association_factory.create_association(
                 node, group
             )
 
-        await self.node_repository.create(node)
         return node
 
 
