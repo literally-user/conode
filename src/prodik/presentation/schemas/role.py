@@ -42,7 +42,6 @@ class UpdatePermissionRequest(BaseModel):
 
 class UpdateRoleRequest(BaseModel):
     name: str
-    role_id: RoleId
     permissions: dict[RolePermissionId, UpdatePermissionRequest]
 
 
@@ -53,6 +52,7 @@ class RoleSchema(BaseModel):
 
 
 class PermissionSchema(BaseModel):
+    id: RolePermissionId
     role_id: RoleId
     permission: PermissionType
     entity_type: EntityType

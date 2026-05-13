@@ -117,6 +117,16 @@ async def company_repository(test_container: AsyncContainer) -> CompanyRepositor
 
 
 @pytest.fixture
+async def role_permissions_repository(
+    test_container: AsyncContainer,
+) -> RolePermissionsRepository:
+    async with test_container() as container:
+        return cast(
+            "RolePermissionsRepository", await container.get(RolePermissionsRepository)
+        )
+
+
+@pytest.fixture
 async def context_repository(test_container: AsyncContainer) -> ContextRepository:
     async with test_container() as container:
         return cast("ContextRepository", await container.get(ContextRepository))

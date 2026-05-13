@@ -79,6 +79,7 @@ async def update_role(
         ),
         permissions=[
             PermissionSchema(
+                id=permission.id,
                 role_id=permission.role_id,
                 permission=permission.permission,
                 entity_type=permission.entity_type,
