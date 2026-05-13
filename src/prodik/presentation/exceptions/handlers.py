@@ -28,6 +28,13 @@ from prodik.application.errors import (
     UserAlreadyExistsError,
     UserNotFoundError,
 )
+from prodik.domain.company.errors import CompanyDomainValidationError
+from prodik.domain.context.errors import ContextDomainValidationError
+from prodik.domain.edge.errors import EdgeDomainValidationError
+from prodik.domain.group.errors import GroupDomainValidationError
+from prodik.domain.node.errors import NodeDomainValidationError
+from prodik.domain.role.errors import RoleDomainValidationError
+from prodik.domain.user.errors import UserDomainValidationError
 
 logger = structlog.get_logger()
 
@@ -51,15 +58,24 @@ EXCEPTION_HANDLERS: Final[dict[type[ApplicationError], HTTPStatus]] = {
     NotEnoughRightsError: HTTPStatus.FORBIDDEN,
     NodeCannotHaveSameAssociationsError: HTTPStatus.CONFLICT,
     NodeMustHaveAtLeastOneAssociationError: HTTPStatus.CONFLICT,
+    CompanyDomainValidationError: HTTPStatus.UNPROCESSABLE_CONTENT,
+    ContextDomainValidationError: HTTPStatus.UNPROCESSABLE_CONTENT,
+    EdgeDomainValidationError: HTTPStatus.UNPROCESSABLE_CONTENT,
+    GroupDomainValidationError: HTTPStatus.UNPROCESSABLE_CONTENT,
+    NodeDomainValidationError: HTTPStatus.UNPROCESSABLE_CONTENT,
+    RoleDomainValidationError: HTTPStatus.UNPROCESSABLE_CONTENT,
+    UserDomainValidationError: HTTPStatus.UNPROCESSABLE_CONTENT,
 }
 
 
 async def application_error_handler(
     _request: Request, exception: ApplicationError
 ) -> JSONResponse:
-    status_code = EXCEPTION_HANDLERS.get(
-        type(exception), status.HTTP_500_INTERNAL_SERVER_ERROR
-    )
+    status_code = HTTPStatus.INTERNAL_SERVER_ERROR
+    for error in type(exception).mro():
+        if error in EXCEPTION_HANDLERS:
+            status_code = EXCEPTION_HANDLERS[error]
+
     logger.warning(
         "Handled application error",
         error_type=type(exception).__name__,
@@ -67,6 +83,7 @@ async def application_error_handler(
         status_code=status_code,
         meta=exception.meta,
     )
+
     return JSONResponse(
         status_code=status_code,
         content=jsonable_encoder({"detail": exception.detail, "meta": exception.meta}),
