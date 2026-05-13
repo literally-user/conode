@@ -1,9 +1,8 @@
 from typing import Protocol
 
-from prodik.domain.role import Role
-from prodik.domain.user import UserId
+from prodik.domain.role import Role, RoleId
 
 
 class RoleRepository(Protocol):
     async def create(self, role: Role) -> None: ...
-    async def get_all_by_user_id(self, user_id: UserId) -> list[Role]: ...
+    async def get_all_by_ids(self, ids: list[RoleId]) -> list[Role]: ...

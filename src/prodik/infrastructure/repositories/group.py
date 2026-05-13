@@ -59,3 +59,11 @@ class GroupRepositoryImpl(GroupRepository):
         )
 
         return list(result.scalars())
+
+    async def get_all_by_ids(self, ids: list[GroupId]) -> list[Group]:
+        if not ids:
+            return []
+
+        result = await self.session.execute(select(Group).where(Group.id.in_(ids)))  # type: ignore
+
+        return list(result.scalars().all())

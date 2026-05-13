@@ -10,7 +10,10 @@ from prodik.infrastructure.repositories import (
     LocalAuthorizationRepositoryImpl,
     NodeAssociationRepositoryImpl,
     NodeRepositoryImpl,
+    RolePermissionsRepositoryImpl,
+    RoleRepositoryImpl,
     SessionRepositoryImpl,
+    UserGrantRepositoryImpl,
     UserRepositoryImpl,
 )
 from prodik.infrastructure.token_managers import (
@@ -36,5 +39,8 @@ class InfrastructureProvider(Provider):
         WithParents[NodeRepositoryImpl],
         WithParents[ContextRepositoryImpl],
         WithParents[EdgeRepositoryImpl],
+        WithParents[UserGrantRepositoryImpl],
+        WithParents[RoleRepositoryImpl],
+        WithParents[RolePermissionsRepositoryImpl],
         scope=Scope.REQUEST,
     )

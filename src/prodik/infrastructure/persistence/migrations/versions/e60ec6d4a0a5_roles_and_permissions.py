@@ -34,6 +34,7 @@ def upgrade() -> None:
     sa.Column('role_id', sa.UUID(), nullable=False),
     sa.Column('owner_company_id', sa.UUID(), nullable=False),
     sa.Column('entity_id', sa.UUID(), nullable=False),
+    sa.Column('permission', sa.Enum('READ', 'MODIFY', name='permissiontype'), nullable=False),
     sa.Column('entity_type', sa.Enum('NODE', 'GROUP', 'CONTEXT', 'COMPANY', name='entitytype'), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
     sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),

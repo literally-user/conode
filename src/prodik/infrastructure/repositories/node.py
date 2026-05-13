@@ -186,3 +186,27 @@ class NodeAssociationRepositoryImpl(NodeAssociationRepository):
             count=len(associations),
         )
         return associations
+
+    async def get_all_by_node_id(
+        self,
+        node_id: NodeId,
+    ) -> list[NodeAssociation]:
+        logger.info(
+            "Repository get node associations by node id",
+            node_id=node_id,
+        )
+
+        result = await self.session.execute(
+            select(NodeAssociation).where(
+                NodeAssociation.node_id == node_id  # type: ignore
+            )
+        )
+        associations = list(result.scalars().all())
+
+        logger.info(
+            "Repository fetched all node associations by node id",
+            node_id=node_id,
+            count=len(associations),
+        )
+
+        return associations

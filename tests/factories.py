@@ -16,7 +16,10 @@ from prodik.application.interfaces.repositories import (
     LocalAuthorizationRepository,
     NodeAssociationRepository,
     NodeRepository,
+    RolePermissionsRepository,
+    RoleRepository,
     SessionRepository,
+    UserGrantRepository,
     UserRepository,
 )
 from prodik.application.interfaces.token_managers import (
@@ -32,8 +35,17 @@ from prodik.domain.authorization import (
 from prodik.domain.company import Company, CompanyId
 from prodik.domain.context import Context, ContextId
 from prodik.domain.edge import Edge, EdgeId
+from prodik.domain.grant import UserGrant, UserGrantId
 from prodik.domain.group import Group, GroupId
 from prodik.domain.node import Node, NodeAssociation, NodeAssociationId, NodeId
+from prodik.domain.role import (
+    EntityType,
+    PermissionType,
+    Role,
+    RoleId,
+    RolePermission,
+    RolePermissionId,
+)
 from prodik.domain.user import User, UserId, UserSystemRole
 
 
@@ -127,20 +139,52 @@ class UserFactory:
 
 @dataclass
 class CompanyFactory:
+    role_repository: RoleRepository
+    role_permissions_repository: RolePermissionsRepository
+    user_grant_repository: UserGrantRepository
     company_repository: CompanyRepository
     user_factory: UserFactory
 
     async def create_company(self, user: User | None = None) -> Company:
+        if user is None:
+            user = (await self.user_factory.create_user(admin=False)).user
+
         company = Company.new(
             id=CompanyId(uuid4()),
             name=generate_random_string(10),
             description=generate_random_string(300),
-            owner=user
-            if user is not None
-            else (await self.user_factory.create_user()).user,
+            owner=user,
+        )
+
+        role = Role.new(id=RoleId(uuid4()), name="owner", company=company)
+
+        permissions = [
+            RolePermission.new(
+                id=RolePermissionId(uuid4()),
+                role=role,
+                permission=PermissionType.READ,
+                entity_type=EntityType.COMPANY,
+                entity_id=company.id,
+            ),
+            RolePermission.new(
+                id=RolePermissionId(uuid4()),
+                role=role,
+                permission=PermissionType.MODIFY,
+                entity_type=EntityType.COMPANY,
+                entity_id=company.id,
+            ),
+        ]
+
+        grant = UserGrant.new(
+            id=UserGrantId(uuid4()),
+            role=role,
+            user=user,
         )
 
         await self.company_repository.create(company)
+        await self.role_repository.create(role)
+        await self.role_permissions_repository.create_all(permissions)
+        await self.user_grant_repository.create(grant)
 
         return company
 
@@ -167,24 +211,6 @@ class GroupFactory:
 
 
 @dataclass
-class NodeFactory:
-    node_repository: NodeRepository
-    company_factory: CompanyFactory
-
-    async def create_node(self, company: Company | None = None) -> Node:
-        node = Node.new(
-            id=NodeId(uuid4()),
-            name=generate_random_string(10),
-            description=generate_random_string(30),
-            company=company
-            if company is not None
-            else await self.company_factory.create_company(),
-        )
-        await self.node_repository.create(node)
-        return node
-
-
-@dataclass
 class NodeAssociationFactory:
     node_association_repository: NodeAssociationRepository
 
@@ -196,6 +222,44 @@ class NodeAssociationFactory:
         )
         await self.node_association_repository.create(association)
         return association
+
+
+@dataclass
+class NodeFactory:
+    group_factory: GroupFactory
+    node_association_factory: NodeAssociationFactory
+    node_repository: NodeRepository
+    user_factory: UserFactory
+    company_factory: CompanyFactory
+
+    async def create_node(
+        self,
+        association: NodeAssociation | None = None,
+        company: Company | None = None,
+        group: Group | None = None,
+        user: User | None = None,
+    ) -> Node:
+        if user is None:
+            user = (await self.user_factory.create_user(admin=False)).user
+        if company is None:
+            company = await self.company_factory.create_company(user)
+
+        node = Node.new(
+            id=NodeId(uuid4()),
+            name=generate_random_string(10),
+            description=generate_random_string(30),
+            company=company,
+        )
+
+        if group is None:
+            group = await self.group_factory.create_group(company)
+        if association is None:
+            association = await self.node_association_factory.create_association(
+                node, group
+            )
+
+        await self.node_repository.create(node)
+        return node
 
 
 @dataclass

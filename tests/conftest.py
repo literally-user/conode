@@ -17,7 +17,10 @@ from prodik.application.interfaces.repositories import (
     LocalAuthorizationRepository,
     NodeAssociationRepository,
     NodeRepository,
+    RolePermissionsRepository,
+    RoleRepository,
     SessionRepository,
+    UserGrantRepository,
     UserRepository,
 )
 from prodik.application.interfaces.token_managers import (
@@ -75,6 +78,9 @@ async def company_factory(
 ) -> CompanyFactory:
     async with test_container() as container:
         return CompanyFactory(
+            role_repository=await container.get(RoleRepository),
+            role_permissions_repository=await container.get(RolePermissionsRepository),
+            user_grant_repository=await container.get(UserGrantRepository),
             company_repository=await container.get(CompanyRepository),
             user_factory=user_factory,
         )
@@ -84,6 +90,12 @@ async def company_factory(
 async def user_repository(test_container: AsyncContainer) -> UserRepository:
     async with test_container() as container:
         return cast("UserRepository", await container.get(UserRepository))
+
+
+@pytest.fixture
+async def user_grant_repository(test_container: AsyncContainer) -> UserGrantRepository:
+    async with test_container() as container:
+        return cast("UserGrantRepository", await container.get(UserGrantRepository))
 
 
 @pytest.fixture
@@ -142,12 +154,19 @@ async def edge_factory(test_container: AsyncContainer) -> EdgeFactory:
 
 @pytest.fixture
 async def node_factory(
-    test_container: AsyncContainer, company_factory: CompanyFactory
+    test_container: AsyncContainer,
+    company_factory: CompanyFactory,
+    user_factory: UserFactory,
+    group_factory: GroupFactory,
+    node_association_factory: NodeAssociationFactory,
 ) -> NodeFactory:
     async with test_container() as container:
         return NodeFactory(
             node_repository=await container.get(NodeRepository),
+            user_factory=user_factory,
+            group_factory=group_factory,
             company_factory=company_factory,
+            node_association_factory=node_association_factory,
         )
 
 

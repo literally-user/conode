@@ -10,6 +10,7 @@ from prodik.application.interfaces.identity_provider import IdentityProvider
 from prodik.application.interfaces.repositories import (
     RolePermissionsRepository,
     RoleRepository,
+    UserGrantRepository,
     UserRepository,
 )
 from prodik.application.interfaces.token_managers import UserMeta
@@ -30,6 +31,7 @@ type RolesPermissions = list[list[RolePermission]]
 @dataclass
 class AccessControlService:
     role_permissions_repository: RolePermissionsRepository
+    user_grant_repository: UserGrantRepository
     role_repository: RoleRepository
     identity_provider: IdentityProvider
     user_repository: UserRepository
@@ -39,7 +41,9 @@ class AccessControlService:
             raise SessionExpiredError("Session has expired", None)
 
     async def _get_all_permissions(self, user: User) -> RolesPermissions:
-        roles = await self.role_repository.get_all_by_user_id(user.id)
+        grants = await self.user_grant_repository.get_all_by_user_id(user.id)
+        user_role_ids = [grant.role_id for grant in grants]
+        roles = await self.role_repository.get_all_by_ids(user_role_ids)
         return await asyncio.gather(
             *[
                 self.role_permissions_repository.get_all_by_role_id(role.id)

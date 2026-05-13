@@ -20,6 +20,8 @@ from prodik.application.errors import (
     InvalidCredentialsError,
     InvalidOldPasswordError,
     InvalidTokenError,
+    NodeCannotHaveSameAssociationsError,
+    NodeMustHaveAtLeastOneAssociationError,
     NodeNotFoundError,
     NotEnoughRightsError,
     SessionNotFoundError,
@@ -47,6 +49,8 @@ EXCEPTION_HANDLERS: Final[dict[type[ApplicationError], HTTPStatus]] = {
     FailedToReadClientError: HTTPStatus.BAD_REQUEST,
     InvalidOldPasswordError: HTTPStatus.FORBIDDEN,
     NotEnoughRightsError: HTTPStatus.FORBIDDEN,
+    NodeCannotHaveSameAssociationsError: HTTPStatus.CONFLICT,
+    NodeMustHaveAtLeastOneAssociationError: HTTPStatus.CONFLICT,
 }
 
 

@@ -34,9 +34,9 @@ class RoleName(ValueObject[str]):
     def __init__(self, value: str) -> None:
         value = value.strip()
 
-        if MIN_ALLOWED_ROLE_NAME_LENGTH <= len(value) <= MAX_ALLOWED_ROLE_NAME_LENGTH:
+        if MAX_ALLOWED_ROLE_NAME_LENGTH <= len(value) <= MIN_ALLOWED_ROLE_NAME_LENGTH:
             raise InvalidRoleNameFormatError(
-                "Company name must be between"
+                "Role name must be between "
                 f"{MIN_ALLOWED_ROLE_NAME_LENGTH} and "
                 f"{MAX_ALLOWED_ROLE_NAME_LENGTH}",
                 [{"key": "name", "value": value}],
