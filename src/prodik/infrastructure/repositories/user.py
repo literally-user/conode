@@ -87,14 +87,16 @@ class UserRepositoryImpl(UserRepository):
         logger.info("Repository fetched user by username", found=user is not None)
         return user
 
-    async def get_by_id(self, id: UserId) -> User | None:
-        logger.info("Repository get user by id", user_id=id)
+    async def get_by_id(self, user_id: UserId) -> User | None:
+        logger.info("Repository get user by id", user_id=user_id)
         result = await self.session.execute(
-            select(User).where(User.id == id)  # type: ignore
+            select(User).where(User.id == user_id)  # type: ignore
         )
 
         user = result.scalar_one_or_none()
-        logger.info("Repository fetched user by id", user_id=id, found=user is not None)
+        logger.info(
+            "Repository fetched user by id", user_id=user_id, found=user is not None
+        )
         return user
 
     async def get_by_email(self, email: Email) -> User | None:

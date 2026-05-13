@@ -55,16 +55,18 @@ class NodeRepositoryImpl(NodeRepository):
             )
         )
 
-    async def get_by_id(self, id: NodeId) -> Node | None:
-        logger.info("Repository get node by id", node_id=id)
+    async def get_by_id(self, node_id: NodeId) -> Node | None:
+        logger.info("Repository get node by id", node_id=node_id)
         result = await self.session.execute(
             select(Node).where(
-                Node.id == id  # type: ignore
+                Node.id == node_id  # type: ignore
             )
         )
 
         node = result.scalar_one_or_none()
-        logger.info("Repository fetched node by id", node_id=id, found=node is not None)
+        logger.info(
+            "Repository fetched node by id", node_id=node_id, found=node is not None
+        )
         return node
 
     async def update(self, node: Node) -> None:
@@ -132,18 +134,22 @@ class NodeAssociationRepositoryImpl(NodeAssociationRepository):
             )
         )
 
-    async def get_by_id(self, id: NodeAssociationId) -> NodeAssociation | None:
-        logger.info("Repository get node association by id", association_id=id)
+    async def get_by_id(
+        self, node_association_id: NodeAssociationId
+    ) -> NodeAssociation | None:
+        logger.info(
+            "Repository get node association by id", association_id=node_association_id
+        )
         result = await self.session.execute(
             select(NodeAssociation).where(
-                NodeAssociation.id == id  # type: ignore
+                NodeAssociation.id == node_association_id  # type: ignore
             )
         )
 
         association = result.scalar_one_or_none()
         logger.info(
             "Repository fetched node association by id",
-            association_id=id,
+            association_id=node_association_id,
             found=association is not None,
         )
         return association

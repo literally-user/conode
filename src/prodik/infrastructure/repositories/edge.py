@@ -52,16 +52,18 @@ class EdgeRepositoryImpl(EdgeRepository):
             )
         )
 
-    async def get_by_id(self, id: EdgeId) -> Edge | None:
-        logger.info("Repository get edge by id", edge_id=id)
+    async def get_by_id(self, edge_id: EdgeId) -> Edge | None:
+        logger.info("Repository get edge by id", edge_id=edge_id)
         result = await self.session.execute(
             select(Edge).where(
-                Edge.id == id  # type: ignore
+                Edge.id == edge_id  # type: ignore
             )
         )
 
         edge = result.scalar_one_or_none()
-        logger.info("Repository fetched edge by id", edge_id=id, found=edge is not None)
+        logger.info(
+            "Repository fetched edge by id", edge_id=edge_id, found=edge is not None
+        )
         return edge
 
     async def get_by_nodes_and_context(

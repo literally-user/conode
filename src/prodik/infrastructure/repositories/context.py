@@ -28,17 +28,19 @@ class ContextRepositoryImpl(ContextRepository):
             )
         )
 
-    async def get_by_id(self, id: ContextId) -> Context | None:
-        logger.info("Repository get context by id", context_id=id)
+    async def get_by_id(self, context_id: ContextId) -> Context | None:
+        logger.info("Repository get context by id", context_id=context_id)
         result = await self.session.execute(
             select(Context).where(
-                Context.id == id  # type: ignore
+                Context.id == context_id  # type: ignore
             )
         )
 
         context = result.scalar_one_or_none()
         logger.info(
-            "Repository fetched context by id", context_id=id, found=context is not None
+            "Repository fetched context by id",
+            context_id=context_id,
+            found=context is not None,
         )
         return context
 

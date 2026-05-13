@@ -56,26 +56,28 @@ class CompanyRepositoryImpl(CompanyRepository):
         logger.info("Repository fetched company by name", found=company is not None)
         return company
 
-    async def get_by_id(self, id: CompanyId) -> Company | None:
-        logger.info("Repository get company by id", company_id=id)
+    async def get_by_id(self, company_id: CompanyId) -> Company | None:
+        logger.info("Repository get company by id", company_id=company_id)
         result = await self.session.execute(
             select(Company).where(
-                Company.id == id  # type: ignore
+                Company.id == company_id  # type: ignore
             )
         )
 
         company = result.scalar_one_or_none()
         logger.info(
-            "Repository fetched company by id", company_id=id, found=company is not None
+            "Repository fetched company by id",
+            company_id=company_id,
+            found=company is not None,
         )
         return company
 
-    async def get_by_user_id(self, id: UserId) -> Company | None:
-        logger.info("Repository get company by user id", user_id=id)
+    async def get_by_user_id(self, user_id: UserId) -> Company | None:
+        logger.info("Repository get company by user id", user_id=user_id)
         result = await self.session.execute(
             select(Company)
             .where(
-                Company.owner_id == id  # type: ignore
+                Company.owner_id == user_id  # type: ignore
             )
             .limit(1)
         )
@@ -83,7 +85,7 @@ class CompanyRepositoryImpl(CompanyRepository):
         company = result.scalar_one_or_none()
         logger.info(
             "Repository fetched company by user id",
-            user_id=id,
+            user_id=user_id,
             found=company is not None,
         )
         return company

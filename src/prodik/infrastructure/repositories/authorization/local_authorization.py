@@ -44,16 +44,16 @@ class LocalAuthorizationRepositoryImpl(LocalAuthorizationRepository):
             )
         )
 
-    async def get_by_user_id(self, id: UserId) -> LocalAuthorization | None:
-        logger.info("Repository get local authorization by user id", user_id=id)
+    async def get_by_user_id(self, user_id: UserId) -> LocalAuthorization | None:
+        logger.info("Repository get local authorization by user id", user_id=user_id)
         result = await self.session.execute(
-            select(LocalAuthorization).where(LocalAuthorization.user_id == id)  # type: ignore
+            select(LocalAuthorization).where(LocalAuthorization.user_id == user_id)  # type: ignore
         )
 
         authorization = result.scalar_one_or_none()
         logger.info(
             "Repository fetched local authorization by user id",
-            user_id=id,
+            user_id=user_id,
             found=authorization is not None,
         )
         return authorization

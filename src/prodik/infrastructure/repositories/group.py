@@ -28,17 +28,17 @@ class GroupRepositoryImpl(GroupRepository):
             )
         )
 
-    async def get_by_id(self, id: GroupId) -> Group | None:
-        logger.info("Repository get group by id", group_id=id)
+    async def get_by_id(self, group_id: GroupId) -> Group | None:
+        logger.info("Repository get group by id", group_id=group_id)
         result = await self.session.execute(
             select(Group).where(
-                Group.id == id  # type: ignore
+                Group.id == group_id  # type: ignore
             )
         )
 
         group = result.scalar_one_or_none()
         logger.info(
-            "Repository fetched group by id", group_id=id, found=group is not None
+            "Repository fetched group by id", group_id=group_id, found=group is not None
         )
         return group
 
@@ -60,10 +60,12 @@ class GroupRepositoryImpl(GroupRepository):
 
         return list(result.scalars())
 
-    async def get_all_by_ids(self, ids: list[GroupId]) -> list[Group]:
-        if not ids:
+    async def get_all_by_ids(self, group_ids: list[GroupId]) -> list[Group]:
+        if not group_ids:
             return []
 
-        result = await self.session.execute(select(Group).where(Group.id.in_(ids)))  # type: ignore
+        result = await self.session.execute(
+            select(Group).where(Group.id.in_(group_ids))  # type: ignore
+        )
 
         return list(result.scalars().all())
