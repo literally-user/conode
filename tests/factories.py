@@ -242,13 +242,61 @@ class GroupFactory:
             id=GroupId(uuid4()),
             name=generate_random_string(10),
             description=generate_random_string(30),
-            company=company
-            if company is not None
-            else await self.company_factory.create_company(),
+            company=company or await self.company_factory.create_company(),
             parent_group=parent_group,
         )
         await self.group_repository.create(group)
         return group
+
+
+@dataclass(slots=True)
+class RoleFactory:
+    role_repository: RoleRepository
+    role_permissions_repository: RolePermissionsRepository
+
+    async def create_role(
+        self,
+        *,
+        company: Company,
+        name: str | None = None,
+        with_permissions: bool = True,
+        permission_entity_id: RolePermissionEntityId | None = None,
+    ) -> Role:
+
+        role = Role.new(
+            id=RoleId(uuid4()),
+            name=name or generate_random_string(10),
+            company=company,
+        )
+
+        permissions: list[RolePermission] = []
+
+        if with_permissions:
+            entity_id = permission_entity_id or company.id
+
+            permissions = [
+                RolePermission.new(
+                    id=RolePermissionId(uuid4()),
+                    role=role,
+                    permission=PermissionType.READ,
+                    entity_type=EntityType.COMPANY,
+                    entity_id=entity_id,
+                ),
+                RolePermission.new(
+                    id=RolePermissionId(uuid4()),
+                    role=role,
+                    permission=PermissionType.MODIFY,
+                    entity_type=EntityType.COMPANY,
+                    entity_id=entity_id,
+                ),
+            ]
+
+        await self.role_repository.create(role)
+
+        if permissions:
+            await self.role_permissions_repository.create_all(permissions)
+
+        return role
 
 
 @dataclass(slots=True)
@@ -315,9 +363,7 @@ class ContextFactory:
             id=ContextId(uuid4()),
             name=generate_random_string(10),
             description=generate_random_string(30),
-            company=company
-            if company is not None
-            else await self.company_factory.create_company(),
+            company=company or await self.company_factory.create_company(),
         )
 
         await self.context_repository.create(context)

@@ -44,6 +44,7 @@ from tests.factories import (
     GroupFactory,
     NodeAssociationFactory,
     NodeFactory,
+    RoleFactory,
     UserFactory,
 )
 from tests.services import EntityExistenceService
@@ -83,6 +84,17 @@ async def company_factory(
             user_grant_repository=await container.get(UserGrantRepository),
             company_repository=await container.get(CompanyRepository),
             user_factory=user_factory,
+        )
+
+
+@pytest.fixture
+async def role_factory(
+    test_container: AsyncContainer,
+) -> RoleFactory:
+    async with test_container() as container:
+        return RoleFactory(
+            role_repository=await container.get(RoleRepository),
+            role_permissions_repository=await container.get(RolePermissionsRepository),
         )
 
 
