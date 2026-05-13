@@ -214,3 +214,19 @@ class AccessControlService:
             company=target_company,
         ):
             raise NotEnoughRightsError("Not enough rights to perform operation", None)
+
+    async def ensure_user_can_create_roles(
+        self,
+        user: User,
+        target_company: Company,
+    ) -> None:
+        permissions = await self._get_all_permissions(user)
+
+        if not self.check(
+            permissions=permissions,
+            required_permission=PermissionType.MODIFY,
+            required_entity=EntityType.COMPANY,
+            entity_id=None,
+            company=target_company,
+        ):
+            raise NotEnoughRightsError("Not enough rights to perform operation", None)

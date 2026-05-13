@@ -32,6 +32,7 @@ from prodik.application.manage_node import (
     UpdateNodeInteractor,
 )
 from prodik.application.manage_profile import UpdateCurrentUserProfileInteractor
+from prodik.application.manage_roles import CreateRoleInteractor
 from prodik.application.receive_context_info import (
     GetContextByIdInteractor,
 )
@@ -73,6 +74,7 @@ class ApplicationProvider(Provider):
         CreateNodeInteractor,
         DeleteNodeInteractor,
         DetachNodeInteractor,
+        CreateRoleInteractor,
         AttachNodeInteractor,
         CreateEdgeInteractor,
         scope=Scope.REQUEST,

@@ -46,9 +46,32 @@ from prodik.domain.role import (
     Role,
     RoleId,
     RolePermission,
+    RolePermissionEntityId,
     RolePermissionId,
 )
+from prodik.domain.role.model import (
+    MAX_ALLOWED_ROLE_NAME_LENGTH,
+    MIN_ALLOWED_ROLE_NAME_LENGTH,
+)
 from prodik.domain.user import User, UserId, UserSystemRole
+
+
+class CreatePermissionRequest(BaseModel):
+    permission: PermissionType
+    entity_type: EntityType
+    entity_id: RolePermissionEntityId
+
+
+class CreateRoleRequest(BaseModel):
+    name: Annotated[
+        str,
+        Field(
+            min_length=MIN_ALLOWED_ROLE_NAME_LENGTH,
+            max_length=MAX_ALLOWED_ROLE_NAME_LENGTH,
+        ),
+    ]
+    company_id: CompanyId
+    permissions: list[CreatePermissionRequest]
 
 
 class RegisterRequest(BaseModel):
@@ -57,6 +80,14 @@ class RegisterRequest(BaseModel):
     last_name: Annotated[str, Field(min_length=1, max_length=30)]
     password: Annotated[str, Field(min_length=7, max_length=100)]
     email: EmailStr
+
+
+class CreatePermissionRequestFactory(ModelFactory[CreatePermissionRequest]):
+    __model__ = CreatePermissionRequest
+
+
+class CreateRoleRequestFactory(ModelFactory[CreateRoleRequest]):
+    __model__ = CreateRoleRequest
 
 
 class RegisterRequestFactory(ModelFactory[RegisterRequest]):

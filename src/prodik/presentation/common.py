@@ -13,6 +13,7 @@ from prodik.presentation.exceptions import (
 from prodik.presentation.group import router as group_router
 from prodik.presentation.middlewares import LoggerMiddleware
 from prodik.presentation.node import router as node_router
+from prodik.presentation.role import router as role_router
 from prodik.presentation.root import router as root_router
 from prodik.presentation.user import router as user_router
 
@@ -20,13 +21,14 @@ logger = structlog.get_logger()
 
 
 def include_handlers(app: FastAPI) -> None:
-    app.include_router(company_router)
+    app.include_router(role_router)
     app.include_router(group_router)
     app.include_router(root_router)
     app.include_router(auth_router)
     app.include_router(user_router)
     app.include_router(node_router)
     app.include_router(edge_router)
+    app.include_router(company_router)
     app.include_router(context_router)
 
 
