@@ -2,6 +2,7 @@ from typing import Annotated
 
 from pydantic import BaseModel, EmailStr, Field
 
+from prodik.domain.role import RoleId
 from prodik.domain.user import UserId
 from prodik.domain.user.model import (
     MAX_ALLOWED_BIO_LENGTH,
@@ -53,3 +54,13 @@ class UserSchema(BaseModel):
     last_name: str
     email: EmailStr
     bio: str
+
+
+class GiveRoleToUserRequest(BaseModel):
+    role_id: RoleId
+    user_id: UserId
+
+
+class RevokeRoleFromUserRequest(BaseModel):
+    role_id: RoleId
+    user_id: UserId

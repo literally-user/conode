@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from prodik.application.interfaces.repositories import UserGrantRepository
 from prodik.domain.grant import UserGrant
+from prodik.domain.role import RoleId
 from prodik.domain.user import UserId
 
 logger = structlog.get_logger()
@@ -42,3 +43,27 @@ class UserGrantRepositoryImpl(UserGrantRepository):
         )
 
         return grants
+
+    async def get_by_user_and_role_id(
+        self, user_id: UserId, role_id: RoleId
+    ) -> UserGrant | None:
+        logger.info(
+            "Repository get user grant by user and role id",
+            user_id=user_id,
+            role_id=role_id,
+        )
+        result = await self.session.execute(
+            select(UserGrant).where(
+                UserGrant.user_id == user_id  # type: ignore
+            )
+        )
+
+        grant = result.scalar_one_or_none()
+        logger.info(
+            "Repository fetched context by id",
+            role_id=role_id,
+            user_id=user_id,
+            found=grant is not None,
+        )
+
+        return grant

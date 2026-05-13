@@ -3,6 +3,7 @@ from http import HTTPStatus
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
 from fastapi import APIRouter
 
+from prodik.application.give_role_to_user import GiveRoleToUserInteractor
 from prodik.application.manage_credentials import (
     UpdateCurrentUserPasswordInteractor,
     UpdateCurrentUserPasswordRequestDTO,
@@ -15,6 +16,9 @@ from prodik.application.receive_user_info import (
     GetCurrentUserInteractor,
     GetUserByUsernameInteractor,
 )
+from prodik.application.revoke_role_from_user import RevokeRoleFromUserInteractor
+from prodik.domain.role import RoleId
+from prodik.domain.user import UserId
 from prodik.presentation.schemas.auth import AuthResponse
 from prodik.presentation.schemas.user import (
     UpdateCurrentUserPasswordRequest,
@@ -87,3 +91,19 @@ async def get_user_by_username(
         email=result.email.value,
         bio=result.bio.value,
     )
+
+
+@router.post("/{user_id}/roles/{role_id}")
+async def give_role_to_user(
+    user_id: UserId, role_id: RoleId, interactor: FromDishka[GiveRoleToUserInteractor]
+) -> None:
+    await interactor.execute(user_id=user_id, role_id=role_id)
+
+
+@router.delete("/{user_id}/roles/{role_id}")
+async def revoke_role_from_user(
+    user_id: UserId,
+    role_id: RoleId,
+    interactor: FromDishka[RevokeRoleFromUserInteractor],
+) -> None:
+    await interactor.execute(user_id=user_id, role_id=role_id)

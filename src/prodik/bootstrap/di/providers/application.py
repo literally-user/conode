@@ -5,6 +5,7 @@ from prodik.application.authorization import (
     RefreshTokenInteractor,
     RegisterInteractor,
 )
+from prodik.application.give_role_to_user import GiveRoleToUserInteractor
 from prodik.application.manage_association import (
     AttachNodeInteractor,
     DetachNodeInteractor,
@@ -47,6 +48,7 @@ from prodik.application.receive_user_info import (
     GetCurrentUserInteractor,
     GetUserByUsernameInteractor,
 )
+from prodik.application.revoke_role_from_user import RevokeRoleFromUserInteractor
 from prodik.application.services import AccessControlService
 
 
@@ -83,5 +85,7 @@ class ApplicationProvider(Provider):
         CreateRoleInteractor,
         AttachNodeInteractor,
         CreateEdgeInteractor,
+        GiveRoleToUserInteractor,
+        RevokeRoleFromUserInteractor,
         scope=Scope.REQUEST,
     )
