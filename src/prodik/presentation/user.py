@@ -11,7 +11,10 @@ from prodik.application.manage_profile import (
     UpdateCurrentUserProfileInteractor,
     UpdateCurrentUserProfileRequestDTO,
 )
-from prodik.application.receive_user_info import GetUserByUsernameInteractor
+from prodik.application.receive_user_info import (
+    GetCurrentUserInteractor,
+    GetUserByUsernameInteractor,
+)
 from prodik.presentation.schemas.auth import AuthResponse
 from prodik.presentation.schemas.user import (
     UpdateCurrentUserPasswordRequest,
@@ -35,6 +38,23 @@ async def update_current_user_profile(
             email=request.email,
             bio=request.bio,
         )
+    )
+
+
+@router.get("/me/profile")
+async def get_current_user_profile(
+    interactor: FromDishka[GetCurrentUserInteractor],
+) -> UserSchema:
+    result = await interactor.execute()
+    return UserSchema(
+        id=result.id,
+        username=result.username.value,
+        first_name=result.first_name.value,
+        last_name=result.last_name.value,
+        email=result.email.value,
+        bio=result.bio.value,
+        created_at=result.created_at,
+        updated_at=result.updated_at,
     )
 
 
@@ -62,6 +82,7 @@ async def get_user_by_username(
     result = await interactor.execute(username)
 
     return UserSchema(
+        id=result.id,
         username=result.username.value,
         first_name=result.first_name.value,
         last_name=result.last_name.value,

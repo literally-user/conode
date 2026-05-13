@@ -40,7 +40,7 @@ class Username(ValueObject[str]):
             MIN_ALLOWED_USERNAME_LENGTH <= len(value) <= MAX_ALLOWED_USERNAME_LENGTH
         ):
             raise InvalidUserUsernameFormatError(
-                "Company name length must be between"
+                "Username length must be between "
                 f"{MIN_ALLOWED_USERNAME_LENGTH} and "
                 f"{MAX_ALLOWED_USERNAME_LENGTH}",
                 [{"key": "name", "value": value}],
@@ -57,7 +57,7 @@ class FirstName(ValueObject[str]):
             MIN_ALLOWED_FIRST_NAME_LENGTH <= len(value) <= MAX_ALLOWED_FIRST_NAME_LENGTH
         ):
             raise InvalidUserFirstNameFormatError(
-                "First name length must be between"
+                "First name length must be between "
                 f"{MIN_ALLOWED_FIRST_NAME_LENGTH} and "
                 f"{MAX_ALLOWED_FIRST_NAME_LENGTH}",
                 [{"key": "first_name", "value": value}],
@@ -74,7 +74,7 @@ class LastName(ValueObject[str]):
             MIN_ALLOWED_LAST_NAME_LENGTH <= len(value) <= MAX_ALLOWED_LAST_NAME_LENGTH
         ):
             raise InvalidUserLastNameFormatError(
-                "First name length must be between"
+                "First name length must be between "
                 f"{MIN_ALLOWED_LAST_NAME_LENGTH} and "
                 f"{MAX_ALLOWED_LAST_NAME_LENGTH}",
                 [{"key": "last_name", "value": value}],

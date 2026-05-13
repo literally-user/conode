@@ -3,6 +3,7 @@ from typing import Annotated
 
 from pydantic import BaseModel, EmailStr, Field
 
+from prodik.domain.user import UserId
 from prodik.domain.user.model import (
     MAX_ALLOWED_BIO_LENGTH,
     MAX_ALLOWED_FIRST_NAME_LENGTH,
@@ -47,6 +48,7 @@ class UpdateCurrentUserPasswordRequest(BaseModel):
 
 
 class UserSchema(BaseModel):
+    id: UserId
     username: str
     first_name: str
     last_name: str
