@@ -19,17 +19,13 @@ async def test_create_edge_ok(
     user_factory: UserFactory,
     context_factory: ContextFactory,
     company_factory: CompanyFactory,
-    group_factory: GroupFactory,
     node_factory: NodeFactory,
     test_client: AsyncClient,
 ) -> None:
     user_factory_response = await user_factory.create_user(admin=False)
     company = await company_factory.create_company(user=user_factory_response.user)
-    group = await group_factory.create_group(company=company)
     context = await context_factory.create_context(company=company)
-    nodes = [
-        await node_factory.create_node(group=group, company=company) for _ in range(2)
-    ]
+    nodes = [await node_factory.create_node(company=company) for _ in range(2)]
 
     response = await test_client.post(
         "/edges/",
@@ -65,7 +61,12 @@ async def test_create_edge_context_not_found(
     company = await company_factory.create_company(user=user_factory_response.user)
     group = await group_factory.create_group(company=company)
     nodes = [
-        await node_factory.create_node(group=group, company=company) for _ in range(2)
+        await node_factory.create_node(
+            user=user_factory_response.user,
+            company=company,
+            group=group,
+        )
+        for _ in range(2)
     ]
 
     response = await test_client.post(
@@ -100,7 +101,10 @@ async def test_create_edge_context_forbidden(
     context = await context_factory.create_context(company=another_company)
     group = await group_factory.create_group(company=company)
     nodes = [
-        await node_factory.create_node(group=group, company=company) for _ in range(2)
+        await node_factory.create_node(
+            user=user_factory_response.user, group=group, company=company
+        )
+        for _ in range(2)
     ]
 
     response = await test_client.post(

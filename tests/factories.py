@@ -1,4 +1,6 @@
+import asyncio
 import random
+import string
 from dataclasses import dataclass
 from typing import Annotated
 from uuid import uuid4
@@ -73,6 +75,10 @@ class RegisterCompanyRequestFactory(ModelFactory[RegisterCompanyRequest]):
 logger = structlog.get_logger()
 
 
+def generate_random_string(length: int = 5) -> str:
+    return "".join(random.choices(string.ascii_lowercase, k=length))  # noqa: S311
+
+
 @dataclass
 class UserFactoryResponse:
     user: User
@@ -83,7 +89,7 @@ class UserFactoryResponse:
     password: str
 
 
-@dataclass
+@dataclass(slots=True)
 class UserFactory:
     password_hasher: PasswordHasher
     access_token_manager: AccessTokenManager
@@ -124,8 +130,10 @@ class UserFactory:
         )
 
         await self.user_repository.create(user)
-        await self.session_repository.create(session)
-        await self.authorization_repository.create(authorization)
+        await asyncio.gather(
+            self.session_repository.create(session),
+            self.authorization_repository.create(authorization),
+        )
 
         return UserFactoryResponse(
             user=user,
@@ -137,7 +145,7 @@ class UserFactory:
         )
 
 
-@dataclass
+@dataclass(slots=True)
 class CompanyFactory:
     role_repository: RoleRepository
     role_permissions_repository: RolePermissionsRepository
@@ -183,13 +191,15 @@ class CompanyFactory:
 
         await self.company_repository.create(company)
         await self.role_repository.create(role)
-        await self.role_permissions_repository.create_all(permissions)
-        await self.user_grant_repository.create(grant)
+        await asyncio.gather(
+            self.role_permissions_repository.create_all(permissions),
+            self.user_grant_repository.create(grant),
+        )
 
         return company
 
 
-@dataclass
+@dataclass(slots=True)
 class GroupFactory:
     group_repository: GroupRepository
     company_factory: CompanyFactory
@@ -210,7 +220,7 @@ class GroupFactory:
         return group
 
 
-@dataclass
+@dataclass(slots=True)
 class NodeAssociationFactory:
     node_association_repository: NodeAssociationRepository
 
@@ -224,7 +234,7 @@ class NodeAssociationFactory:
         return association
 
 
-@dataclass
+@dataclass(slots=True)
 class NodeFactory:
     group_factory: GroupFactory
     node_association_factory: NodeAssociationFactory
@@ -264,7 +274,7 @@ class NodeFactory:
         return node
 
 
-@dataclass
+@dataclass(slots=True)
 class ContextFactory:
     context_repository: ContextRepository
     company_factory: CompanyFactory
@@ -284,7 +294,7 @@ class ContextFactory:
         return context
 
 
-@dataclass
+@dataclass(slots=True)
 class EdgeFactory:
     edge_repository: EdgeRepository
 
@@ -306,9 +316,3 @@ class EdgeFactory:
         )
         await self.edge_repository.create(edge)
         return edge
-
-
-def generate_random_string(length: int = 5) -> str:
-    return "".join(
-        [random.choice(list("qwertyuiopasdfghjklzxcvbnm")) for _ in range(length)]  # noqa: S311
-    )
