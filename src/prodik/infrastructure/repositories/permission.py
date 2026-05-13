@@ -1,14 +1,14 @@
 from dataclasses import dataclass
 
 import structlog
-from sqlalchemy import insert, select
+from sqlalchemy import insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from prodik.application.interfaces.repositories import (
     RolePermissionsRepository,
 )
 from prodik.domain.role import RolePermission
-from prodik.domain.role.model import RoleId
+from prodik.domain.role.model import RoleId, RolePermissionId
 
 logger = structlog.get_logger()
 
@@ -68,3 +68,46 @@ class RolePermissionsRepositoryImpl(RolePermissionsRepository):
         )
 
         return permissions
+
+    async def update_all(self, permissions: list[RolePermission]) -> None:
+        if not permissions:
+            return
+
+        logger.info(
+            "Repository update role permissions",
+            permissions_count=len(permissions),
+        )
+
+        for permission in permissions:
+            await self.session.execute(
+                update(RolePermission)
+                .where(
+                    RolePermission.id == permission.id  # type: ignore
+                )
+                .values(
+                    permission=permission.permission,
+                    entity_type=permission.entity_type,
+                    entity_id=permission.entity_id,
+                    updated_at=permission.updated_at,
+                )
+            )
+
+    async def get_all_by_ids(
+        self, permission_ids: list[RolePermissionId]
+    ) -> list[RolePermission]:
+        if not permission_ids:
+            logger.info("Repository get permissions by ids", ids_count=0)
+            return []
+
+        logger.info("Repository get nodes by ids", ids_count=len(permission_ids))
+        result = await self.session.execute(
+            select(RolePermission).where(
+                RolePermission.id.in_(permission_ids)  # type: ignore
+            )
+        )
+
+        result_permissions = list(result.scalars().all())
+        logger.info(
+            "Repository fetched permissions by ids", found_count=len(result_permissions)
+        )
+        return result_permissions

@@ -7,8 +7,19 @@ from prodik.application.manage_roles import (
     CreatePermissionRequestDTO,
     CreateRoleInteractor,
     CreateRoleRequestDTO,
+    DeleteRoleInteractor,
+    UpdatePermissionRequestDTO,
+    UpdateRoleInteractor,
+    UpdateRoleRequestDTO,
 )
-from prodik.presentation.schemas.role import CreateRoleRequest, RoleSchema
+from prodik.domain.role import RoleId
+from prodik.presentation.schemas.role import (
+    CreateRoleRequest,
+    PermissionSchema,
+    RoleSchema,
+    UpdateRoleRequest,
+    UpdateRoleResponse,
+)
 
 router = APIRouter(prefix="/roles", route_class=DishkaRoute, tags=["roles"])
 
@@ -37,3 +48,49 @@ async def create_role(
         owner_company_id=result.owner_company_id,
         name=result.name.value,
     )
+
+
+@router.put("/{role_id}")
+async def update_role(
+    role_id: RoleId,
+    request: UpdateRoleRequest,
+    interactor: FromDishka[UpdateRoleInteractor],
+) -> UpdateRoleResponse:
+    result = await interactor.execute(
+        UpdateRoleRequestDTO(
+            name=request.name,
+            role_id=role_id,
+            permissions={
+                permission_id: UpdatePermissionRequestDTO(
+                    permission=value.permission,
+                    entity_type=value.entity_type,
+                    entity_id=value.entity_id,
+                )
+                for permission_id, value in request.permissions.items()
+            },
+        )
+    )
+
+    return UpdateRoleResponse(
+        role=RoleSchema(
+            id=result.role.id,
+            owner_company_id=result.role.owner_company_id,
+            name=result.role.name.value,
+        ),
+        permissions=[
+            PermissionSchema(
+                role_id=permission.role_id,
+                permission=permission.permission,
+                entity_type=permission.entity_type,
+                entity_id=permission.entity_id,
+            )
+            for permission in result.permissions
+        ],
+    )
+
+
+@router.delete("/{role_id}", status_code=HTTPStatus.NO_CONTENT)
+async def delete_role(
+    role_id: RoleId, interactor: FromDishka[DeleteRoleInteractor]
+) -> None:
+    await interactor.execute(role_id)

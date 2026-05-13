@@ -5,7 +5,7 @@ from .edge import EdgeRepositoryImpl
 from .grant import UserGrantRepositoryImpl
 from .group import GroupRepositoryImpl
 from .node import NodeAssociationRepositoryImpl, NodeRepositoryImpl
-from .permissions import RolePermissionsRepositoryImpl
+from .permission import RolePermissionsRepositoryImpl
 from .role import RoleRepositoryImpl
 from .user import UserRepositoryImpl
 

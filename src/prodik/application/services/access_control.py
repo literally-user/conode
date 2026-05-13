@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from typing import Final
 
 from prodik.application.errors import (
+    CompanyNotFoundError,
     GroupNotFoundError,
     NotEnoughRightsError,
     SessionExpiredError,
@@ -23,6 +24,7 @@ from prodik.domain.group import Group
 from prodik.domain.role import (
     EntityType,
     PermissionType,
+    Role,
     RolePermission,
     RolePermissionEntityId,
 )
@@ -120,6 +122,26 @@ class AccessControlService:
             required_entity=EntityType.GROUP,
             entity_id=group.id,
             company=group_company,
+        ):
+            raise NotEnoughRightsError("Not enough rights to perform operation", None)
+
+    async def ensure_user_can_manipulate_role(
+        self,
+        user: User,
+        role: Role,
+    ) -> None:
+        permissions = await self._get_all_permissions(user)
+
+        role_company = await self.company_repository.get_by_id(role.owner_company_id)
+        if role_company is None:
+            raise CompanyNotFoundError("Role company not found", None)
+
+        if not self.check(
+            permissions=permissions,
+            required_permission=PermissionType.MODIFY,
+            required_entity=EntityType.COMPANY,
+            entity_id=None,
+            company=role_company,
         ):
             raise NotEnoughRightsError("Not enough rights to perform operation", None)
 
