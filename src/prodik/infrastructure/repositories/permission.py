@@ -21,13 +21,12 @@ class RolePermissionsRepositoryImpl(RolePermissionsRepository):
         self,
         permissions: list[RolePermission],
     ) -> None:
-        if not permissions:
-            return
-
         logger.info(
             "Repository create role permissions",
             request_count=len(permissions),
         )
+        if not permissions:
+            return
 
         await self.session.execute(
             insert(RolePermission).values(

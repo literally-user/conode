@@ -49,6 +49,11 @@ from prodik.application.register_company import (
 )
 from prodik.application.revoke_role_from_user import RevokeRoleFromUserInteractor
 from prodik.application.services import AccessControlService
+from prodik.application.share_graph import (
+    AcceptOfferInteractor,
+    DeclineOfferInteractor,
+    SendOfferToCompanyInteractor,
+)
 from prodik.application.update_edge_weight import (
     DecrementEdgeWeightInteractor,
     IncrementEdgeWeightInteractor,
@@ -78,6 +83,7 @@ class ApplicationProvider(Provider):
         GetEdgesByContextInteractor,
         UpdateCurrentUserProfileInteractor,
         UpdateCurrentUserPasswordInteractor,
+        SendOfferToCompanyInteractor,
         DecrementEdgeWeightInteractor,
         GetUserByUsernameInteractor,
         GetNodesByGroupInteractor,
@@ -92,6 +98,8 @@ class ApplicationProvider(Provider):
         DeleteRoleInteractor,
         UpdateRoleInteractor,
         DeleteNodeInteractor,
+        AcceptOfferInteractor,
+        DeclineOfferInteractor,
         DetachNodeInteractor,
         CreateRoleInteractor,
         AttachNodeInteractor,

@@ -252,3 +252,35 @@ class AccessControlService:
             company=target_company,
         ):
             raise NotEnoughRightsError("Not enough rights to perform operation", None)
+
+    async def ensure_user_can_send_offers(
+        self,
+        user: User,
+        from_company: Company,
+    ) -> None:
+        permissions = await self._get_all_permissions(user)
+
+        if not self.check(
+            permissions=permissions,
+            required_permission=PermissionType.MODIFY,
+            required_entity=EntityType.COMPANY,
+            entity_id=None,
+            company=from_company,
+        ):
+            raise NotEnoughRightsError("Not enough rights to perform operation", None)
+
+    async def ensure_user_can_manipulate_offers(
+        self,
+        user: User,
+        to_company: Company,
+    ) -> None:
+        permissions = await self._get_all_permissions(user)
+
+        if not self.check(
+            permissions=permissions,
+            required_permission=PermissionType.MODIFY,
+            required_entity=EntityType.COMPANY,
+            entity_id=None,
+            company=to_company,
+        ):
+            raise NotEnoughRightsError("Not enough rights to perform operation", None)

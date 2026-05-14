@@ -17,6 +17,10 @@ from prodik.application.interfaces.repositories import (
     LocalAuthorizationRepository,
     NodeAssociationRepository,
     NodeRepository,
+    OfferContextRepository,
+    OfferGroupRepository,
+    OfferLinkRepository,
+    OfferRepository,
     RolePermissionsRepository,
     RoleRepository,
     SessionRepository,
@@ -44,6 +48,8 @@ from tests.factories import (
     GroupFactory,
     NodeAssociationFactory,
     NodeFactory,
+    OfferFactory,
+    OfferLinkFactory,
     RoleFactory,
     UserFactory,
 )
@@ -145,6 +151,12 @@ async def group_repository(test_container: AsyncContainer) -> GroupRepository:
 
 
 @pytest.fixture
+async def offer_link_repository(test_container: AsyncContainer) -> OfferLinkRepository:
+    async with test_container() as container:
+        return cast("OfferLinkRepository", await container.get(OfferLinkRepository))
+
+
+@pytest.fixture
 async def group_factory(
     test_container: AsyncContainer, company_factory: CompanyFactory
 ) -> GroupFactory:
@@ -152,6 +164,36 @@ async def group_factory(
         return GroupFactory(
             group_repository=await container.get(GroupRepository),
             company_factory=company_factory,
+        )
+
+
+@pytest.fixture
+async def offer_link_factory(
+    test_container: AsyncContainer,
+) -> OfferLinkFactory:
+    async with test_container() as container:
+        return OfferLinkFactory(
+            offer_link_repository=await container.get(OfferLinkRepository),
+        )
+
+
+@pytest.fixture
+async def offer_factory(
+    test_container: AsyncContainer,
+    company_factory: CompanyFactory,
+    group_factory: GroupFactory,
+    context_factory: ContextFactory,
+    offer_link_factory: OfferLinkFactory,
+) -> OfferFactory:
+    async with test_container() as container:
+        return OfferFactory(
+            offer_link_factory=offer_link_factory,
+            offer_repository=await container.get(OfferRepository),
+            offer_group_repository=await container.get(OfferGroupRepository),
+            offer_context_repository=await container.get(OfferContextRepository),
+            company_factory=company_factory,
+            group_factory=group_factory,
+            context_factory=context_factory,
         )
 
 

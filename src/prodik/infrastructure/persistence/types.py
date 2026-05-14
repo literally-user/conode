@@ -7,6 +7,7 @@ from prodik.domain.company import CompanyDescription, CompanyName
 from prodik.domain.context import ContextDescription, ContextName
 from prodik.domain.group import GroupDescription, GroupName
 from prodik.domain.node import NodeDescription, NodeName
+from prodik.domain.offer import OfferDescription, OfferTitle
 from prodik.domain.role import RoleName
 from prodik.domain.shared import ValueObject
 from prodik.domain.user import Bio, Email, FirstName, LastName, Username
@@ -109,3 +110,15 @@ class RoleNameType(BaseVOTypeDecorator[RoleName]):
     impl = String
     cache_ok = True
     vo_class = RoleName
+
+
+class OfferTitleType(BaseVOTypeDecorator[OfferTitle]):
+    impl = String
+    cache_ok = True
+    vo_class = OfferTitle
+
+
+class OfferDescriptionType(BaseVOTypeDecorator[OfferDescription]):
+    impl = String
+    cache_ok = True
+    vo_class = OfferDescription

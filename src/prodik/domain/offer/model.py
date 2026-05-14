@@ -11,13 +11,17 @@ from prodik.domain.offer.errors import (
     InvalidOfferDescriptionFormatError,
     InvalidOfferTitleFormatError,
     OfferCannotAnswerToItselfError,
+    OfferCannotCreateChainsError,
+    OfferCannotExpireAtPastError,
+    OfferIsNotCounterOfferError,
 )
+from prodik.domain.role import PermissionType
 from prodik.domain.shared import Entity, ValueObject
 
 OfferId = NewType("OfferId", UUID)
 OfferLinkId = NewType("OfferLinkId", UUID)
-OfferGroupsId = NewType("OfferGroupsId", UUID)
-OfferContextsId = NewType("OfferContextsId", UUID)
+OfferGroupId = NewType("OfferGroupId", UUID)
+OfferContextId = NewType("OfferContextId", UUID)
 
 MIN_ALLOWED_OFFER_TITLE_LENGTH: Final = 1
 MAX_ALLOWED_OFFER_TITLE_LENGTH: Final = 50
@@ -42,12 +46,12 @@ class OfferTitle(ValueObject[str]):
         value = value.strip()
 
         if (
-            MIN_ALLOWED_OFFER_TITLE_LENGTH
+            MAX_ALLOWED_OFFER_TITLE_LENGTH
             <= len(value)
-            <= MAX_ALLOWED_OFFER_TITLE_LENGTH
+            <= MIN_ALLOWED_OFFER_TITLE_LENGTH
         ):
             raise InvalidOfferTitleFormatError(
-                "Offer name must be between"
+                "Offer name must be between "
                 f"{MIN_ALLOWED_OFFER_TITLE_LENGTH} and "
                 f"{MAX_ALLOWED_OFFER_TITLE_LENGTH}",
                 [{"key": "name", "value": value}],
@@ -81,6 +85,8 @@ class Offer(Entity[OfferId]):
     to_company_id: CompanyId
 
     from_offer: OfferId | None
+    requires_counteroffer: bool
+    expires_in: datetime
 
     @classmethod
     def new(
@@ -91,6 +97,9 @@ class Offer(Entity[OfferId]):
         from_company: Company,
         to_company: Company,
         from_offer: "Offer | None",
+        expires_in: datetime,
+        *,
+        requires_counteroffer: bool,
     ) -> "Offer":
         if from_offer is not None and from_offer.id == id:
             raise OfferCannotAnswerToItselfError(
@@ -100,7 +109,18 @@ class Offer(Entity[OfferId]):
                 ],
             )
 
+        if from_offer is not None and from_offer.is_counter_offer():
+            raise OfferCannotCreateChainsError(
+                "Offer cannot create chains",
+                [
+                    {"key": "from_offer", "value": from_offer},
+                    {"key": "requires_counteroffer", "value": requires_counteroffer},
+                ],
+            )
+
         now = datetime.now(UTC)
+        if expires_in.timestamp() < now.timestamp():
+            raise OfferCannotExpireAtPastError("Offer cannot expire at past", None)
         return Offer(
             id=id,
             title=OfferTitle(title),
@@ -109,42 +129,75 @@ class Offer(Entity[OfferId]):
             from_company_id=from_company.id,
             to_company_id=to_company.id,
             from_offer=from_offer.id if from_offer is not None else None,
+            requires_counteroffer=requires_counteroffer,
+            expires_in=expires_in,
             created_at=now,
             updated_at=now,
         )
 
+    def accept(self) -> None:
+        self.status = OfferStatus.ACCEPTED
+        self.touch()
+
+    def decline(self) -> None:
+        self.status = OfferStatus.DECLINED
+        self.touch()
+
+    def is_counter_offer(self) -> bool:
+        return self.from_offer is not None
+
+    def get_from_offer_id(self) -> OfferId:
+        if self.from_offer is None:
+            raise OfferIsNotCounterOfferError("Not a counter offer", None)
+
+        return self.from_offer
+
 
 @dataclass
-class OfferGroups(Entity[OfferGroupsId]):
+class OfferGroup(Entity[OfferGroupId]):
     offer_id: OfferId
     group_id: GroupId
-
-    @classmethod
-    def new(cls, id: OfferGroupsId, offer: Offer, group: Group) -> "OfferGroups":
-        now = datetime.now(UTC)
-        return OfferGroups(
-            id=id,
-            offer_id=offer.id,
-            group_id=group.id,
-            created_at=now,
-            updated_at=now,
-        )
-
-
-@dataclass
-class OfferContexts(Entity[OfferContextsId]):
-    offer_id: OfferId
-    context_id: ContextId
+    permission_type: PermissionType
 
     @classmethod
     def new(
-        cls, id: OfferContextsId, offer: Offer, context: Context
-    ) -> "OfferContexts":
+        cls,
+        id: OfferGroupId,
+        offer: Offer,
+        group: Group,
+        permission_type: PermissionType,
+    ) -> "OfferGroup":
         now = datetime.now(UTC)
-        return OfferContexts(
+        return OfferGroup(
+            id=id,
+            offer_id=offer.id,
+            group_id=group.id,
+            permission_type=permission_type,
+            created_at=now,
+            updated_at=now,
+        )
+
+
+@dataclass
+class OfferContext(Entity[OfferContextId]):
+    offer_id: OfferId
+    context_id: ContextId
+    permission_type: PermissionType
+
+    @classmethod
+    def new(
+        cls,
+        id: OfferContextId,
+        offer: Offer,
+        context: Context,
+        permission_type: PermissionType,
+    ) -> "OfferContext":
+        now = datetime.now(UTC)
+        return OfferContext(
             id=id,
             offer_id=offer.id,
             context_id=context.id,
+            permission_type=permission_type,
             created_at=now,
             updated_at=now,
         )
@@ -169,3 +222,11 @@ class OfferLink(Entity[OfferLinkId]):
             created_at=now,
             updated_at=now,
         )
+
+    def accept(self) -> None:
+        self.status = OfferLinkStatus.ACCEPTED
+        self.touch()
+
+    def abort(self) -> None:
+        self.status = OfferLinkStatus.ABORTED
+        self.touch()

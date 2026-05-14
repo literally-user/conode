@@ -64,3 +64,18 @@ class ContextRepositoryImpl(ContextRepository):
             "Repository fetched contexts by company_id", found_count=len(result_groups)
         )
         return result_groups
+
+    async def get_all_by_ids(self, context_ids: list[ContextId]) -> list[Context]:
+        logger.info("Repository get contexts by ids", request_count=len(context_ids))
+        if not context_ids:
+            return []
+
+        result = await self.session.execute(
+            select(Context).where(Context.id.in_(context_ids))  # type: ignore
+        )
+
+        result_contexts = list(result.scalars().all())
+        logger.info(
+            "Repository fetched contexts by ids", found_count=len(result_contexts)
+        )
+        return result_contexts

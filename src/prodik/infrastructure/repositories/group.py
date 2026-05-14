@@ -63,7 +63,7 @@ class GroupRepositoryImpl(GroupRepository):
         return result_groups
 
     async def get_all_by_ids(self, group_ids: list[GroupId]) -> list[Group]:
-        logger.info("Repository get groups by ids", ids_count=len(group_ids))
+        logger.info("Repository get groups by ids", request_count=len(group_ids))
         if not group_ids:
             return []
 

@@ -16,10 +16,19 @@ from sqlalchemy.orm import registry
 from prodik.domain.authorization import LocalAuthorization, Session
 from prodik.domain.company import Company
 from prodik.domain.context import Context
+from prodik.domain.contract import Contract, ContractStatus
 from prodik.domain.edge import Edge
 from prodik.domain.grant import CompanyGrant, UserGrant
 from prodik.domain.group import Group
 from prodik.domain.node import Node, NodeAssociation
+from prodik.domain.offer import (
+    Offer,
+    OfferContext,
+    OfferGroup,
+    OfferLink,
+    OfferLinkStatus,
+    OfferStatus,
+)
 from prodik.domain.role import EntityType, PermissionType, Role, RolePermission
 from prodik.domain.user import User, UserSystemRole
 from prodik.infrastructure.persistence.types import (
@@ -35,6 +44,8 @@ from prodik.infrastructure.persistence.types import (
     LastNameType,
     NodeDescriptionType,
     NodeNameType,
+    OfferDescriptionType,
+    OfferTitleType,
     RoleNameType,
     UsernameType,
 )
@@ -245,6 +256,132 @@ company_grant_record_table = Table(
     Column("updated_at", DateTime(timezone=True), nullable=False),
 )
 
+offer_link_record_table = Table(
+    "offer_link_record",
+    metadata,
+    Column("id", UUID, primary_key=True, nullable=False),
+    Column(
+        "request_offer_id",
+        ForeignKey("offer_record.id", ondelete="CASCADE"),
+        nullable=False,
+    ),
+    Column(
+        "response_offer_id",
+        ForeignKey("offer_record.id", ondelete="CASCADE"),
+        nullable=False,
+    ),
+    Column("status", Enum(OfferLinkStatus), nullable=False),
+    Column("created_at", DateTime(timezone=True), nullable=False),
+    Column("updated_at", DateTime(timezone=True), nullable=False),
+)
+
+offer_group_record_table = Table(
+    "offer_group_record",
+    metadata,
+    Column("id", UUID, primary_key=True, nullable=False),
+    Column(
+        "offer_id",
+        ForeignKey("offer_record.id", ondelete="CASCADE"),
+        nullable=False,
+    ),
+    Column(
+        "group_id",
+        ForeignKey("group_record.id", ondelete="CASCADE"),
+        nullable=False,
+    ),
+    Column("permission_type", Enum(PermissionType), nullable=False),
+    Column("created_at", DateTime(timezone=True), nullable=False),
+    Column("updated_at", DateTime(timezone=True), nullable=False),
+)
+
+offer_context_record_table = Table(
+    "offer_context_record",
+    metadata,
+    Column("id", UUID, primary_key=True, nullable=False),
+    Column(
+        "offer_id",
+        ForeignKey("offer_record.id", ondelete="CASCADE"),
+        nullable=False,
+    ),
+    Column(
+        "context_id",
+        ForeignKey("context_record.id", ondelete="CASCADE"),
+        nullable=False,
+    ),
+    Column("permission_type", Enum(PermissionType), nullable=False),
+    Column("created_at", DateTime(timezone=True), nullable=False),
+    Column("updated_at", DateTime(timezone=True), nullable=False),
+)
+
+
+offer_record_table = Table(
+    "offer_record",
+    metadata,
+    Column("id", UUID, primary_key=True, nullable=False),
+    Column("title", OfferTitleType, nullable=False),
+    Column("description", OfferDescriptionType, nullable=False),
+    Column("status", Enum(OfferStatus), nullable=False),
+    Column(
+        "from_company_id",
+        ForeignKey("company_record.id", ondelete="CASCADE"),
+        nullable=True,
+    ),
+    Column(
+        "to_company_id",
+        ForeignKey("company_record.id", ondelete="CASCADE"),
+        nullable=False,
+    ),
+    Column(
+        "from_offer",
+        ForeignKey("offer_record.id", ondelete="CASCADE"),
+        nullable=True,
+    ),
+    Column("requires_counteroffer", Boolean, nullable=False),
+    Column("expires_in", DateTime(timezone=True)),
+    Column("created_at", DateTime(timezone=True), nullable=False),
+    Column("updated_at", DateTime(timezone=True), nullable=False),
+)
+
+contract_record_table = Table(
+    "contract_record",
+    metadata,
+    Column("id", UUID, primary_key=True, nullable=False),
+    Column("status", Enum(ContractStatus), nullable=False),
+    Column(
+        "company_a_id",
+        ForeignKey("company_record.id", ondelete="CASCADE"),
+        nullable=False,
+    ),
+    Column(
+        "company_b_id",
+        ForeignKey("company_record.id", ondelete="CASCADE"),
+        nullable=False,
+    ),
+    Column(
+        "company_a_offer_id",
+        ForeignKey("offer_record.id", ondelete="CASCADE"),
+        nullable=False,
+    ),
+    Column(
+        "company_b_offer_id",
+        ForeignKey("offer_record.id", ondelete="CASCADE"),
+        nullable=True,
+    ),
+    Column(
+        "company_a_role_id",
+        ForeignKey("role_record.id", ondelete="CASCADE"),
+        nullable=False,
+    ),
+    Column(
+        "company_b_role_id",
+        ForeignKey("role_record.id", ondelete="CASCADE"),
+        nullable=True,
+    ),
+    Column("expires_in", DateTime(timezone=True)),
+    Column("created_at", DateTime(timezone=True), nullable=False),
+    Column("updated_at", DateTime(timezone=True), nullable=False),
+)
+
 
 def start_mapper() -> None:
     registry_mapper.map_imperatively(User, user_record_table)
@@ -265,3 +402,8 @@ def start_mapper() -> None:
         Edge,
         edge_record_table,
     )
+    registry_mapper.map_imperatively(Offer, offer_record_table)
+    registry_mapper.map_imperatively(OfferContext, offer_context_record_table)
+    registry_mapper.map_imperatively(OfferGroup, offer_group_record_table)
+    registry_mapper.map_imperatively(OfferLink, offer_link_record_table)
+    registry_mapper.map_imperatively(Contract, contract_record_table)

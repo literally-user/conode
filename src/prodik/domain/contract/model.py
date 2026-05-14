@@ -7,6 +7,7 @@ from uuid import UUID
 from prodik.domain.company import Company, CompanyId
 from prodik.domain.contract.errors import InvalidCompanyOffersFormatError
 from prodik.domain.offer import Offer, OfferId
+from prodik.domain.role import RoleId
 from prodik.domain.shared import Entity
 
 ContractId = NewType("ContractId", UUID)
@@ -26,6 +27,9 @@ class Contract(Entity[ContractId]):
     company_a_offer_id: OfferId | None
     company_b_offer_id: OfferId | None
 
+    company_a_role_id: RoleId | None
+    company_b_role_id: RoleId | None
+
     status: ContractStatus
     expires_in: datetime
 
@@ -37,9 +41,15 @@ class Contract(Entity[ContractId]):
         company_b: Company,
         company_a_offer: Offer | None,
         company_b_offer: Offer | None,
+        company_a_role_id: RoleId | None,
+        company_b_role_id: RoleId | None,
         expires_in: datetime,
     ) -> "Contract":
         if company_a_offer is None and company_b_offer is None:
+            raise InvalidCompanyOffersFormatError(
+                "Required at least one company offer", None
+            )
+        if company_a_role_id is None and company_b_role_id is None:
             raise InvalidCompanyOffersFormatError(
                 "Required at least one company offer", None
             )
@@ -53,6 +63,12 @@ class Contract(Entity[ContractId]):
             else None,
             company_b_offer_id=company_b_offer.id
             if company_b_offer is not None
+            else None,
+            company_a_role_id=company_a_role_id
+            if company_a_role_id is not None
+            else None,
+            company_b_role_id=company_b_role_id
+            if company_b_role_id is not None
             else None,
             status=ContractStatus.ACTIVE,
             expires_in=expires_in,
