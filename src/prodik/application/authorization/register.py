@@ -1,8 +1,6 @@
 from dataclasses import dataclass
 from uuid import uuid4
 
-import structlog
-
 from prodik.application.errors import UserAlreadyExistsError
 from prodik.application.interfaces.identity_provider import IdentityProvider
 from prodik.application.interfaces.password_hasher import PasswordHasher
@@ -23,8 +21,6 @@ from prodik.domain.authorization import (
     SessionId,
 )
 from prodik.domain.user import Email, User, UserId, Username
-
-logger = structlog.get_logger()
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)

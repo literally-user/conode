@@ -1,7 +1,5 @@
 from dataclasses import dataclass
 
-import structlog
-
 from prodik.application.errors import (
     AssociationNotFoundError,
     GroupNotFoundError,
@@ -16,8 +14,6 @@ from prodik.application.interfaces.repositories import (
 from prodik.application.interfaces.transaction_manager import TransactionManager
 from prodik.application.services import AccessControlService
 from prodik.domain.node import NodeAssociationId
-
-logger = structlog.get_logger()
 
 
 @dataclass

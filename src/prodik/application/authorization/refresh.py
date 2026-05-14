@@ -1,7 +1,5 @@
 from dataclasses import dataclass
 
-import structlog
-
 from prodik.application.errors import SessionNotFoundError
 from prodik.application.interfaces.identity_provider import IdentityProvider
 from prodik.application.interfaces.repositories import SessionRepository, UserRepository
@@ -10,8 +8,6 @@ from prodik.application.interfaces.token_managers import (
     RefreshTokenManager,
 )
 from prodik.application.interfaces.transaction_manager import TransactionManager
-
-logger = structlog.get_logger()
 
 
 @dataclass(slots=True, frozen=True, kw_only=True)

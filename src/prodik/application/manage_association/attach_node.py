@@ -1,8 +1,6 @@
 from dataclasses import dataclass
 from uuid import uuid4
 
-import structlog
-
 from prodik.application.errors import (
     GroupNotFoundError,
     NodeCannotHaveSameAssociationsError,
@@ -24,9 +22,6 @@ from prodik.domain.node import NodeAssociation, NodeAssociationId, NodeId
 class AttachNodeRequestDTO:
     group_id: GroupId
     nodes: list[NodeId]
-
-
-logger = structlog.get_logger()
 
 
 @dataclass

@@ -1,8 +1,6 @@
 from dataclasses import dataclass
 from uuid import uuid4
 
-import structlog
-
 from prodik.application.errors import (
     AuthorizationNotFoundError,
     InvalidCredentialsError,
@@ -22,8 +20,6 @@ from prodik.application.interfaces.token_managers import (
 from prodik.application.interfaces.transaction_manager import TransactionManager
 from prodik.domain.authorization import Session, SessionId
 from prodik.domain.user import Email
-
-logger = structlog.get_logger()
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
@@ -62,7 +58,6 @@ class LoginInteractor:
             if authorization is None:
                 raise AuthorizationNotFoundError("Authorization not found", None)
 
-            logger.debug("Verifying authorization password")
             if not self.password_hasher.verify(
                 authorization.password, request.password
             ):

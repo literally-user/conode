@@ -1,7 +1,5 @@
 from dataclasses import dataclass
 
-import structlog
-
 from prodik.application.errors import (
     CompanyNotFoundError,
     NotEnoughRightsError,
@@ -10,8 +8,6 @@ from prodik.application.interfaces.repositories import CompanyRepository
 from prodik.application.interfaces.transaction_manager import TransactionManager
 from prodik.application.services import AccessControlService
 from prodik.domain.company import CompanyId
-
-logger = structlog.get_logger()
 
 
 @dataclass

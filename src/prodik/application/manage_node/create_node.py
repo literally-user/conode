@@ -1,8 +1,6 @@
 from dataclasses import dataclass
 from uuid import uuid4
 
-import structlog
-
 from prodik.application.errors import (
     CompanyNotFoundError,
     GroupNotFoundError,
@@ -17,8 +15,6 @@ from prodik.application.interfaces.transaction_manager import TransactionManager
 from prodik.application.services import AccessControlService
 from prodik.domain.group import GroupId
 from prodik.domain.node import Node, NodeAssociation, NodeAssociationId, NodeId
-
-logger = structlog.get_logger()
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)

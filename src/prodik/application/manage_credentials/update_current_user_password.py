@@ -1,7 +1,5 @@
 from dataclasses import dataclass
 
-import structlog
-
 from prodik.application.errors import (
     AuthorizationNotFoundError,
     InvalidOldPasswordError,
@@ -33,9 +31,6 @@ class UpdateCurrentUserPasswordResponseDTO:
     access_token: str
     refresh_token: str
     expires_in: int
-
-
-logger = structlog.get_logger()
 
 
 @dataclass

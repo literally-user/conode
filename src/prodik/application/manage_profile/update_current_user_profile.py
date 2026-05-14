@@ -1,14 +1,10 @@
 from dataclasses import dataclass
 
-import structlog
-
 from prodik.application.errors import UserAlreadyExistsError
 from prodik.application.interfaces.repositories import UserRepository
 from prodik.application.interfaces.transaction_manager import TransactionManager
 from prodik.application.services import AccessControlService
 from prodik.domain.user import Email
-
-logger = structlog.get_logger()
 
 
 @dataclass

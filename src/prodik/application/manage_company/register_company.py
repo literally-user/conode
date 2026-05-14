@@ -1,8 +1,6 @@
 from dataclasses import dataclass
 from uuid import uuid4
 
-import structlog
-
 from prodik.application.errors import CompanyAlreadyExistsError
 from prodik.application.interfaces.repositories import (
     CompanyRepository,
@@ -22,8 +20,6 @@ from prodik.domain.role import (
     RolePermission,
     RolePermissionId,
 )
-
-logger = structlog.get_logger()
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
