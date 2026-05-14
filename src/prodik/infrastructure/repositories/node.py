@@ -31,15 +31,14 @@ class NodeRepositoryImpl(NodeRepository):
             )
         )
 
-    async def get_all_by_ids(self, nodes: list[NodeId]) -> list[Node]:
-        if not nodes:
-            logger.info("Repository get nodes by ids", ids_count=0)
+    async def get_all_by_ids(self, nodes_ids: list[NodeId]) -> list[Node]:
+        logger.info("Repository get nodes by ids", request_count=len(nodes_ids))
+        if not nodes_ids:
             return []
 
-        logger.info("Repository get nodes by ids", ids_count=len(nodes))
         result = await self.session.execute(
             select(Node).where(
-                Node.id.in_(nodes)  # type: ignore
+                Node.id.in_(nodes_ids)  # type: ignore
             )
         )
 
@@ -64,9 +63,7 @@ class NodeRepositoryImpl(NodeRepository):
         )
 
         node = result.scalar_one_or_none()
-        logger.info(
-            "Repository fetched node by id", node_id=node_id, found=node is not None
-        )
+        logger.info("Repository fetched node by id", found=node is not None)
         return node
 
     async def update(self, node: Node) -> None:
@@ -83,16 +80,14 @@ class NodeRepositoryImpl(NodeRepository):
         )
 
     async def get_all_by_associations(self, nodes: list[NodeAssociation]) -> list[Node]:
+        logger.info(
+            "Repository get nodes by associations",
+            request_count=len(nodes),
+        )
         if not nodes:
-            logger.info("Repository get nodes by associations", associations_count=0)
             return []
 
         node_ids = [association.node_id for association in nodes]
-        logger.info(
-            "Repository get nodes by associations",
-            associations_count=len(nodes),
-            node_ids_count=len(node_ids),
-        )
         result = await self.session.execute(
             select(Node).where(
                 Node.id.in_(node_ids)  # type: ignore
@@ -149,19 +144,18 @@ class NodeAssociationRepositoryImpl(NodeAssociationRepository):
         association = result.scalar_one_or_none()
         logger.info(
             "Repository fetched node association by id",
-            association_id=node_association_id,
             found=association is not None,
         )
         return association
 
     async def create_all(self, node_association: list[NodeAssociation]) -> None:
+        logger.info(
+            "Repository create node associations batch",
+            request_count=len(node_association),
+        )
         if not node_association:
-            logger.info("Repository create node associations batch", count=0)
             return
 
-        logger.info(
-            "Repository create node associations batch", count=len(node_association)
-        )
         await self.session.execute(
             insert(NodeAssociation).values(
                 [
@@ -185,13 +179,12 @@ class NodeAssociationRepositoryImpl(NodeAssociationRepository):
             )
         )
 
-        associations = list(result.scalars())
+        result_associations = list(result.scalars())
         logger.info(
             "Repository fetched node associations by group id",
-            group_id=group_id,
-            count=len(associations),
+            count=len(result_associations),
         )
-        return associations
+        return result_associations
 
     async def get_all_by_node_id(
         self,
@@ -207,12 +200,11 @@ class NodeAssociationRepositoryImpl(NodeAssociationRepository):
                 NodeAssociation.node_id == node_id  # type: ignore
             )
         )
-        associations = list(result.scalars().all())
+        result_associations = list(result.scalars().all())
 
         logger.info(
             "Repository fetched all node associations by node id",
-            node_id=node_id,
-            count=len(associations),
+            found_count=len(result_associations),
         )
 
-        return associations
+        return result_associations

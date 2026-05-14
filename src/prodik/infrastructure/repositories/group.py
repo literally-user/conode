@@ -37,9 +37,7 @@ class GroupRepositoryImpl(GroupRepository):
         )
 
         group = result.scalar_one_or_none()
-        logger.info(
-            "Repository fetched group by id", group_id=group_id, found=group is not None
-        )
+        logger.info("Repository fetched group by id", found=group is not None)
         return group
 
     async def delete(self, group: Group) -> None:
@@ -58,9 +56,14 @@ class GroupRepositoryImpl(GroupRepository):
             )
         )
 
-        return list(result.scalars())
+        result_groups = list(result.scalars())
+        logger.info(
+            "Repository fetched groups by company id", found_count=len(result_groups)
+        )
+        return result_groups
 
     async def get_all_by_ids(self, group_ids: list[GroupId]) -> list[Group]:
+        logger.info("Repository get groups by ids", ids_count=len(group_ids))
         if not group_ids:
             return []
 
@@ -68,4 +71,6 @@ class GroupRepositoryImpl(GroupRepository):
             select(Group).where(Group.id.in_(group_ids))  # type: ignore
         )
 
-        return list(result.scalars().all())
+        result_groups = list(result.scalars().all())
+        logger.info("Repository fetched groups by ids", found_count=len(result_groups))
+        return result_groups

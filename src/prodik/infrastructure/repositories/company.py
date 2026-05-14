@@ -67,7 +67,6 @@ class CompanyRepositoryImpl(CompanyRepository):
         company = result.scalar_one_or_none()
         logger.info(
             "Repository fetched company by id",
-            company_id=company_id,
             found=company is not None,
         )
         return company
@@ -85,7 +84,6 @@ class CompanyRepositoryImpl(CompanyRepository):
         company = result.scalar_one_or_none()
         logger.info(
             "Repository fetched company by user id",
-            user_id=user_id,
             found=company is not None,
         )
         return company

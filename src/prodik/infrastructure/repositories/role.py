@@ -27,20 +27,19 @@ class RoleRepositoryImpl(RoleRepository):
             )
         )
 
-    async def get_all_by_ids(self, role_ids: list[RoleId]) -> list[Role]:
+    async def get_all_by_ids(self, roles_ids: list[RoleId]) -> list[Role]:
         logger.info(
             "Repository get roles by roles id",
-            roles_id=role_ids,
+            request_count=len(roles_ids),
         )
-        if not role_ids:
+        if not roles_ids:
             return []
 
-        result = await self.session.execute(select(Role).where(Role.id.in_(role_ids)))  # type: ignore
+        result = await self.session.execute(select(Role).where(Role.id.in_(roles_ids)))  # type: ignore
         roles = list(result.scalars().all())
         logger.info(
             "Repository fetched roles by role id",
-            roles_id=role_ids,
-            count=len(roles),
+            found_count=len(roles),
         )
 
         return roles
@@ -85,7 +84,5 @@ class RoleRepositoryImpl(RoleRepository):
         )
 
         role = result.scalar_one_or_none()
-        logger.info(
-            "Repository fetched role by id", role_id=role_id, found=role is not None
-        )
+        logger.info("Repository fetched role by id", found=role is not None)
         return role

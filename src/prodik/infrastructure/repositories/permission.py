@@ -26,7 +26,7 @@ class RolePermissionsRepositoryImpl(RolePermissionsRepository):
 
         logger.info(
             "Repository create role permissions",
-            permissions_count=len(permissions),
+            request_count=len(permissions),
         )
 
         await self.session.execute(
@@ -60,14 +60,13 @@ class RolePermissionsRepositoryImpl(RolePermissionsRepository):
                 RolePermission.role_id == role_id  # type: ignore
             )
         )
-        permissions = list(result.scalars().all())
+        result_permissions = list(result.scalars().all())
         logger.info(
             "Repository fetched permissions by role id",
-            role_id=role_id,
-            count=len(permissions),
+            found_count=len(result_permissions),
         )
 
-        return permissions
+        return result_permissions
 
     async def update_all(self, permissions: list[RolePermission]) -> None:
         if not permissions:
@@ -75,7 +74,7 @@ class RolePermissionsRepositoryImpl(RolePermissionsRepository):
 
         logger.info(
             "Repository update role permissions",
-            permissions_count=len(permissions),
+            request_count=len(permissions),
         )
 
         for permission in permissions:
@@ -95,11 +94,10 @@ class RolePermissionsRepositoryImpl(RolePermissionsRepository):
     async def get_all_by_ids(
         self, permission_ids: list[RolePermissionId]
     ) -> list[RolePermission]:
+        logger.info("Repository get nodes by ids", request_count=len(permission_ids))
         if not permission_ids:
-            logger.info("Repository get permissions by ids", ids_count=0)
             return []
 
-        logger.info("Repository get nodes by ids", ids_count=len(permission_ids))
         result = await self.session.execute(
             select(RolePermission).where(
                 RolePermission.id.in_(permission_ids)  # type: ignore

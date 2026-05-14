@@ -53,7 +53,6 @@ class LocalAuthorizationRepositoryImpl(LocalAuthorizationRepository):
         authorization = result.scalar_one_or_none()
         logger.info(
             "Repository fetched local authorization by user id",
-            user_id=user_id,
             found=authorization is not None,
         )
         return authorization

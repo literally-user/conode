@@ -69,7 +69,7 @@ class UserRepositoryImpl(UserRepository):
         )
         user = result.scalar_one_or_none()
         logger.info(
-            "Repository fetched user by username or email", found=user is not None
+            "Repository fetched user by username or email",
         )
         return user
 
@@ -94,9 +94,7 @@ class UserRepositoryImpl(UserRepository):
         )
 
         user = result.scalar_one_or_none()
-        logger.info(
-            "Repository fetched user by id", user_id=user_id, found=user is not None
-        )
+        logger.info("Repository fetched user by id", found=user is not None)
         return user
 
     async def get_by_email(self, email: Email) -> User | None:
@@ -106,7 +104,5 @@ class UserRepositoryImpl(UserRepository):
         )
 
         user = result.scalar_one_or_none()
-        logger.info(
-            "Repository fetched user by email", email=email, found=user is not None
-        )
+        logger.info("Repository fetched user by email", found=user is not None)
         return user

@@ -39,7 +39,6 @@ class ContextRepositoryImpl(ContextRepository):
         context = result.scalar_one_or_none()
         logger.info(
             "Repository fetched context by id",
-            context_id=context_id,
             found=context is not None,
         )
         return context
@@ -60,4 +59,8 @@ class ContextRepositoryImpl(ContextRepository):
             )
         )
 
-        return list(result.scalars())
+        result_groups = list(result.scalars())
+        logger.info(
+            "Repository fetched contexts by company_id", found_count=len(result_groups)
+        )
+        return result_groups

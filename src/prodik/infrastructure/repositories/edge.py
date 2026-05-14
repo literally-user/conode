@@ -61,9 +61,7 @@ class EdgeRepositoryImpl(EdgeRepository):
         )
 
         edge = result.scalar_one_or_none()
-        logger.info(
-            "Repository fetched edge by id", edge_id=edge_id, found=edge is not None
-        )
+        logger.info("Repository fetched edge by id", found=edge is not None)
         return edge
 
     async def get_by_nodes_and_context(
@@ -87,10 +85,7 @@ class EdgeRepositoryImpl(EdgeRepository):
 
         edge = result.scalar_one_or_none()
         logger.info(
-            "Repository get edge by nodes and context",
-            node_a_id=node_a_id,
-            node_b_id=node_b_id,
-            context_id=context_id,
+            "Repository fetched edge by nodes and context",
             found=edge is not None,
         )
 
@@ -104,4 +99,8 @@ class EdgeRepositoryImpl(EdgeRepository):
             )
         )
 
-        return list(result.scalars())
+        result_edges = list(result.scalars())
+        logger.info(
+            "Repository fetched edges by context id", found_count=len(result_edges)
+        )
+        return result_edges

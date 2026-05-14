@@ -35,14 +35,13 @@ class UserGrantRepositoryImpl(UserGrantRepository):
                 UserGrant.user_id == user_id  # type: ignore
             )
         )
-        grants = list(result.scalars().all())
+        result_grants = list(result.scalars().all())
         logger.info(
             "Repository fetched grants by user id",
-            user_id=user_id,
-            count=len(grants),
+            count=len(result_grants),
         )
 
-        return grants
+        return result_grants
 
     async def get_by_user_and_role_id(
         self, user_id: UserId, role_id: RoleId
@@ -61,8 +60,6 @@ class UserGrantRepositoryImpl(UserGrantRepository):
         grant = result.scalar_one_or_none()
         logger.info(
             "Repository fetched context by id",
-            role_id=role_id,
-            user_id=user_id,
             found=grant is not None,
         )
 

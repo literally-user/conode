@@ -59,7 +59,5 @@ class SessionRepositoryImpl(SessionRepository):
         )
 
         session = result.scalar_one_or_none()
-        logger.info(
-            "Repository fetched session by host", host=host, found=session is not None
-        )
+        logger.info("Repository fetched session by host", found=session is not None)
         return session
