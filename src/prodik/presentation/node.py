@@ -3,19 +3,23 @@ from http import HTTPStatus
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
 from fastapi import APIRouter
 
-from prodik.application.manage_association import (
+from prodik.application.attach_node_to_group import (
     AttachNodeInteractor,
     AttachNodeRequestDTO,
-    DetachNodeInteractor,
 )
-from prodik.application.manage_node import (
+from prodik.application.create_node import (
     CreateNodeInteractor,
     CreateNodeRequestDTO,
+)
+from prodik.application.delete_node import (
     DeleteNodeInteractor,
+)
+from prodik.application.detach_node_from_group import DetachNodeInteractor
+from prodik.application.receive_node_info import GetNodesByGroupInteractor
+from prodik.application.update_node import (
     UpdateNodeInteractor,
     UpdateNodeRequestDTO,
 )
-from prodik.application.receive_node_info import GetNodesByGroupInteractor
 from prodik.domain.group import GroupId
 from prodik.domain.node import NodeAssociationId, NodeId
 from prodik.presentation.schemas.node import (

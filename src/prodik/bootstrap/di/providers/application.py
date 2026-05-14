@@ -1,43 +1,39 @@
 from dishka import Provider, Scope, provide_all
 
+from prodik.application.attach_node_to_group import (
+    AttachNodeInteractor,
+)
 from prodik.application.authorization import (
     LoginInteractor,
     RefreshTokenInteractor,
     RegisterInteractor,
 )
-from prodik.application.give_role_to_user import GiveRoleToUserInteractor
-from prodik.application.manage_association import (
-    AttachNodeInteractor,
-    DetachNodeInteractor,
+from prodik.application.create_context import CreateContextInteractor
+from prodik.application.create_edge import CreateEdgeInteractor
+from prodik.application.create_group import CreateGroupInteractor
+from prodik.application.create_node import (
+    CreateNodeInteractor,
 )
-from prodik.application.manage_company import (
-    RegisterCompanyInteractor,
-    VerifyCompanyInteractor,
+from prodik.application.create_role import (
+    CreateRoleInteractor,
 )
-from prodik.application.manage_contexts import (
-    CreateContextInteractor,
+from prodik.application.delete_context import (
     DeleteContextInteractor,
 )
-from prodik.application.manage_credentials import UpdateCurrentUserPasswordInteractor
-from prodik.application.manage_edges import (
-    CreateEdgeInteractor,
-    DecrementEdgeWeightInteractor,
-    DeleteEdgeInteractor,
-    IncrementEdgeWeightInteractor,
-    UpdateEdgeWeightInteractor,
-)
-from prodik.application.manage_group import CreateGroupInteractor, DeleteGroupInteractor
-from prodik.application.manage_node import (
-    CreateNodeInteractor,
+from prodik.application.delete_edge import DeleteEdgeInteractor
+from prodik.application.delete_group import DeleteGroupInteractor
+from prodik.application.delete_node import (
     DeleteNodeInteractor,
-    UpdateNodeInteractor,
 )
-from prodik.application.manage_profile import UpdateCurrentUserProfileInteractor
-from prodik.application.manage_roles import (
-    CreateRoleInteractor,
+from prodik.application.delete_role import (
     DeleteRoleInteractor,
-    UpdateRoleInteractor,
 )
+from prodik.application.detach_node_from_group import (
+    DetachNodeInteractor,
+)
+from prodik.application.give_role_to_user import GiveRoleToUserInteractor
+from prodik.application.manage_credentials import UpdateCurrentUserPasswordInteractor
+from prodik.application.manage_profile import UpdateCurrentUserProfileInteractor
 from prodik.application.receive_context_info import (
     GetContextByIdInteractor,
 )
@@ -48,8 +44,23 @@ from prodik.application.receive_user_info import (
     GetCurrentUserInteractor,
     GetUserByUsernameInteractor,
 )
+from prodik.application.register_company import (
+    RegisterCompanyInteractor,
+)
 from prodik.application.revoke_role_from_user import RevokeRoleFromUserInteractor
 from prodik.application.services import AccessControlService
+from prodik.application.update_edge_weight import (
+    DecrementEdgeWeightInteractor,
+    IncrementEdgeWeightInteractor,
+    UpdateEdgeWeightInteractor,
+)
+from prodik.application.update_node import (
+    UpdateNodeInteractor,
+)
+from prodik.application.update_role import (
+    UpdateRoleInteractor,
+)
+from prodik.application.verify_company import VerifyCompanyInteractor
 
 
 class ApplicationProvider(Provider):

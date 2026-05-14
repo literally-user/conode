@@ -3,11 +3,15 @@ from http import HTTPStatus
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
 from fastapi import APIRouter
 
-from prodik.application.manage_roles import (
+from prodik.application.create_role import (
     CreatePermissionRequestDTO,
     CreateRoleInteractor,
     CreateRoleRequestDTO,
+)
+from prodik.application.delete_role import (
     DeleteRoleInteractor,
+)
+from prodik.application.update_role import (
     UpdatePermissionRequestDTO,
     UpdateRoleInteractor,
     UpdateRoleRequestDTO,

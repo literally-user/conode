@@ -3,15 +3,17 @@ from http import HTTPStatus
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
 from fastapi import APIRouter
 
-from prodik.application.manage_edges import (
+from prodik.application.create_edge import (
     CreateEdgeInteractor,
     CreateEdgeRequestDTO,
+)
+from prodik.application.delete_edge import DeleteEdgeInteractor
+from prodik.application.receive_edge_info import GetEdgesByContextInteractor
+from prodik.application.update_edge_weight import (
     DecrementEdgeWeightInteractor,
-    DeleteEdgeInteractor,
     IncrementEdgeWeightInteractor,
     UpdateEdgeWeightInteractor,
 )
-from prodik.application.receive_edge_info import GetEdgesByContextInteractor
 from prodik.domain.context import ContextId
 from prodik.domain.edge import EdgeId
 from prodik.presentation.schemas.edge import (

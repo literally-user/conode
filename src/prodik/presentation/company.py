@@ -3,11 +3,11 @@ from http import HTTPStatus
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
 from fastapi import APIRouter
 
-from prodik.application.manage_company import (
+from prodik.application.register_company import (
     RegisterCompanyInteractor,
     RegisterCompanyRequestDTO,
-    VerifyCompanyInteractor,
 )
+from prodik.application.verify_company import VerifyCompanyInteractor
 from prodik.domain.company import CompanyId
 from prodik.presentation.schemas.company import CompanySchema, RegisterCompanyRequest
 

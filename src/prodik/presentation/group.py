@@ -3,11 +3,11 @@ from http import HTTPStatus
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
 from fastapi import APIRouter
 
-from prodik.application.manage_group import (
+from prodik.application.create_group import (
     CreateGroupInteractor,
     CreateGroupRequestDTO,
-    DeleteGroupInteractor,
 )
+from prodik.application.delete_group import DeleteGroupInteractor
 from prodik.domain.group import GroupId
 from prodik.presentation.schemas.group import CreateGroupRequest, GroupSchema
 
