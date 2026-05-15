@@ -1,6 +1,6 @@
+import asyncio
 from dataclasses import dataclass
-from itertools import chain
-from uuid import uuid4
+from typing import cast
 
 from prodik.application.errors import (
     CompanyNotFoundError,
@@ -18,21 +18,22 @@ from prodik.application.interfaces.repositories import (
     RoleRepository,
 )
 from prodik.application.interfaces.transaction_manager import TransactionManager
-from prodik.application.services import AccessControlService
-from prodik.domain.contract import Contract, ContractId
-from prodik.domain.offer import OfferId
-from prodik.domain.role import (
-    EntityType,
-    Role,
-    RoleId,
-    RolePermission,
-    RolePermissionId,
+from prodik.application.services import (
+    AccessControlService,
+    OfferAcceptanceService,
+    RoleManagmentService,
 )
+from prodik.domain.company import Company
+from prodik.domain.contract import Contract
+from prodik.domain.offer import Offer, OfferContext, OfferGroup, OfferId
+from prodik.domain.role import EntityType, PermissionType, RolePermissionEntityId
 
 
 @dataclass
 class AcceptOfferInteractor:
     access_control_service: AccessControlService
+    role_managment_service: RoleManagmentService
+    offer_acceptance_service: OfferAcceptanceService
     transaction_manager: TransactionManager
     offer_repository: OfferRepository
     offer_link_repository: OfferLinkRepository
@@ -46,32 +47,22 @@ class AcceptOfferInteractor:
     async def execute(self, offer_id: OfferId) -> Contract:
         async with self.transaction_manager:
             user = await self.access_control_service.get_authorized_user()
-
             offer = await self.offer_repository.get_by_id(offer_id)
             if offer is None:
                 raise OfferNotFoundError("Offer not found", None)
 
-            offer_from_company = await self.company_repository.get_by_id(
-                offer.from_company_id
+            offer_from_company, offer_to_company = await self._get_offer_companies(
+                offer
             )
-            if offer_from_company is None:
-                raise CompanyNotFoundError("Company not found", None)
-
-            offer_to_company = await self.company_repository.get_by_id(
-                offer.to_company_id
-            )
-            if offer_to_company is None:
-                raise CompanyNotFoundError("Company not found", None)
-
             await self.access_control_service.ensure_user_can_manipulate_offers(
                 user,
                 offer_to_company,
             )
 
-            offer.accept()
-
             from_offer = None
-            from_company_role = None
+            from_company_role_managment_response = None
+            offer_link = None
+
             if offer.is_counter_offer():
                 from_offer = await self.offer_repository.get_by_id(
                     offer.get_from_offer_id()
@@ -80,115 +71,105 @@ class AcceptOfferInteractor:
                     raise OfferNotFoundError("Offer not found", None)
 
                 offer_link = await self.offer_link_repository.get_by_offers_ids(
-                    offer.id, from_offer.id
+                    offer.id,
+                    from_offer.id,
                 )
                 if offer_link is None:
                     raise OfferLinkNotFoundError("Offer link not found", None)
 
-                from_company_offer_groups = (
-                    await self.offer_group_repository.get_by_offer_id(offer.id)
-                )
-                from_company_offer_contexts = (
-                    await self.offer_context_repository.get_by_offer_id(offer.id)
-                )
-
-                from_company_role = Role.new(
-                    id=RoleId(uuid4()),
-                    name=f"{offer_from_company.name}-{offer_to_company.name}",
-                    company=offer_to_company,
-                )
-
-                from_company_role_group_permissions = [
-                    RolePermission.new(
-                        id=RolePermissionId(uuid4()),
-                        role=from_company_role,
-                        permission=offer_group.permission_type,
-                        entity_type=EntityType.GROUP,
-                        entity_id=offer_group.group_id,
+                from_company_permissions = await self._get_offer_permissions(offer.id)
+                from_company_role_managment_response = (
+                    self.role_managment_service.create_role_with_permissions(
+                        name=f"{offer_from_company.name}-{offer_to_company.name}",
+                        company=offer_to_company,
+                        request=from_company_permissions,
                     )
-                    for offer_group in from_company_offer_groups
-                ]
-                from_company_role_context_permissions = [
-                    RolePermission.new(
-                        id=RolePermissionId(uuid4()),
-                        role=from_company_role,
-                        permission=offer_context.permission_type,
-                        entity_type=EntityType.CONTEXT,
-                        entity_id=offer_context.context_id,
-                    )
-                    for offer_context in from_company_offer_contexts
-                ]
+                )
 
-                from_offer.accept()
-                offer_link.accept()
-
-                await self.role_repository.create(from_company_role)
+                await self.role_repository.create(
+                    from_company_role_managment_response.role
+                )
                 await self.role_permissions_repository.create_all(
-                    list(
-                        chain(
-                            from_company_role_context_permissions,
-                            from_company_role_group_permissions,
-                        )
-                    )
+                    from_company_role_managment_response.permissions
                 )
-                await self.offer_link_repository.update(offer_link)
-                await self.offer_repository.update(from_offer)
 
-            company_role = Role.new(
-                id=RoleId(uuid4()),
-                name=f"{offer_to_company.name}-{offer_from_company.name}",
-                company=offer_to_company,
+            acceptance_result = self.offer_acceptance_service.accept(
+                offer=offer,
+                from_offer=from_offer,
+                offer_link=offer_link,
             )
 
-            company_offer_groups = await self.offer_group_repository.get_by_offer_id(
-                offer.id
-            )
-            company_offer_contexts = await self.offer_group_repository.get_by_offer_id(
-                offer.id
-            )
-            from_company_role_group_permissions = [
-                RolePermission.new(
-                    id=RolePermissionId(uuid4()),
-                    role=company_role,
-                    permission=offer_group.permission_type,
-                    entity_type=EntityType.GROUP,
-                    entity_id=offer_group.group_id,
-                )
-                for offer_group in company_offer_groups
-            ]
-            from_company_role_context_permissions = [
-                RolePermission.new(
-                    id=RolePermissionId(uuid4()),
-                    role=company_role,
-                    permission=offer_context.permission_type,
-                    entity_type=EntityType.CONTEXT,
-                    entity_id=offer_context.group_id,
-                )
-                for offer_context in company_offer_contexts
-            ]
+            if acceptance_result.offer_link is not None:
+                await self.offer_link_repository.update(acceptance_result.offer_link)
+            if acceptance_result.from_offer is not None:
+                await self.offer_repository.update(acceptance_result.from_offer)
 
-            contract = Contract.new(
-                id=ContractId(uuid4()),
+            to_company_permissions = await self._get_offer_permissions(offer.id)
+            to_company_role_managment_response = (
+                self.role_managment_service.create_role_with_permissions(
+                    name=f"{offer_to_company.name}-{offer_from_company.name}",
+                    company=offer_to_company,
+                    request=to_company_permissions,
+                )
+            )
+
+            contract = self.offer_acceptance_service.create_contract(
                 company_a=offer_to_company,
                 company_b=offer_from_company,
                 company_a_offer=offer,
                 company_b_offer=from_offer,
-                expires_in=offer.expires_in,
-                company_a_role_id=company_role.id,
-                company_b_role_id=from_company_role.id
-                if from_company_role is not None
+                company_a_role_id=to_company_role_managment_response.role.id,
+                company_b_role_id=from_company_role_managment_response.role.id
+                if from_company_role_managment_response is not None
                 else None,
             )
 
-            await self.role_repository.create(company_role)
+            await self.role_repository.create(to_company_role_managment_response.role)
             await self.role_permissions_repository.create_all(
-                list(
-                    chain(
-                        from_company_role_context_permissions,
-                        from_company_role_group_permissions,
-                    )
-                )
+                to_company_role_managment_response.permissions
             )
             await self.contract_repository.create(contract)
 
             return contract
+
+    async def _get_offer_companies(self, offer: Offer) -> tuple[Company, Company]:
+        from_company, to_company = await asyncio.gather(
+            self.company_repository.get_by_id(offer.from_company_id),
+            self.company_repository.get_by_id(offer.to_company_id),
+        )
+
+        if from_company is None or to_company is None:
+            raise CompanyNotFoundError("Company not found", None)
+
+        return from_company, to_company
+
+    async def _get_offer_permissions(
+        self,
+        offer_id: OfferId,
+    ) -> list[tuple[RolePermissionEntityId, EntityType, PermissionType]]:
+        offer_groups, offer_contexts = await asyncio.gather(
+            self.offer_group_repository.get_by_offer_id(offer_id),
+            self.offer_context_repository.get_by_offer_id(offer_id),
+        )
+        return self._compile_permissions(offer_groups, offer_contexts)
+
+    def _compile_permissions(
+        self,
+        offer_groups: list[OfferGroup],
+        offer_contexts: list[OfferContext],
+    ) -> list[tuple[RolePermissionEntityId, EntityType, PermissionType]]:
+        return [
+            (
+                cast("RolePermissionEntityId", group.group_id),
+                EntityType.GROUP,
+                group.permission_type,
+            )
+            for group in offer_groups
+        ] + [
+            (
+                cast("RolePermissionEntityId", context.context_id),
+                EntityType.CONTEXT,
+                context.permission_type,
+            )
+            for context in offer_contexts
+        ]

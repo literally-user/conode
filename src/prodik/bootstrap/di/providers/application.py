@@ -48,7 +48,12 @@ from prodik.application.register_company import (
     RegisterCompanyInteractor,
 )
 from prodik.application.revoke_role_from_user import RevokeRoleFromUserInteractor
-from prodik.application.services import AccessControlService
+from prodik.application.services import (
+    AccessControlService,
+    OfferAcceptanceService,
+    OfferSendingService,
+    RoleManagmentService,
+)
 from prodik.application.share_graph import (
     AcceptOfferInteractor,
     DeclineOfferInteractor,
@@ -74,6 +79,8 @@ class ApplicationProvider(Provider):
         RegisterInteractor,
         LoginInteractor,
         AccessControlService,
+        OfferAcceptanceService,
+        OfferSendingService,
         DeleteEdgeInteractor,
         RefreshTokenInteractor,
         UpdateEdgeWeightInteractor,
@@ -96,6 +103,7 @@ class ApplicationProvider(Provider):
         DeleteGroupInteractor,
         CreateNodeInteractor,
         DeleteRoleInteractor,
+        RoleManagmentService,
         UpdateRoleInteractor,
         DeleteNodeInteractor,
         AcceptOfferInteractor,
