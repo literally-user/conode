@@ -33,11 +33,17 @@ class DetachNodeInteractor:
                 association_id
             )
             if association is None:
-                raise AssociationNotFoundError("Association not found error", None)
+                raise AssociationNotFoundError(
+                    "Association not found error",
+                    [{"key": "association_id", "value": association_id}],
+                )
 
             group = await self.group_repository.get_by_id(association.group_id)
             if group is None:
-                raise GroupNotFoundError("Group not found", None)
+                raise GroupNotFoundError(
+                    "Group not found",
+                    [{"key": "group_id", "value": association.group_id}],
+                )
 
             await self.access_control_service.ensure_user_can_manipulate_group(
                 user,
@@ -51,7 +57,8 @@ class DetachNodeInteractor:
             )
             if existing_node_association is None:
                 raise NodeMustHaveAtLeastOneAssociationError(
-                    "Node must have at least one association", None
+                    "Node must have at least one association",
+                    [{"key": "node_id", "value": association.node_id}],
                 )
 
             await self.node_association_repository.delete(association)

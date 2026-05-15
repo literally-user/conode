@@ -16,7 +16,9 @@ class GetContextByIdInteractor:
 
         context = await self.context_repository.get_by_id(context_id)
         if context is None:
-            raise ContextNotFoundError("Context not found", None)
+            raise ContextNotFoundError(
+                "Context not found", [{"key": "context_id", "value": context_id}]
+            )
 
         await self.access_control_service.ensure_user_can_view_context(
             user,

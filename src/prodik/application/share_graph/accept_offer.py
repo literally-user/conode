@@ -49,7 +49,9 @@ class AcceptOfferInteractor:
             user = await self.access_control_service.get_authorized_user()
             offer = await self.offer_repository.get_by_id(offer_id)
             if offer is None:
-                raise OfferNotFoundError("Offer not found", None)
+                raise OfferNotFoundError(
+                    "Offer not found", [{"key": "offer_id", "value": offer_id}]
+                )
 
             offer_from_company, offer_to_company = await self._get_offer_companies(
                 offer
@@ -68,14 +70,23 @@ class AcceptOfferInteractor:
                     offer.get_from_offer_id()
                 )
                 if from_offer is None:
-                    raise OfferNotFoundError("Offer not found", None)
+                    raise OfferNotFoundError(
+                        "Counter offer not found",
+                        [{"key": "offer_id", "value": offer.get_from_offer_id()}],
+                    )
 
                 offer_link = await self.offer_link_repository.get_by_offers_ids(
                     offer.id,
                     from_offer.id,
                 )
                 if offer_link is None:
-                    raise OfferLinkNotFoundError("Offer link not found", None)
+                    raise OfferLinkNotFoundError(
+                        "Offer link by offer ids not found",
+                        [
+                            {"key": "to_offer_id", "value": offer.id},
+                            {"key": "from_offer_id", "value": from_offer.id},
+                        ],
+                    )
 
                 from_company_permissions = await self._get_offer_permissions(offer.id)
                 from_company_role_managment_response = (
@@ -139,7 +150,13 @@ class AcceptOfferInteractor:
         )
 
         if from_company is None or to_company is None:
-            raise CompanyNotFoundError("Company not found", None)
+            raise CompanyNotFoundError(
+                "Company not found",
+                [
+                    {"key": "from_company_id", "value": offer.from_company_id},
+                    {"key": "to_company_id", "value": offer.to_company_id},
+                ],
+            )
 
         return from_company, to_company
 

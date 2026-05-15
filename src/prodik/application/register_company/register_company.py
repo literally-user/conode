@@ -50,13 +50,6 @@ class RegisterCompanyInteractor:
                     [{"key": "name", "value": request.name}],
                 )
 
-            company = await self.company_repository.get_by_user_id(user.id)
-            if company is not None:
-                raise CompanyAlreadyExistsError(
-                    "User can only have one company",
-                    [{"key": "name", "value": request.name}],
-                )
-
             company = Company.new(
                 id=CompanyId(uuid4()),
                 name=request.name,

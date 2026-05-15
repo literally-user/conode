@@ -34,14 +34,15 @@ async def test_get_user_by_username_user_not_found(
     test_client: AsyncClient, user_factory: UserFactory
 ) -> None:
     user_factory_response = await user_factory.create_user(admin=False)
+    unknown_username = generate_random_string(10)
 
     response = await test_client.get(
-        f"/users/{generate_random_string(10)}",
+        f"/users/{unknown_username}",
         headers={"Authorization": f"Bearer {user_factory_response.access_token}"},
     )
 
     assert response.status_code == HTTPStatus.NOT_FOUND
     assert response.json() == IsPartialDict(
         detail="User not found",
-        meta=None,
+        meta=[{"key": "username", "value": unknown_username}],
     )

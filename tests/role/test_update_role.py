@@ -10,8 +10,9 @@ from prodik.domain.role import EntityType, PermissionType
 from tests.factories import (
     CompanyFactory,
     RoleFactory,
+    UpdatePermissionRequestFactory,
+    UpdateRoleRequestFactory,
     UserFactory,
-    generate_random_string,
 )
 
 
@@ -28,14 +29,11 @@ async def test_update_role_ok(
 
     role = await role_factory.create_role(company=company)
 
-    new_name = generate_random_string(10)
+    request = UpdateRoleRequestFactory.build(permissions={})
 
     response = await test_client.put(
         f"/roles/{role.id}",
-        json={
-            "name": new_name,
-            "permissions": {},
-        },
+        json=request.model_dump(mode="json"),
         headers={"Authorization": f"Bearer {user_factory_response.access_token}"},
     )
 
@@ -45,7 +43,7 @@ async def test_update_role_ok(
         role=IsPartialDict(
             id=IsStr(),
             owner_company_id=str(company.id),
-            name=new_name,
+            name=request.name,
         ),
         permissions=[],
     )
@@ -57,13 +55,11 @@ async def test_update_role_not_found(
     test_client: AsyncClient,
 ) -> None:
     user_factory_response = await user_factory.create_user(admin=True)
+    fake_role_id = uuid4()
 
     response = await test_client.put(
-        f"/roles/{uuid4()}",
-        json={
-            "name": generate_random_string(10),
-            "permissions": {},
-        },
+        f"/roles/{fake_role_id}",
+        json=UpdateRoleRequestFactory.build(permissions={}).model_dump(mode="json"),
         headers={"Authorization": f"Bearer {user_factory_response.access_token}"},
     )
 
@@ -71,7 +67,7 @@ async def test_update_role_not_found(
 
     assert response.json() == IsPartialDict(
         detail="Role not found",
-        meta=None,
+        meta=[{"key": "role_id", "value": str(fake_role_id)}],
     )
 
 
@@ -90,10 +86,7 @@ async def test_update_role_forbidden(
 
     response = await test_client.put(
         f"/roles/{role.id}",
-        json={
-            "name": generate_random_string(10),
-            "permissions": {},
-        },
+        json=UpdateRoleRequestFactory.build(permissions={}).model_dump(mode="json"),
         headers={"Authorization": f"Bearer {user_factory_response.access_token}"},
     )
 
@@ -125,16 +118,16 @@ async def test_update_role_permissions_ok(
 
     response = await test_client.put(
         f"/roles/{role.id}",
-        json={
-            "name": role.name.value,
-            "permissions": {
-                str(permission.id): {
-                    "permission": PermissionType.MODIFY,
-                    "entity_type": EntityType.COMPANY,
-                    "entity_id": str(company.id),
-                }
+        json=UpdateRoleRequestFactory.build(
+            name=role.name.value,
+            permissions={
+                permission.id: UpdatePermissionRequestFactory.build(
+                    permission=PermissionType.MODIFY,
+                    entity_type=EntityType.COMPANY,
+                    entity_id=company.id,
+                ),
             },
-        },
+        ).model_dump(mode="json"),
         headers={"Authorization": f"Bearer {user_factory_response.access_token}"},
     )
 

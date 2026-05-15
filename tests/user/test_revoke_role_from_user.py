@@ -48,9 +48,10 @@ async def test_revoke_role_from_user_role_not_found(
     executor_response = await user_factory.create_user(admin=True)
 
     target_user = (await user_factory.create_user()).user
+    fake_role_id = uuid4()
 
     response = await test_client.delete(
-        f"/users/{target_user.id}/roles/{uuid4()}",
+        f"/users/{target_user.id}/roles/{fake_role_id}",
         headers={"Authorization": f"Bearer {executor_response.access_token}"},
     )
 
@@ -58,7 +59,7 @@ async def test_revoke_role_from_user_role_not_found(
 
     assert response.json() == IsPartialDict(
         detail="Role not found",
-        meta=None,
+        meta=[{"key": "role_id", "value": str(fake_role_id)}],
     )
 
 
@@ -74,9 +75,10 @@ async def test_revoke_role_from_user_user_not_found(
     company = await company_factory.create_company(user=executor_response.user)
 
     role = await role_factory.create_role(company=company)
+    fake_user_id = uuid4()
 
     response = await test_client.delete(
-        f"/users/{uuid4()}/roles/{role.id}",
+        f"/users/{fake_user_id}/roles/{role.id}",
         headers={"Authorization": f"Bearer {executor_response.access_token}"},
     )
 
@@ -84,7 +86,7 @@ async def test_revoke_role_from_user_user_not_found(
 
     assert response.json() == IsPartialDict(
         detail="User not found",
-        meta=None,
+        meta=[{"key": "user_id", "value": str(fake_user_id)}],
     )
 
 
@@ -139,6 +141,9 @@ async def test_revoke_role_from_user_grant_not_found(
     assert response.status_code == HTTPStatus.NOT_FOUND
 
     assert response.json() == IsPartialDict(
-        detail="Grant not found",
-        meta=None,
+        detail="Grant by user and role id not found",
+        meta=[
+            {"key": "user_id", "value": str(target_user.id)},
+            {"key": "role_id", "value": str(role.id)},
+        ],
     )

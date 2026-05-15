@@ -45,11 +45,17 @@ class CreateEdgeInteractor:
 
             context = await self.context_repository.get_by_id(request.context_id)
             if context is None:
-                raise ContextNotFoundError("Context not found", None)
+                raise ContextNotFoundError(
+                    "Context not found",
+                    [{"key": "context_id", "value": request.context_id}],
+                )
 
             company = await self.company_repository.get_by_id(context.company_id)
             if company is None:
-                raise CompanyNotFoundError("Company not found", None)
+                raise CompanyNotFoundError(
+                    "Company by context not found",
+                    [{"key": "context_id", "value": request.context_id}],
+                )
 
             await self.access_control_service.ensure_user_can_manipulate_context(
                 user,

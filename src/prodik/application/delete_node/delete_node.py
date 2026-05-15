@@ -30,7 +30,9 @@ class DeleteNodeInteractor:
 
             node = await self.node_repository.get_by_id(node_id)
             if node is None:
-                raise NodeNotFoundError("Node not found", None)
+                raise NodeNotFoundError(
+                    "Node not found", [{"key": "node_id", "value": node_id}]
+                )
 
             existing_associations = (
                 await self.node_association_repository.get_all_by_node_id(node.id)

@@ -89,14 +89,18 @@ async def test_accept_offer_not_found(
     test_client: AsyncClient,
 ) -> None:
     user_response = await user_factory.create_user(admin=False)
+    fake_offer_id = uuid4()
 
     response = await test_client.post(
-        f"/offers/{uuid4()}/accept",
+        f"/offers/{fake_offer_id}/accept",
         headers={"Authorization": f"Bearer {user_response.access_token}"},
     )
 
     assert response.status_code == HTTPStatus.NOT_FOUND
-    assert response.json() == IsPartialDict(detail="Offer not found", meta=None)
+    assert response.json() == IsPartialDict(
+        detail="Offer not found",
+        meta=[{"key": "offer_id", "value": str(fake_offer_id)}],
+    )
 
 
 @pytest.mark.asyncio

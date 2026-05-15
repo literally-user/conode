@@ -43,9 +43,10 @@ async def test_give_role_to_user_role_not_found(
     executor_response = await user_factory.create_user(admin=True)
 
     target_user = (await user_factory.create_user()).user
+    fake_role_id = uuid4()
 
     response = await test_client.post(
-        f"/users/{target_user.id}/roles/{uuid4()}",
+        f"/users/{target_user.id}/roles/{fake_role_id}",
         headers={"Authorization": f"Bearer {executor_response.access_token}"},
     )
 
@@ -53,7 +54,7 @@ async def test_give_role_to_user_role_not_found(
 
     assert response.json() == IsPartialDict(
         detail="Role not found",
-        meta=None,
+        meta=[{"key": "role_id", "value": str(fake_role_id)}],
     )
 
 
@@ -69,9 +70,10 @@ async def test_give_role_to_user_user_not_found(
     company = await company_factory.create_company(user=executor_response.user)
 
     role = await role_factory.create_role(company=company)
+    fake_user_id = uuid4()
 
     response = await test_client.post(
-        f"/users/{uuid4()}/roles/{role.id}",
+        f"/users/{fake_user_id}/roles/{role.id}",
         headers={"Authorization": f"Bearer {executor_response.access_token}"},
     )
 
@@ -79,7 +81,7 @@ async def test_give_role_to_user_user_not_found(
 
     assert response.json() == IsPartialDict(
         detail="User not found",
-        meta=None,
+        meta=[{"key": "user_id", "value": str(fake_user_id)}],
     )
 
 
@@ -132,5 +134,8 @@ async def test_give_role_to_user_grant_already_exists(
     assert response.status_code == HTTPStatus.CONFLICT
     assert response.json() == IsPartialDict(
         detail="Grant already exists",
-        meta=None,
+        meta=[
+            {"key": "user_id", "value": str(executor_response.user.id)},
+            {"key": "role_id", "value": str(role.id)},
+        ],
     )

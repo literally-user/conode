@@ -7,8 +7,8 @@ from httpx import AsyncClient
 from tests.factories import (
     CompanyFactory,
     NodeFactory,
+    UpdateNodeRequestFactory,
     UserFactory,
-    generate_random_string,
 )
 
 
@@ -23,23 +23,19 @@ async def test_update_node_ok(
     company = await company_factory.create_company(user=user_factory_response.user)
     node = await node_factory.create_node(company=company)
 
-    name = generate_random_string(10)
-    description = generate_random_string(30)
+    request = UpdateNodeRequestFactory.build()
 
     response = await test_client.put(
         f"/nodes/{node.id}",
-        json={
-            "name": name,
-            "description": description,
-        },
+        json=request.model_dump(mode="json"),
         headers={"Authorization": f"Bearer {user_factory_response.access_token}"},
     )
 
     assert response.status_code == HTTPStatus.OK
     assert response.json() == IsPartialDict(
         id=IsStr(),
-        name=name,
-        description=description,
+        name=request.name,
+        description=request.description,
         company_id=str(company.id),
     )
 
@@ -58,10 +54,7 @@ async def test_update_node_forbidden(
 
     response = await test_client.put(
         f"/nodes/{node.id}",
-        json={
-            "name": generate_random_string(5),
-            "description": generate_random_string(30),
-        },
+        json=UpdateNodeRequestFactory.build(name="abcde").model_dump(mode="json"),
         headers={"Authorization": f"Bearer {user_factory_response.access_token}"},
     )
 

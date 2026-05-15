@@ -7,8 +7,8 @@ from httpx import AsyncClient
 
 from tests.factories import (
     CompanyFactory,
+    CreateContextRequestFactory,
     UserFactory,
-    generate_random_string,
 )
 
 
@@ -21,24 +21,21 @@ async def test_create_context_ok(
     user_factory_response = await user_factory.create_user(admin=False)
     company = await company_factory.create_company(user=user_factory_response.user)
 
-    name = generate_random_string(10)
-    description = generate_random_string(30)
+    request = CreateContextRequestFactory.build(
+        company_id=company.id,
+    )
 
     response = await test_client.post(
         "/contexts/",
-        json={
-            "name": name,
-            "description": description,
-            "company_id": str(company.id),
-        },
+        json=request.model_dump(mode="json"),
         headers={"Authorization": f"Bearer {user_factory_response.access_token}"},
     )
 
     assert response.status_code == HTTPStatus.CREATED
     assert response.json() == IsPartialDict(
         id=IsStr(),
-        name=name,
-        description=description,
+        name=request.name,
+        description=request.description,
         company_id=str(company.id),
     )
 
@@ -49,21 +46,20 @@ async def test_create_context_company_not_found(
     test_client: AsyncClient,
 ) -> None:
     user_factory_response = await user_factory.create_user(admin=False)
+    fake_company_id = uuid4()
 
     response = await test_client.post(
         "/contexts/",
-        json={
-            "name": generate_random_string(10),
-            "description": generate_random_string(30),
-            "company_id": str(uuid4()),
-        },
+        json=CreateContextRequestFactory.build(
+            company_id=fake_company_id,
+        ).model_dump(mode="json"),
         headers={"Authorization": f"Bearer {user_factory_response.access_token}"},
     )
 
     assert response.status_code == HTTPStatus.NOT_FOUND
     assert response.json() == IsPartialDict(
         detail="Company not found",
-        meta=None,
+        meta=[{"key": "company_id", "value": str(fake_company_id)}],
     )
 
 
@@ -79,11 +75,10 @@ async def test_create_context_forbidden(
 
     response = await test_client.post(
         "/contexts/",
-        json={
-            "name": generate_random_string(5),
-            "description": generate_random_string(30),
-            "company_id": str(company.id),
-        },
+        json=CreateContextRequestFactory.build(
+            name="abcde",
+            company_id=company.id,
+        ).model_dump(mode="json"),
         headers={"Authorization": f"Bearer {user_factory_response.access_token}"},
     )
 

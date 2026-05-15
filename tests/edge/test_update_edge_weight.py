@@ -9,6 +9,7 @@ from tests.factories import (
     ContextFactory,
     EdgeFactory,
     NodeFactory,
+    UpdateEdgeWeightRequestFactory,
     UserFactory,
 )
 
@@ -32,7 +33,9 @@ async def test_update_edge_ok(
 
     response = await test_client.patch(
         f"/edges/{edge.id}/weight",
-        json={"weight": random.randint(10, 100)},  # noqa: S311
+        json=UpdateEdgeWeightRequestFactory.build(
+            weight=float(random.randint(10, 100))  # noqa: S311
+        ).model_dump(mode="json"),
         headers={"Authorization": f"Bearer {user_factory_response.access_token}"},
     )
 

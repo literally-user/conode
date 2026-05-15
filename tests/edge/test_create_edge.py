@@ -8,6 +8,7 @@ from httpx import AsyncClient
 from tests.factories import (
     CompanyFactory,
     ContextFactory,
+    CreateEdgeRequestFactory,
     GroupFactory,
     NodeFactory,
     UserFactory,
@@ -29,11 +30,11 @@ async def test_create_edge_ok(
 
     response = await test_client.post(
         "/edges/",
-        json={
-            "node_a_id": str(nodes[0].id),
-            "node_b_id": str(nodes[1].id),
-            "context_id": str(context.id),
-        },
+        json=CreateEdgeRequestFactory.build(
+            node_a_id=nodes[0].id,
+            node_b_id=nodes[1].id,
+            context_id=context.id,
+        ).model_dump(mode="json"),
         headers={"Authorization": f"Bearer {user_factory_response.access_token}"},
     )
 
@@ -66,21 +67,22 @@ async def test_create_edge_context_not_found(
         )
         for _ in range(2)
     ]
+    fake_context_id = uuid4()
 
     response = await test_client.post(
         "/edges/",
-        json={
-            "node_a_id": str(nodes[0].id),
-            "node_b_id": str(nodes[1].id),
-            "context_id": str(uuid4()),
-        },
+        json=CreateEdgeRequestFactory.build(
+            node_a_id=nodes[0].id,
+            node_b_id=nodes[1].id,
+            context_id=fake_context_id,
+        ).model_dump(mode="json"),
         headers={"Authorization": f"Bearer {user_factory_response.access_token}"},
     )
 
     assert response.status_code == HTTPStatus.NOT_FOUND
     assert response.json() == IsPartialDict(
         detail="Context not found",
-        meta=None,
+        meta=[{"key": "context_id", "value": str(fake_context_id)}],
     )
 
 
@@ -107,11 +109,11 @@ async def test_create_edge_context_forbidden(
 
     response = await test_client.post(
         "/edges/",
-        json={
-            "node_a_id": str(nodes[0].id),
-            "node_b_id": str(nodes[1].id),
-            "context_id": str(context.id),
-        },
+        json=CreateEdgeRequestFactory.build(
+            node_a_id=nodes[0].id,
+            node_b_id=nodes[1].id,
+            context_id=context.id,
+        ).model_dump(mode="json"),
         headers={"Authorization": f"Bearer {user_factory_response.access_token}"},
     )
 

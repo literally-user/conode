@@ -51,7 +51,9 @@ class UpdateRoleInteractor:
 
             role = await self.role_repository.get_by_id(request.role_id)
             if role is None:
-                raise RoleNotFoundError("Role not found", None)
+                raise RoleNotFoundError(
+                    "Role not found", [{"key": "role_id", "value": request.role_id}]
+                )
 
             await self.access_control_service.ensure_user_can_manipulate_role(
                 user,

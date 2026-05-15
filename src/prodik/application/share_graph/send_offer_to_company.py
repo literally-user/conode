@@ -61,9 +61,15 @@ class SendOfferToCompanyInteractor:
                 self.company_repository.get_by_id(request.to_company_id),
             )
             if from_company is None:
-                raise CompanyNotFoundError("Company not found", None)
+                raise CompanyNotFoundError(
+                    "Company not found",
+                    [{"key": "company_id", "value": request.from_company_id}],
+                )
             if to_company is None:
-                raise CompanyNotFoundError("Company not found", None)
+                raise CompanyNotFoundError(
+                    "Company not found",
+                    [{"key": "company_id", "value": request.to_company_id}],
+                )
 
             await self.access_control_service.ensure_user_can_send_offers(
                 user,
@@ -76,7 +82,10 @@ class SendOfferToCompanyInteractor:
                     request.from_offer_id
                 )
                 if from_offer is None:
-                    raise OfferNotFoundError("Offer not found", None)
+                    raise OfferNotFoundError(
+                        "Offer not found",
+                        [{"key": "offer_id", "value": request.from_offer_id}],
+                    )
 
             existing_groups = await self.group_repository.get_all_by_ids(
                 list(request.groups.keys())
@@ -86,9 +95,25 @@ class SendOfferToCompanyInteractor:
             )
 
             if len(existing_groups) != len(request.groups):
-                raise GroupNotFoundError("Some of groups not found", None)
+                raise GroupNotFoundError(
+                    "Some of groups not found",
+                    [
+                        {
+                            "key": "group_ids",
+                            "value": list(request.groups.keys()),
+                        }
+                    ],
+                )
             if len(existing_contexts) != len(request.contexts):
-                raise ContextNotFoundError("Some of contexts not found", None)
+                raise ContextNotFoundError(
+                    "Some of contexts not found",
+                    [
+                        {
+                            "key": "context_ids",
+                            "value": list(request.contexts.keys()),
+                        }
+                    ],
+                )
 
             offer_bundle = self.offer_sending_service.create_offer_bundle(
                 title=request.title,

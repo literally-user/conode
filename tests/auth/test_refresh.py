@@ -34,17 +34,18 @@ async def test_refresh_session_not_found(
     user_factory: UserFactory,
 ) -> None:
     factory_result = await user_factory.create_user(admin=False)
+    invalid_refresh_token = "totally-invalid-refresh-token"  # noqa: S105
 
     response = await test_client.post(
         "/auth/refresh",
-        json={"refresh_token": "totally-invalid-refresh-token"},
+        json={"refresh_token": invalid_refresh_token},
         headers={"Authorization": f"Bearer {factory_result.access_token}"},
     )
 
     assert response.status_code == HTTPStatus.UNAUTHORIZED
     assert response.json() == IsPartialDict(
         detail="Session not found",
-        meta=None,
+        meta=[{"key": "refresh_token", "value": invalid_refresh_token}],
     )
 
 

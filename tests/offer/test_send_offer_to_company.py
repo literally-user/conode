@@ -115,14 +115,14 @@ async def test_send_offer_from_company_not_found(
 ) -> None:
     sender_response = await user_factory.create_user(admin=False)
     to_company = await company_factory.create_company()
-    fake_company_id = str(uuid4())
+    fake_company_id = uuid4()
 
     response = await test_client.post(
         "/offers/",
         json={
             "title": "Test Offer",
             "description": "Test description",
-            "from_company_id": fake_company_id,
+            "from_company_id": str(fake_company_id),
             "to_company_id": str(to_company.id),
             "requires_counteroffer": False,
             "from_offer_id": None,
@@ -134,7 +134,10 @@ async def test_send_offer_from_company_not_found(
     )
 
     assert response.status_code == HTTPStatus.NOT_FOUND
-    assert response.json() == IsPartialDict(detail="Company not found", meta=None)
+    assert response.json() == IsPartialDict(
+        detail="Company not found",
+        meta=[{"key": "company_id", "value": str(fake_company_id)}],
+    )
 
 
 @pytest.mark.asyncio
@@ -145,7 +148,7 @@ async def test_send_offer_to_company_not_found(
 ) -> None:
     sender_response = await user_factory.create_user(admin=False)
     from_company = await company_factory.create_company(user=sender_response.user)
-    fake_company_id = str(uuid4())
+    fake_company_id = uuid4()
 
     response = await test_client.post(
         "/offers/",
@@ -153,7 +156,7 @@ async def test_send_offer_to_company_not_found(
             "title": "Test Offer",
             "description": "Test description",
             "from_company_id": str(from_company.id),
-            "to_company_id": fake_company_id,
+            "to_company_id": str(fake_company_id),
             "requires_counteroffer": False,
             "from_offer_id": None,
             "groups": {},
@@ -164,7 +167,10 @@ async def test_send_offer_to_company_not_found(
     )
 
     assert response.status_code == HTTPStatus.NOT_FOUND
-    assert response.json() == IsPartialDict(detail="Company not found", meta=None)
+    assert response.json() == IsPartialDict(
+        detail="Company not found",
+        meta=[{"key": "company_id", "value": str(fake_company_id)}],
+    )
 
 
 @pytest.mark.asyncio
@@ -208,6 +214,7 @@ async def test_send_offer_group_not_found(
     sender_response = await user_factory.create_user(admin=False)
     from_company = await company_factory.create_company(user=sender_response.user)
     to_company = await company_factory.create_company()
+    fake_group_id = uuid4()
 
     response = await test_client.post(
         "/offers/",
@@ -218,7 +225,7 @@ async def test_send_offer_group_not_found(
             "to_company_id": str(to_company.id),
             "requires_counteroffer": False,
             "from_offer_id": None,
-            "groups": {str(uuid4()): "READ"},
+            "groups": {str(fake_group_id): "READ"},
             "contexts": {},
             "expires_in": _expires_in(),
         },
@@ -227,7 +234,8 @@ async def test_send_offer_group_not_found(
 
     assert response.status_code == HTTPStatus.NOT_FOUND
     assert response.json() == IsPartialDict(
-        detail="Some of groups not found", meta=None
+        detail="Some of groups not found",
+        meta=[{"key": "group_ids", "value": [str(fake_group_id)]}],
     )
 
 
@@ -241,6 +249,7 @@ async def test_send_offer_context_not_found(
     from_company = await company_factory.create_company(user=sender_response.user)
     to_company = await company_factory.create_company()
 
+    fake_context_id = uuid4()
     response = await test_client.post(
         "/offers/",
         json={
@@ -251,7 +260,7 @@ async def test_send_offer_context_not_found(
             "requires_counteroffer": False,
             "from_offer_id": None,
             "groups": {},
-            "contexts": {str(uuid4()): "READ"},
+            "contexts": {str(fake_context_id): "READ"},
             "expires_in": _expires_in(),
         },
         headers={"Authorization": f"Bearer {sender_response.access_token}"},
@@ -259,7 +268,8 @@ async def test_send_offer_context_not_found(
 
     assert response.status_code == HTTPStatus.NOT_FOUND
     assert response.json() == IsPartialDict(
-        detail="Some of contexts not found", meta=None
+        detail="Some of contexts not found",
+        meta=[{"key": "context_ids", "value": [str(fake_context_id)]}],
     )
 
 
@@ -273,6 +283,7 @@ async def test_send_offer_from_offer_not_found(
     from_company = await company_factory.create_company(user=sender_response.user)
     to_company = await company_factory.create_company()
 
+    fake_offer_id = uuid4()
     response = await test_client.post(
         "/offers/",
         json={
@@ -281,7 +292,7 @@ async def test_send_offer_from_offer_not_found(
             "from_company_id": str(from_company.id),
             "to_company_id": str(to_company.id),
             "requires_counteroffer": False,
-            "from_offer_id": str(uuid4()),
+            "from_offer_id": str(fake_offer_id),
             "groups": {},
             "contexts": {},
             "expires_in": _expires_in(),
@@ -290,4 +301,7 @@ async def test_send_offer_from_offer_not_found(
     )
 
     assert response.status_code == HTTPStatus.NOT_FOUND
-    assert response.json() == IsPartialDict(detail="Offer not found", meta=None)
+    assert response.json() == IsPartialDict(
+        detail="Offer not found",
+        meta=[{"key": "offer_id", "value": str(fake_offer_id)}],
+    )

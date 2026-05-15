@@ -22,12 +22,15 @@ class VerifyCompanyInteractor:
 
             if not user.is_admin():
                 raise NotEnoughRightsError(
-                    "Not enough rights to perform operation", None
+                    "Not enough rights to perform operation",
+                    [{"key": "user_id", "value": user.id}],
                 )
 
             company = await self.company_repository.get_by_id(company_id)
             if company is None:
-                raise CompanyNotFoundError("Company not found", None)
+                raise CompanyNotFoundError(
+                    "Company not found", [{"key": "company_id", "value": company_id}]
+                )
 
             company.verify()
 

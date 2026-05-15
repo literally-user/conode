@@ -56,7 +56,10 @@ class UpdateCurrentUserPasswordInteractor:
                 user.id
             )
             if authorization is None:
-                raise AuthorizationNotFoundError("Authorization not found", None)
+                raise AuthorizationNotFoundError(
+                    "Authorization by user id not found",
+                    [{"key": "user_id", "value": user.id}],
+                )
 
             if not self.password_hasher.verify(
                 authorization.password, request.old_password
@@ -74,7 +77,9 @@ class UpdateCurrentUserPasswordInteractor:
 
             session = await self.session_repository.get_by_host(host)
             if session is None:
-                raise SessionNotFoundError("Session not found", None)
+                raise SessionNotFoundError(
+                    "Session not found", [{"key": "host", "value": host}]
+                )
 
             access_token, expires_in = self.access_token_manager.encode(user)
             refresh_token = self.refresh_token_manager.encode()

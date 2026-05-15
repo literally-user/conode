@@ -6,6 +6,7 @@ from dirty_equals import IsPartialDict
 from httpx import AsyncClient
 
 from tests.factories import (
+    AttachNodeRequestFactory,
     CompanyFactory,
     GroupFactory,
     NodeFactory,
@@ -31,7 +32,10 @@ async def test_attach_node_ok(
 
     response = await test_client.post(
         "/nodes/attach",
-        json={"group_id": str(group.id), "nodes": nodes},
+        json=AttachNodeRequestFactory.build(
+            group_id=group.id,
+            nodes=nodes,
+        ).model_dump(mode="json"),
         headers={"Authorization": f"Bearer {user_factory_response.access_token}"},
     )
 
@@ -52,17 +56,21 @@ async def test_attach_node_group_not_found(
     nodes = [
         str((await node_factory.create_node(company=company)).id) for _ in range(10)
     ]
+    fake_group_id = uuid4()
 
     response = await test_client.post(
         "/nodes/attach",
-        json={"group_id": str(uuid4()), "nodes": nodes},
+        json=AttachNodeRequestFactory.build(
+            group_id=fake_group_id,
+            nodes=nodes,
+        ).model_dump(mode="json"),
         headers={"Authorization": f"Bearer {user_factory_response.access_token}"},
     )
 
     assert response.status_code == HTTPStatus.NOT_FOUND
     assert response.json() == IsPartialDict(
         detail="Group not found",
-        meta=None,
+        meta=[{"key": "group_id", "value": str(fake_group_id)}],
     )
 
 
@@ -87,7 +95,10 @@ async def test_attach_node_forbidden(
 
     response = await test_client.post(
         "/nodes/attach",
-        json={"group_id": str(another_group.id), "nodes": nodes},
+        json=AttachNodeRequestFactory.build(
+            group_id=another_group.id,
+            nodes=nodes,
+        ).model_dump(mode="json"),
         headers={"Authorization": f"Bearer {user_factory_response.access_token}"},
     )
 

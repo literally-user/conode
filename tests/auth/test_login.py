@@ -68,5 +68,5 @@ async def test_login_user_not_found(test_client: AsyncClient) -> None:
     assert response.status_code == HTTPStatus.NOT_FOUND
     assert response.json() == IsPartialDict(
         detail="User not found",
-        meta=None,
+        meta=[{"key": "email", "value": "unknown-user@conode.team"}],
     )

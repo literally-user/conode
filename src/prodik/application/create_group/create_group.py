@@ -36,7 +36,10 @@ class CreateGroupInteractor:
 
             company = await self.company_repository.get_by_id(request.company_id)
             if company is None:
-                raise CompanyNotFoundError("User must have at least one company", None)
+                raise CompanyNotFoundError(
+                    "Company not found",
+                    [{"key": "company_id", "value": request.company_id}],
+                )
 
             await self.access_control_service.ensure_user_can_create_groups(
                 user,
@@ -49,7 +52,10 @@ class CreateGroupInteractor:
                     request.parent_group_id
                 )
                 if parent_group is None:
-                    raise GroupNotFoundError("Group not found", None)
+                    raise GroupNotFoundError(
+                        "Group not found",
+                        [{"key": "group_id", "value": request.parent_group_id}],
+                    )
 
             group = Group.new(
                 id=GroupId(uuid4()),

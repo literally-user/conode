@@ -26,11 +26,16 @@ class DeleteGroupInteractor:
 
             group = await self.group_repository.get_by_id(group_id)
             if group is None:
-                raise GroupNotFoundError("Group not found", None)
+                raise GroupNotFoundError(
+                    "Group not found", [{"key": "group_id", "value": group_id}]
+                )
 
             company = await self.company_repository.get_by_id(group.company_id)
             if company is None:
-                raise CompanyNotFoundError("Company not found", None)
+                raise CompanyNotFoundError(
+                    "Company by group not found",
+                    [{"key": "company_id", "value": group.company_id}],
+                )
 
             await self.access_control_service.ensure_user_can_manipulate_group(
                 user,
