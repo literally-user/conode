@@ -2,7 +2,9 @@
 host = "0.0.0.0"
 port = 8000
 
-secret = "ABC123"
-
 [database]
 url = "postgresql+asyncpg://postgres:admin_password@persistence.literally.io:5432/postgres"
+
+[secrets]
+secret = "ABC123123456789012345678901234567890"
+expires_in = 3600
