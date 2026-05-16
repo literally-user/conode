@@ -16,13 +16,14 @@ router = APIRouter(tags=["companies"], prefix="/companies", route_class=DishkaRo
 
 @router.post("/", status_code=HTTPStatus.CREATED)
 async def register_company(
-    request: RegisterCompanyRequest, interactor: FromDishka[RegisterCompanyInteractor]
+    request: RegisterCompanyRequest,
+    interactor: FromDishka[RegisterCompanyInteractor],
 ) -> CompanySchema:
     company = await interactor.execute(
         RegisterCompanyRequestDTO(
             name=request.name,
             description=request.description,
-        )
+        ),
     )
 
     return CompanySchema(
@@ -36,6 +37,7 @@ async def register_company(
 
 @router.patch("/{company_id}/verify", status_code=HTTPStatus.NO_CONTENT)
 async def verify_company(
-    company_id: CompanyId, interactor: FromDishka[VerifyCompanyInteractor]
+    company_id: CompanyId,
+    interactor: FromDishka[VerifyCompanyInteractor],
 ) -> None:
     await interactor.execute(company_id)

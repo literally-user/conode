@@ -9,7 +9,8 @@ from tests.factories import UserFactory, generate_random_string
 
 @pytest.mark.asyncio
 async def test_get_user_by_username_ok(
-    test_client: AsyncClient, user_factory: UserFactory
+    test_client: AsyncClient,
+    user_factory: UserFactory,
 ) -> None:
     users = [await user_factory.create_user(admin=False) for _ in range(2)]
 
@@ -31,7 +32,8 @@ async def test_get_user_by_username_ok(
 
 @pytest.mark.asyncio
 async def test_get_user_by_username_user_not_found(
-    test_client: AsyncClient, user_factory: UserFactory
+    test_client: AsyncClient,
+    user_factory: UserFactory,
 ) -> None:
     user_factory_response = await user_factory.create_user(admin=False)
     unknown_username = generate_random_string(10)

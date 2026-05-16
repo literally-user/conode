@@ -30,7 +30,8 @@ class AccessTokenManagerImpl(AccessTokenManager):
             algorithm="HS256",
         )
         return AccessTokenManagerResponse(
-            token=token, expires_in=self._config.expires_in
+            token=token,
+            expires_in=self._config.expires_in,
         )
 
     def decode(self, token: str) -> UserMeta:

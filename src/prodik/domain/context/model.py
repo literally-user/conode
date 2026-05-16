@@ -56,7 +56,11 @@ class Context(Entity[ContextId]):
 
     @classmethod
     def new(
-        cls, context_id: ContextId, name: str, description: str, company: Company
+        cls,
+        context_id: ContextId,
+        name: str,
+        description: str,
+        company: Company,
     ) -> Self:
         now = datetime.now(UTC)
         return cls(

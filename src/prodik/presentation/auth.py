@@ -22,7 +22,8 @@ router = APIRouter(tags=["authorization"], route_class=DishkaRoute, prefix="/aut
 
 @router.post("/register", status_code=HTTPStatus.CREATED)
 async def register(
-    request: RegisterRequest, interactor: FromDishka[RegisterInteractor]
+    request: RegisterRequest,
+    interactor: FromDishka[RegisterInteractor],
 ) -> AuthResponse:
     result = await interactor.execute(
         RegisterRequestDTO(
@@ -31,7 +32,7 @@ async def register(
             username=request.username,
             password=request.password,
             email=request.email,
-        )
+        ),
     )
 
     return AuthResponse(
@@ -43,13 +44,14 @@ async def register(
 
 @router.post("/login")
 async def login(
-    request: LoginRequest, interactor: FromDishka[LoginInteractor]
+    request: LoginRequest,
+    interactor: FromDishka[LoginInteractor],
 ) -> AuthResponse:
     result = await interactor.execute(
         LoginRequestDTO(
             password=request.password,
             email=request.email,
-        )
+        ),
     )
 
     return AuthResponse(

@@ -53,7 +53,8 @@ class LoginInteractor:
             user = await self.user_repository.get_by_email(Email(request.email))
             if user is None:
                 raise UserNotFoundError(
-                    "User not found", [{"key": "email", "value": request.email}]
+                    "User not found",
+                    [{"key": "email", "value": request.email}],
                 )
 
             authorization = await self.authorization_repository.get_by_user_id(user.id)
@@ -64,7 +65,8 @@ class LoginInteractor:
                 )
 
             if not self.password_hasher.verify(
-                authorization.password, request.password
+                authorization.password,
+                request.password,
             ):
                 raise InvalidCredentialsError(
                     "Invalid email or password",

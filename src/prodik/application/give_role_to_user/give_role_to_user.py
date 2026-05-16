@@ -33,13 +33,15 @@ class GiveRoleToUserInteractor:
             role = await self.role_repository.get_by_id(role_id)
             if role is None:
                 raise RoleNotFoundError(
-                    "Role not found", [{"key": "role_id", "value": role_id}]
+                    "Role not found",
+                    [{"key": "role_id", "value": role_id}],
                 )
 
             user = await self.user_repository.get_by_id(user_id)
             if user is None:
                 raise UserNotFoundError(
-                    "User not found", [{"key": "user_id", "value": user_id}]
+                    "User not found",
+                    [{"key": "user_id", "value": user_id}],
                 )
 
             await self.access_control_service.ensure_user_can_manipulate_role(

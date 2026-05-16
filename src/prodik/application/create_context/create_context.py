@@ -38,7 +38,8 @@ class CreateContextInteractor:
                 )
 
             await self.access_control_service.ensure_user_can_create_contexts(
-                user, company
+                user,
+                company,
             )
 
             context = Context.new(

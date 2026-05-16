@@ -30,7 +30,8 @@ router = APIRouter(prefix="/roles", route_class=DishkaRoute, tags=["roles"])
 
 @router.post("/", status_code=HTTPStatus.CREATED)
 async def create_role(
-    request: CreateRoleRequest, interactor: FromDishka[CreateRoleInteractor]
+    request: CreateRoleRequest,
+    interactor: FromDishka[CreateRoleInteractor],
 ) -> RoleSchema:
     result = await interactor.execute(
         CreateRoleRequestDTO(
@@ -44,7 +45,7 @@ async def create_role(
                 for permission in request.permissions
             ],
             company_id=request.company_id,
-        )
+        ),
     )
 
     return RoleSchema(
@@ -72,7 +73,7 @@ async def update_role(
                 )
                 for permission_id, value in request.permissions.items()
             },
-        )
+        ),
     )
 
     return UpdateRoleResponse(
@@ -96,6 +97,7 @@ async def update_role(
 
 @router.delete("/{role_id}", status_code=HTTPStatus.NO_CONTENT)
 async def delete_role(
-    role_id: RoleId, interactor: FromDishka[DeleteRoleInteractor]
+    role_id: RoleId,
+    interactor: FromDishka[DeleteRoleInteractor],
 ) -> None:
     await interactor.execute(role_id)

@@ -52,7 +52,8 @@ class UpdateRoleInteractor:
             role = await self.role_repository.get_by_id(request.role_id)
             if role is None:
                 raise RoleNotFoundError(
-                    "Role not found", [{"key": "role_id", "value": request.role_id}]
+                    "Role not found",
+                    [{"key": "role_id", "value": request.role_id}],
                 )
 
             await self.access_control_service.ensure_user_can_manipulate_role(
@@ -62,20 +63,20 @@ class UpdateRoleInteractor:
 
             existing_permissions = (
                 await self.role_permissions_repository.get_all_by_ids(
-                    list(request.permissions.keys())
+                    list(request.permissions.keys()),
                 )
             )
 
             role.change_name(request.name)
             for permission in existing_permissions:
                 permission.change_permission_type(
-                    request.permissions[permission.id].permission
+                    request.permissions[permission.id].permission,
                 )
                 permission.change_entity_id(
-                    request.permissions[permission.id].entity_id
+                    request.permissions[permission.id].entity_id,
                 )
                 permission.change_entity_type(
-                    request.permissions[permission.id].entity_type
+                    request.permissions[permission.id].entity_type,
                 )
 
             await self.role_repository.update(role)

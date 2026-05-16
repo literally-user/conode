@@ -26,7 +26,7 @@ class CompanyRepositoryImpl(CompanyRepository):
                 owner_id=company.owner_id,
                 created_at=company.created_at,
                 updated_at=company.updated_at,
-            )
+            ),
         )
 
     async def update(self, company: Company) -> None:
@@ -34,22 +34,22 @@ class CompanyRepositoryImpl(CompanyRepository):
         await self.session.execute(
             update(Company)
             .where(
-                Company.id == company.id  # type: ignore
+                Company.id == company.id,  # type: ignore
             )
             .values(
                 name=company.name,
                 description=company.description,
                 verified=company.verified,
                 owner_id=company.owner_id,
-            )
+            ),
         )
 
     async def get_by_name(self, name: CompanyName) -> Company | None:
         logger.info("Repository get company by name", company_name=name)
         result = await self.session.execute(
             select(Company).where(
-                Company.name == name  # type: ignore
-            )
+                Company.name == name,  # type: ignore
+            ),
         )
 
         company = result.scalar_one_or_none()
@@ -60,8 +60,8 @@ class CompanyRepositoryImpl(CompanyRepository):
         logger.info("Repository get company by id", company_id=company_id)
         result = await self.session.execute(
             select(Company).where(
-                Company.id == company_id  # type: ignore
-            )
+                Company.id == company_id,  # type: ignore
+            ),
         )
 
         company = result.scalar_one_or_none()
@@ -76,9 +76,9 @@ class CompanyRepositoryImpl(CompanyRepository):
         result = await self.session.execute(
             select(Company)
             .where(
-                Company.owner_id == user_id  # type: ignore
+                Company.owner_id == user_id,  # type: ignore
             )
-            .limit(1)
+            .limit(1),
         )
 
         company = result.scalar_one_or_none()

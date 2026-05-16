@@ -63,7 +63,11 @@ class Company(Entity[CompanyId]):
 
     @classmethod
     def new(
-        cls, company_id: CompanyId, name: str, description: str, owner: User
+        cls,
+        company_id: CompanyId,
+        name: str,
+        description: str,
+        owner: User,
     ) -> Self:
         now = datetime.now(UTC)
         return cls(

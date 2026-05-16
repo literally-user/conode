@@ -211,7 +211,10 @@ class OfferLink(Entity[OfferLinkId]):
 
     @classmethod
     def new(
-        cls, offer_link_id: OfferLinkId, request_offer: Offer, response_offer: Offer
+        cls,
+        offer_link_id: OfferLinkId,
+        request_offer: Offer,
+        response_offer: Offer,
     ) -> Self:
         now = datetime.now(UTC)
         return cls(

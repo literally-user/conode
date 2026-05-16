@@ -35,14 +35,15 @@ router = APIRouter(tags=["nodes"], prefix="/nodes", route_class=DishkaRoute)
 
 @router.post("/", status_code=HTTPStatus.CREATED)
 async def create_node(
-    request: CreateNodeRequest, interactor: FromDishka[CreateNodeInteractor]
+    request: CreateNodeRequest,
+    interactor: FromDishka[CreateNodeInteractor],
 ) -> NodeSchema:
     result = await interactor.execute(
         CreateNodeRequestDTO(
             name=request.name,
             description=request.description,
             group_id=request.group_id,
-        )
+        ),
     )
 
     return NodeSchema(
@@ -64,7 +65,7 @@ async def update_node(
             name=request.name,
             description=request.description,
             node_id=node_id,
-        )
+        ),
     )
 
     return NodeSchema(
@@ -85,10 +86,11 @@ async def delete_node(
 
 @router.post("/attach", status_code=HTTPStatus.CREATED)
 async def attach_nodes(
-    request: AttachNodeRequest, interactor: FromDishka[AttachNodeInteractor]
+    request: AttachNodeRequest,
+    interactor: FromDishka[AttachNodeInteractor],
 ) -> list[NodeAssociationSchema]:
     result = await interactor.execute(
-        AttachNodeRequestDTO(group_id=request.group_id, nodes=request.nodes)
+        AttachNodeRequestDTO(group_id=request.group_id, nodes=request.nodes),
     )
 
     return [

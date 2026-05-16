@@ -30,7 +30,8 @@ class IncrementEdgeWeightInteractor:
             edge = await self.edge_repository.get_by_id(edge_id)
             if edge is None:
                 raise EdgeNotFoundError(
-                    "Edge not found", [{"key": "edge_id", "value": edge_id}]
+                    "Edge not found",
+                    [{"key": "edge_id", "value": edge_id}],
                 )
 
             context = await self.context_repository.get_by_id(edge.context_id)

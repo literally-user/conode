@@ -41,8 +41,8 @@ class RolePermissionsRepositoryImpl(RolePermissionsRepository):
                         "updated_at": permission.updated_at,
                     }
                     for permission in permissions
-                ]
-            )
+                ],
+            ),
         )
 
     async def get_all_by_role_id(
@@ -56,8 +56,8 @@ class RolePermissionsRepositoryImpl(RolePermissionsRepository):
 
         result = await self.session.execute(
             select(RolePermission).where(
-                RolePermission.role_id == role_id  # type: ignore
-            )
+                RolePermission.role_id == role_id,  # type: ignore
+            ),
         )
         result_permissions = list(result.scalars().all())
         logger.info(
@@ -80,18 +80,19 @@ class RolePermissionsRepositoryImpl(RolePermissionsRepository):
             await self.session.execute(
                 update(RolePermission)
                 .where(
-                    RolePermission.id == permission.id  # type: ignore
+                    RolePermission.id == permission.id,  # type: ignore
                 )
                 .values(
                     permission=permission.permission,
                     entity_type=permission.entity_type,
                     entity_id=permission.entity_id,
                     updated_at=permission.updated_at,
-                )
+                ),
             )
 
     async def get_all_by_ids(
-        self, permission_ids: list[RolePermissionId]
+        self,
+        permission_ids: list[RolePermissionId],
     ) -> list[RolePermission]:
         logger.info("Repository get nodes by ids", request_count=len(permission_ids))
         if not permission_ids:
@@ -99,12 +100,13 @@ class RolePermissionsRepositoryImpl(RolePermissionsRepository):
 
         result = await self.session.execute(
             select(RolePermission).where(
-                RolePermission.id.in_(permission_ids)  # type: ignore
-            )
+                RolePermission.id.in_(permission_ids),  # type: ignore
+            ),
         )
 
         result_permissions = list(result.scalars().all())
         logger.info(
-            "Repository fetched permissions by ids", found_count=len(result_permissions)
+            "Repository fetched permissions by ids",
+            found_count=len(result_permissions),
         )
         return result_permissions

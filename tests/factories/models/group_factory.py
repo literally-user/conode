@@ -14,7 +14,9 @@ class GroupFactory:
     company_factory: CompanyFactory
 
     async def create_group(
-        self, company: Company | None = None, parent_group: Group | None = None
+        self,
+        company: Company | None = None,
+        parent_group: Group | None = None,
     ) -> Group:
         group = Group.new(
             group_id=GroupId(uuid4()),

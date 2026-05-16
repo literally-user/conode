@@ -41,7 +41,7 @@ async def update_current_user_profile(
             last_name=request.last_name,
             email=request.email,
             bio=request.bio,
-        )
+        ),
     )
 
 
@@ -67,8 +67,9 @@ async def update_current_user_password(
 ) -> AuthResponse:
     result = await interactor.execute(
         UpdateCurrentUserPasswordRequestDTO(
-            old_password=request.old_password, new_password=request.new_password
-        )
+            old_password=request.old_password,
+            new_password=request.new_password,
+        ),
     )
     return AuthResponse(
         access_token=result.access_token,
@@ -79,7 +80,8 @@ async def update_current_user_password(
 
 @router.get("/{username}")
 async def get_user_by_username(
-    username: str, interactor: FromDishka[GetUserByUsernameInteractor]
+    username: str,
+    interactor: FromDishka[GetUserByUsernameInteractor],
 ) -> UserSchema:
     result = await interactor.execute(username)
 
@@ -95,7 +97,9 @@ async def get_user_by_username(
 
 @router.post("/{user_id}/roles/{role_id}")
 async def give_role_to_user(
-    user_id: UserId, role_id: RoleId, interactor: FromDishka[GiveRoleToUserInteractor]
+    user_id: UserId,
+    role_id: RoleId,
+    interactor: FromDishka[GiveRoleToUserInteractor],
 ) -> None:
     await interactor.execute(user_id=user_id, role_id=role_id)
 

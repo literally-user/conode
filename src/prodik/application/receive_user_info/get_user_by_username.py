@@ -17,7 +17,8 @@ class GetUserByUsernameInteractor:
         user = await self.user_repository.get_by_username(Username(username))
         if user is None:
             raise UserNotFoundError(
-                "User not found", [{"key": "username", "value": username}]
+                "User not found",
+                [{"key": "username", "value": username}],
             )
 
         return user

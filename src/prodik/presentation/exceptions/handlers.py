@@ -81,7 +81,8 @@ EXCEPTION_HANDLERS: Final[dict[type[ApplicationError], HTTPStatus]] = {
 
 
 async def application_error_handler(
-    _request: Request, exception: ApplicationError
+    _request: Request,
+    exception: ApplicationError,
 ) -> JSONResponse:
     status_code = HTTPStatus.INTERNAL_SERVER_ERROR
     for error in type(exception).mro():
@@ -103,7 +104,8 @@ async def application_error_handler(
 
 
 async def default_error_handler(
-    _request: Request, exception: Exception
+    _request: Request,
+    exception: Exception,
 ) -> JSONResponse:
     logger.exception(
         "Unhandled exception",

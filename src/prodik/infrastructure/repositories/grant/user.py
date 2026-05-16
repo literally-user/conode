@@ -25,15 +25,15 @@ class UserGrantRepositoryImpl(UserGrantRepository):
                 role_id=grant.role_id,
                 created_at=grant.created_at,
                 updated_at=grant.updated_at,
-            )
+            ),
         )
 
     async def get_all_by_user_id(self, user_id: UserId) -> list[UserGrant]:
         logger.info("Repository get user grants by user id", user_id=user_id)
         result = await self.session.execute(
             select(UserGrant).where(
-                UserGrant.user_id == user_id  # type: ignore
-            )
+                UserGrant.user_id == user_id,  # type: ignore
+            ),
         )
         result_grants = list(result.scalars().all())
         logger.info(
@@ -44,7 +44,9 @@ class UserGrantRepositoryImpl(UserGrantRepository):
         return result_grants
 
     async def get_by_user_and_role_id(
-        self, user_id: UserId, role_id: RoleId
+        self,
+        user_id: UserId,
+        role_id: RoleId,
     ) -> UserGrant | None:
         logger.info(
             "Repository get user grant by user and role id",
@@ -53,8 +55,8 @@ class UserGrantRepositoryImpl(UserGrantRepository):
         )
         result = await self.session.execute(
             select(UserGrant).where(
-                UserGrant.user_id == user_id  # type: ignore
-            )
+                UserGrant.user_id == user_id,  # type: ignore
+            ),
         )
 
         grant = result.scalar_one_or_none()

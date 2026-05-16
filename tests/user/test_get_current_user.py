@@ -9,7 +9,8 @@ from tests.factories import UserFactory
 
 @pytest.mark.asyncio
 async def test_get_current_user_ok(
-    test_client: AsyncClient, user_factory: UserFactory
+    test_client: AsyncClient,
+    user_factory: UserFactory,
 ) -> None:
     user_factory_response = await user_factory.create_user(admin=False)
 

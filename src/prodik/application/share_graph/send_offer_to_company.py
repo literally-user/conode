@@ -79,7 +79,7 @@ class SendOfferToCompanyInteractor:
             from_offer = None
             if request.from_offer_id is not None:
                 from_offer = await self.offer_repository.get_by_id(
-                    request.from_offer_id
+                    request.from_offer_id,
                 )
                 if from_offer is None:
                     raise OfferNotFoundError(
@@ -88,10 +88,10 @@ class SendOfferToCompanyInteractor:
                     )
 
             existing_groups = await self.group_repository.get_all_by_ids(
-                list(request.groups.keys())
+                list(request.groups.keys()),
             )
             existing_contexts = await self.context_repository.get_all_by_ids(
-                list(request.contexts.keys())
+                list(request.contexts.keys()),
             )
 
             if len(existing_groups) != len(request.groups):
@@ -101,7 +101,7 @@ class SendOfferToCompanyInteractor:
                         {
                             "key": "group_ids",
                             "value": list(request.groups.keys()),
-                        }
+                        },
                     ],
                 )
             if len(existing_contexts) != len(request.contexts):
@@ -111,7 +111,7 @@ class SendOfferToCompanyInteractor:
                         {
                             "key": "context_ids",
                             "value": list(request.contexts.keys()),
-                        }
+                        },
                     ],
                 )
 

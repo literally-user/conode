@@ -26,7 +26,8 @@ class GetNodesByGroupInteractor:
         group = await self.group_repository.get_by_id(group_id)
         if group is None:
             raise GroupNotFoundError(
-                "Group not found", [{"key": "group_id", "value": group_id}]
+                "Group not found",
+                [{"key": "group_id", "value": group_id}],
             )
 
         await self.access_control_service.ensure_user_can_view_group(
@@ -35,7 +36,7 @@ class GetNodesByGroupInteractor:
         )
 
         associations = await self.node_association_repository.get_all_by_group_id(
-            group_id
+            group_id,
         )
 
         return await self.node_repository.get_all_by_associations(associations)

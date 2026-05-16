@@ -16,7 +16,10 @@ class LocalAuthorization(Entity[LocalAuthorizationId]):
 
     @classmethod
     def new(
-        cls, local_authorization_id: LocalAuthorizationId, user: User, password: str
+        cls,
+        local_authorization_id: LocalAuthorizationId,
+        user: User,
+        password: str,
     ) -> Self:
         now = datetime.now(UTC)
         return cls(

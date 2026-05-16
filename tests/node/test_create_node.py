@@ -52,7 +52,7 @@ async def test_create_node_group_not_found(
     response = await test_client.post(
         "/nodes/",
         json=CreateNodeRequestFactory.build(group_id=fake_group_id).model_dump(
-            mode="json"
+            mode="json",
         ),
         headers={"Authorization": f"Bearer {user_factory_response.access_token}"},
     )
@@ -79,12 +79,13 @@ async def test_create_node_forbidden(
     response = await test_client.post(
         "/nodes/",
         json=CreateNodeRequestFactory.build(name="abcde", group_id=group.id).model_dump(
-            mode="json"
+            mode="json",
         ),
         headers={"Authorization": f"Bearer {user_factory_response.access_token}"},
     )
 
     assert response.status_code == HTTPStatus.FORBIDDEN
     assert response.json() == IsPartialDict(
-        detail="Not enough rights to perform operation", meta=None
+        detail="Not enough rights to perform operation",
+        meta=None,
     )

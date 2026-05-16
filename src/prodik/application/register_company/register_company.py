@@ -41,7 +41,7 @@ class RegisterCompanyInteractor:
             user = await self.access_control_service.get_authorized_user()
 
             company = await self.company_repository.get_by_name(
-                CompanyName(request.name)
+                CompanyName(request.name),
             )
             if company is not None:
                 raise CompanyAlreadyExistsError(
@@ -84,7 +84,7 @@ class RegisterCompanyInteractor:
             await self.company_repository.create(company)
             await self.role_repository.create(role_managment_service_response.role)
             await self.role_permissions_repository.create_all(
-                role_managment_service_response.permissions
+                role_managment_service_response.permissions,
             )
             await self.user_grant_repository.create(grant)
 

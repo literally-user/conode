@@ -26,7 +26,10 @@ class RoleManagmentServiceResponse:
 @dataclass
 class RoleManagmentService:
     def create_role_with_permissions(
-        self, name: str, company: Company, request: RoleManagmentServiceRequest
+        self,
+        name: str,
+        company: Company,
+        request: RoleManagmentServiceRequest,
     ) -> RoleManagmentServiceResponse:
         role = Role.new(
             role_id=RoleId(uuid4()),

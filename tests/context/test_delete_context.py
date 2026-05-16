@@ -32,7 +32,9 @@ async def test_delete_context_ok(
 
 @pytest.mark.asyncio
 async def test_delete_context_forbidden(
-    user_factory: UserFactory, test_client: AsyncClient, context_factory: ContextFactory
+    user_factory: UserFactory,
+    test_client: AsyncClient,
+    context_factory: ContextFactory,
 ) -> None:
     context = await context_factory.create_context()
 
@@ -45,5 +47,6 @@ async def test_delete_context_forbidden(
 
     assert response.status_code == HTTPStatus.FORBIDDEN
     assert response.json() == IsPartialDict(
-        detail="Not enough rights to perform operation", meta=None
+        detail="Not enough rights to perform operation",
+        meta=None,
     )

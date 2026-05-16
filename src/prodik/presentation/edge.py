@@ -28,14 +28,15 @@ router = APIRouter(tags=["edges"], prefix="/edges", route_class=DishkaRoute)
 
 @router.post("/", status_code=HTTPStatus.CREATED)
 async def create_edge(
-    request: CreateEdgeRequest, interactor: FromDishka[CreateEdgeInteractor]
+    request: CreateEdgeRequest,
+    interactor: FromDishka[CreateEdgeInteractor],
 ) -> EdgeSchema:
     result = await interactor.execute(
         CreateEdgeRequestDTO(
             node_a_id=request.node_a_id,
             node_b_id=request.node_b_id,
             context_id=request.context_id,
-        )
+        ),
     )
     return EdgeSchema(
         id=result.id,

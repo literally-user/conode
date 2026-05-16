@@ -39,8 +39,6 @@ exclude = [".venv", "src/prodik/infrastructure/persistence/migrations"]
 [tool.ruff.lint]
 extend-select = ["ALL"]
 ignore = [
-    "ERA001",
-    "T201",
     "PLR0913",
 
     "PT019",
@@ -58,23 +56,9 @@ ignore = [
     "D212",
     "EM101",
     "EM102",
-    "E731",
     "TRY003",
-    "RUF001",
-    "RUF002",
-    "RUF003",
-    "TC003",
-    "ISC001",
-    "D205",
     "S101",
-    "PGH003",
-    "RUF100",
-    "C408",
-    "FIX002",
-    "TD003",
-    "TD002",
-    "TD004",
-    "TC002"
+    "PGH003"
 ]
 [tool.pytest.ini_options]
 testpaths = ["tests"]

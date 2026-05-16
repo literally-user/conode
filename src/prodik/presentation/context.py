@@ -18,14 +18,15 @@ router = APIRouter(tags=["contexts"], prefix="/contexts", route_class=DishkaRout
 
 @router.post("/", status_code=HTTPStatus.CREATED)
 async def create_context(
-    request: CreateContextRequest, interactor: FromDishka[CreateContextInteractor]
+    request: CreateContextRequest,
+    interactor: FromDishka[CreateContextInteractor],
 ) -> ContextSchema:
     result = await interactor.execute(
         CreateContextRequestDTO(
             name=request.name,
             description=request.description,
             company_id=request.company_id,
-        )
+        ),
     )
     return ContextSchema(
         id=result.id,
@@ -37,6 +38,7 @@ async def create_context(
 
 @router.delete("/{context_id}", status_code=HTTPStatus.NO_CONTENT)
 async def delete_context(
-    context_id: ContextId, interactor: FromDishka[DeleteContextInteractor]
+    context_id: ContextId,
+    interactor: FromDishka[DeleteContextInteractor],
 ) -> None:
     await interactor.execute(context_id)

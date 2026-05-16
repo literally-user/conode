@@ -17,7 +17,10 @@ class CompanyGrant(Entity[CompanyGrantId]):
 
     @classmethod
     def new(
-        cls, company_grant_id: CompanyGrantId, role: Role, company: Company
+        cls,
+        company_grant_id: CompanyGrantId,
+        role: Role,
+        company: Company,
     ) -> Self:
         now = datetime.now(UTC)
         return cls(

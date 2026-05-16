@@ -47,11 +47,13 @@ class Contract(Entity[ContractId]):
     ) -> Self:
         if company_a_offer is None and company_b_offer is None:
             raise InvalidCompanyOffersFormatError(
-                "Required at least one company offer", None
+                "Required at least one company offer",
+                None,
             )
         if company_a_role_id is None and company_b_role_id is None:
             raise InvalidCompanyOffersFormatError(
-                "Required at least one company offer", None
+                "Required at least one company offer",
+                None,
             )
         now = datetime.now(UTC)
         return cls(

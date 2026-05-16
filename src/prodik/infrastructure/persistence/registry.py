@@ -94,7 +94,9 @@ company_record_table = Table(
     metadata,
     Column("id", UUID, primary_key=True, nullable=False),
     Column(
-        "owner_id", ForeignKey("user_record.id", ondelete="CASCADE"), nullable=False
+        "owner_id",
+        ForeignKey("user_record.id", ondelete="CASCADE"),
+        nullable=False,
     ),
     Column("name", CompanyNameType, nullable=False),
     Column("description", CompanyDescriptionType, nullable=False),
@@ -138,7 +140,9 @@ node_association_record_table = Table(
     metadata,
     Column("id", UUID, primary_key=True, nullable=False),
     Column(
-        "group_id", ForeignKey("group_record.id", ondelete="CASCADE"), nullable=False
+        "group_id",
+        ForeignKey("group_record.id", ondelete="CASCADE"),
+        nullable=False,
     ),
     Column("node_id", ForeignKey("node_record.id", ondelete="CASCADE"), nullable=False),
     Column("created_at", DateTime(timezone=True), nullable=False),
@@ -387,7 +391,8 @@ def start_mapper() -> None:
     registry_mapper.map_imperatively(User, user_record_table)
     registry_mapper.map_imperatively(Session, session_record_table)
     registry_mapper.map_imperatively(
-        LocalAuthorization, local_authorization_record_table
+        LocalAuthorization,
+        local_authorization_record_table,
     )
     registry_mapper.map_imperatively(Company, company_record_table)
     registry_mapper.map_imperatively(Node, node_record_table)

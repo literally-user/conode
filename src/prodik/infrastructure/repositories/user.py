@@ -28,7 +28,7 @@ class UserRepositoryImpl(UserRepository):
                 token_revision=user.token_revision,
                 created_at=user.created_at,
                 updated_at=user.updated_at,
-            )
+            ),
         )
 
     async def update(self, user: User) -> None:
@@ -36,7 +36,7 @@ class UserRepositoryImpl(UserRepository):
         await self.session.execute(
             update(User)
             .where(
-                User.id == user.id  # type: ignore
+                User.id == user.id,  # type: ignore
             )
             .values(
                 system_role=user.system_role,
@@ -46,11 +46,13 @@ class UserRepositoryImpl(UserRepository):
                 email=user.email,
                 bio=user.bio,
                 token_revision=user.token_revision,
-            )
+            ),
         )
 
     async def get_by_username_or_email(
-        self, username: Username, email: Email
+        self,
+        username: Username,
+        email: Email,
     ) -> User | None:
         logger.info(
             "Repository get user by username or email",
@@ -63,9 +65,9 @@ class UserRepositoryImpl(UserRepository):
                 or_(
                     User.username == username,  # type: ignore
                     User.email == email,  # type: ignore
-                )
+                ),
             )
-            .limit(1)
+            .limit(1),
         )
         user = result.scalar_one_or_none()
         logger.info(
@@ -81,7 +83,7 @@ class UserRepositoryImpl(UserRepository):
         result = await self.session.execute(
             select(User).where(
                 User.username == username,  # type: ignore
-            )
+            ),
         )
         user = result.scalar_one_or_none()
         logger.info("Repository fetched user by username", found=user is not None)
@@ -90,7 +92,7 @@ class UserRepositoryImpl(UserRepository):
     async def get_by_id(self, user_id: UserId) -> User | None:
         logger.info("Repository get user by id", user_id=user_id)
         result = await self.session.execute(
-            select(User).where(User.id == user_id)  # type: ignore
+            select(User).where(User.id == user_id),  # type: ignore
         )
 
         user = result.scalar_one_or_none()
@@ -100,7 +102,7 @@ class UserRepositoryImpl(UserRepository):
     async def get_by_email(self, email: Email) -> User | None:
         logger.info("Repository get user by email", email=email)
         result = await self.session.execute(
-            select(User).where(User.email == email)  # type: ignore
+            select(User).where(User.email == email),  # type: ignore
         )
 
         user = result.scalar_one_or_none()

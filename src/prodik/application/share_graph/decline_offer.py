@@ -30,7 +30,8 @@ class DeclineOfferInteractor:
             offer = await self.offer_repository.get_by_id(offer_id)
             if offer is None:
                 raise OfferNotFoundError(
-                    "Offer not found", [{"key": "offer_id", "value": offer_id}]
+                    "Offer not found",
+                    [{"key": "offer_id", "value": offer_id}],
                 )
 
             company = await self.company_repository.get_by_id(offer.to_company_id)
@@ -41,12 +42,13 @@ class DeclineOfferInteractor:
                 )
 
             await self.access_control_service.ensure_user_can_manipulate_offers(
-                user, company
+                user,
+                company,
             )
 
             if offer.is_counter_offer():
                 from_offer = await self.offer_repository.get_by_id(
-                    offer.get_from_offer_id()
+                    offer.get_from_offer_id(),
                 )
                 if from_offer is None:
                     raise OfferNotFoundError(

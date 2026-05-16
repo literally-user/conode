@@ -30,5 +30,5 @@ class ContractRepositoryImpl(ContractRepository):
                 expires_in=contract.expires_in,
                 created_at=contract.created_at,
                 updated_at=contract.updated_at,
-            )
+            ),
         )

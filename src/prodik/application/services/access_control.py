@@ -61,7 +61,7 @@ class AccessControlService:
             *[
                 self.role_permissions_repository.get_all_by_role_id(role.id)
                 for role in roles
-            ]
+            ],
         )
 
         return [p for group in role_permissions for p in group]

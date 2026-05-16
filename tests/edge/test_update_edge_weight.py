@@ -28,13 +28,16 @@ async def test_update_edge_ok(
     nodes = [await node_factory.create_node(company=company) for _ in range(2)]
     context = await context_factory.create_context(company=company)
     edge = await edge_factory.create_edge(
-        node_a=nodes[0], node_b=nodes[1], company=company, context=context
+        node_a=nodes[0],
+        node_b=nodes[1],
+        company=company,
+        context=context,
     )
 
     response = await test_client.patch(
         f"/edges/{edge.id}/weight",
         json=UpdateEdgeWeightRequestFactory.build(
-            weight=float(random.randint(10, 100))  # noqa: S311
+            weight=float(random.randint(10, 100)),  # noqa: S311
         ).model_dump(mode="json"),
         headers={"Authorization": f"Bearer {user_factory_response.access_token}"},
     )

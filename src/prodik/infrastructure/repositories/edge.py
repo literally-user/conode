@@ -28,15 +28,15 @@ class EdgeRepositoryImpl(EdgeRepository):
                 created_at=edge.created_at,
                 updated_at=edge.updated_at,
                 weight=edge.weight,
-            )
+            ),
         )
 
     async def delete(self, edge: Edge) -> None:
         logger.info("Repository delete edge", edge_id=edge.id)
         await self.session.execute(
             delete(Edge).where(
-                Edge.id == edge.id  # type: ignore
-            )
+                Edge.id == edge.id,  # type: ignore
+            ),
         )
 
     async def update(self, edge: Edge) -> None:
@@ -44,20 +44,20 @@ class EdgeRepositoryImpl(EdgeRepository):
         await self.session.execute(
             update(Edge)
             .where(
-                Edge.id == edge.id  # type: ignore
+                Edge.id == edge.id,  # type: ignore
             )
             .values(
                 weight=edge.weight,
                 updated_at=edge.updated_at,
-            )
+            ),
         )
 
     async def get_by_id(self, edge_id: EdgeId) -> Edge | None:
         logger.info("Repository get edge by id", edge_id=edge_id)
         result = await self.session.execute(
             select(Edge).where(
-                Edge.id == edge_id  # type: ignore
-            )
+                Edge.id == edge_id,  # type: ignore
+            ),
         )
 
         edge = result.scalar_one_or_none()
@@ -65,7 +65,10 @@ class EdgeRepositoryImpl(EdgeRepository):
         return edge
 
     async def get_by_nodes_and_context(
-        self, node_a_id: NodeId, node_b_id: NodeId, context_id: ContextId
+        self,
+        node_a_id: NodeId,
+        node_b_id: NodeId,
+        context_id: ContextId,
     ) -> Edge | None:
         logger.info(
             "Repository get edge by nodes and context",
@@ -79,8 +82,8 @@ class EdgeRepositoryImpl(EdgeRepository):
                     Edge.node_a_id == node_a_id,  # type: ignore
                     Edge.node_b_id == node_b_id,  # type: ignore
                     Edge.context_id == context_id,  # type: ignore
-                )
-            )
+                ),
+            ),
         )
 
         edge = result.scalar_one_or_none()
@@ -95,12 +98,13 @@ class EdgeRepositoryImpl(EdgeRepository):
         logger.info("Repository get edges by context id", context_id=context_id)
         result = await self.session.execute(
             select(Edge).where(
-                Edge.context_id == context_id  # type: ignore
-            )
+                Edge.context_id == context_id,  # type: ignore
+            ),
         )
 
         result_edges = list(result.scalars())
         logger.info(
-            "Repository fetched edges by context id", found_count=len(result_edges)
+            "Repository fetched edges by context id",
+            found_count=len(result_edges),
         )
         return result_edges

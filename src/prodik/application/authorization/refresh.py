@@ -40,7 +40,8 @@ class RefreshTokenInteractor:
             session = await self.session_repository.get_by_token(token)
             if session is None:
                 raise SessionNotFoundError(
-                    "Session not found", [{"key": "refresh_token", "value": token}]
+                    "Session not found",
+                    [{"key": "refresh_token", "value": token}],
                 )
 
             access_token, expires_in = self.access_token_manager.encode(user)

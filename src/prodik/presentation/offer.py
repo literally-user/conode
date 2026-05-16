@@ -31,7 +31,7 @@ async def send_offer(
             groups=request.groups,
             contexts=request.contexts,
             expires_in=request.expires_in,
-        )
+        ),
     )
 
     return OfferSchema(

@@ -128,5 +128,6 @@ async def test_accept_offer_forbidden(
 
     assert response.status_code == HTTPStatus.FORBIDDEN
     assert response.json() == IsPartialDict(
-        detail="Not enough rights to perform operation", meta=None
+        detail="Not enough rights to perform operation",
+        meta=None,
     )

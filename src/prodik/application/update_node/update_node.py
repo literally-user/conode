@@ -36,14 +36,15 @@ class UpdateNodeInteractor:
             node = await self.node_repository.get_by_id(request.node_id)
             if node is None:
                 raise NodeNotFoundError(
-                    "Node not found", [{"key": "node_id", "value": request.node_id}]
+                    "Node not found",
+                    [{"key": "node_id", "value": request.node_id}],
                 )
 
             existing_associations = (
                 await self.node_association_repository.get_all_by_node_id(node.id)
             )
             groups = await self.group_repository.get_all_by_ids(
-                [association.group_id for association in existing_associations]
+                [association.group_id for association in existing_associations],
             )
 
             await asyncio.gather(
@@ -53,7 +54,7 @@ class UpdateNodeInteractor:
                         group,
                     )
                     for group in groups
-                ]
+                ],
             )
 
             node.set_name(request.name)

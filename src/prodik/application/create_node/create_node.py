@@ -40,7 +40,8 @@ class CreateNodeInteractor:
             group = await self.group_repository.get_by_id(request.group_id)
             if group is None:
                 raise GroupNotFoundError(
-                    "Group not found", [{"key": "group_id", "value": request.group_id}]
+                    "Group not found",
+                    [{"key": "group_id", "value": request.group_id}],
                 )
 
             company = await self.company_repository.get_by_id(group.company_id)

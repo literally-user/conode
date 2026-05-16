@@ -27,7 +27,8 @@ class DeleteGroupInteractor:
             group = await self.group_repository.get_by_id(group_id)
             if group is None:
                 raise GroupNotFoundError(
-                    "Group not found", [{"key": "group_id", "value": group_id}]
+                    "Group not found",
+                    [{"key": "group_id", "value": group_id}],
                 )
 
             company = await self.company_repository.get_by_id(group.company_id)

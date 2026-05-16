@@ -29,7 +29,8 @@ class VerifyCompanyInteractor:
             company = await self.company_repository.get_by_id(company_id)
             if company is None:
                 raise CompanyNotFoundError(
-                    "Company not found", [{"key": "company_id", "value": company_id}]
+                    "Company not found",
+                    [{"key": "company_id", "value": company_id}],
                 )
 
             company.verify()

@@ -63,7 +63,7 @@ class CreateEdgeInteractor:
             )
 
             nodes = await self.node_repository.get_all_by_ids(
-                [request.node_a_id, request.node_b_id]
+                [request.node_a_id, request.node_b_id],
             )
             if len(nodes) != EXPECTED_COUNT_OF_NODES:
                 raise NodeNotFoundError(

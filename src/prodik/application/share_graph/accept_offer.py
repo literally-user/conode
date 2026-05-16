@@ -50,11 +50,12 @@ class AcceptOfferInteractor:
             offer = await self.offer_repository.get_by_id(offer_id)
             if offer is None:
                 raise OfferNotFoundError(
-                    "Offer not found", [{"key": "offer_id", "value": offer_id}]
+                    "Offer not found",
+                    [{"key": "offer_id", "value": offer_id}],
                 )
 
             offer_from_company, offer_to_company = await self._get_offer_companies(
-                offer
+                offer,
             )
             await self.access_control_service.ensure_user_can_manipulate_offers(
                 user,
@@ -67,7 +68,7 @@ class AcceptOfferInteractor:
 
             if offer.is_counter_offer():
                 from_offer = await self.offer_repository.get_by_id(
-                    offer.get_from_offer_id()
+                    offer.get_from_offer_id(),
                 )
                 if from_offer is None:
                     raise OfferNotFoundError(
@@ -98,10 +99,10 @@ class AcceptOfferInteractor:
                 )
 
                 await self.role_repository.create(
-                    from_company_role_managment_response.role
+                    from_company_role_managment_response.role,
                 )
                 await self.role_permissions_repository.create_all(
-                    from_company_role_managment_response.permissions
+                    from_company_role_managment_response.permissions,
                 )
 
             acceptance_result = self.offer_acceptance_service.accept(
@@ -137,7 +138,7 @@ class AcceptOfferInteractor:
 
             await self.role_repository.create(to_company_role_managment_response.role)
             await self.role_permissions_repository.create_all(
-                to_company_role_managment_response.permissions
+                to_company_role_managment_response.permissions,
             )
             await self.contract_repository.create(contract)
 

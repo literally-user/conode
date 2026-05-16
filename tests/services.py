@@ -11,7 +11,7 @@ class EntityExistenceService:
 
     async def exists(self, entity: Any) -> bool:
         result = await self.session.execute(
-            select(entity.__class__).where(entity.__class__.id == entity.id)
+            select(entity.__class__).where(entity.__class__.id == entity.id),
         )
 
         return result.scalar_one_or_none() is not None

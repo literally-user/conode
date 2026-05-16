@@ -79,7 +79,7 @@ class OfferFactory:
 
         if contexts is None:
             default_context = await self.context_factory.create_context(
-                company=from_company
+                company=from_company,
             )
             contexts = {
                 default_context.id: PermissionType.READ,
@@ -100,7 +100,7 @@ class OfferFactory:
                     permission_type=permission_type,
                     created_at=datetime.now(UTC),
                     updated_at=datetime.now(UTC),
-                )
+                ),
             )
 
         for context_id, permission in contexts.items():
@@ -118,7 +118,7 @@ class OfferFactory:
                     permission_type=permission_type,
                     created_at=datetime.now(UTC),
                     updated_at=datetime.now(UTC),
-                )
+                ),
             )
 
         await asyncio.gather(

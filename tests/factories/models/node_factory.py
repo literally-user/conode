@@ -47,7 +47,8 @@ class NodeFactory:
 
         if association is None:
             association = await self.node_association_factory.create_association(
-                node, group
+                node,
+                group,
             )
 
         return node

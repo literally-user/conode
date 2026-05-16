@@ -102,7 +102,8 @@ class Email(ValueObject[str]):
 
         if not re.match(r"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,63}$", value):
             raise InvalidUserEmailFormatError(
-                "Invalid email format", [{"key": "email", "value": value}]
+                "Invalid email format",
+                [{"key": "email", "value": value}],
             )
 
         super().__init__(value)
@@ -143,7 +144,13 @@ class User(Entity[UserId]):
         )
 
     def update_profile(
-        self, *, first_name: str, last_name: str, username: str, bio: str, email: str
+        self,
+        *,
+        first_name: str,
+        last_name: str,
+        username: str,
+        bio: str,
+        email: str,
     ) -> None:
         self.first_name = FirstName(first_name)
         self.last_name = LastName(last_name)

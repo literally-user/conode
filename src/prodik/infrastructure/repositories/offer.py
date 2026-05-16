@@ -40,7 +40,7 @@ class OfferRepositoryImpl(OfferRepository):
                 expires_in=offer.expires_in,
                 created_at=offer.created_at,
                 updated_at=offer.updated_at,
-            )
+            ),
         )
 
     async def update(self, offer: Offer) -> None:
@@ -48,7 +48,7 @@ class OfferRepositoryImpl(OfferRepository):
         await self.session.execute(
             update(Offer)
             .where(
-                Offer.id == offer.id  # type: ignore
+                Offer.id == offer.id,  # type: ignore
             )
             .values(
                 title=offer.title,
@@ -58,15 +58,15 @@ class OfferRepositoryImpl(OfferRepository):
                 to_company_id=offer.to_company_id,
                 from_offer=offer.from_offer,
                 requires_counteroffer=offer.requires_counteroffer,
-            )
+            ),
         )
 
     async def get_by_id(self, offer_id: OfferId) -> Offer | None:
         logger.info("Repository get offer by id", offer_id=offer_id)
         result = await self.session.execute(
             select(Offer).where(
-                Offer.id == offer_id  # type: ignore
-            )
+                Offer.id == offer_id,  # type: ignore
+            ),
         )
 
         offer = result.scalar_one_or_none()
@@ -88,7 +88,7 @@ class OfferLinkRepositoryImpl(OfferLinkRepository):
                 status=offer_link.status,
                 created_at=offer_link.created_at,
                 updated_at=offer_link.updated_at,
-            )
+            ),
         )
 
     async def update(self, offer_link: OfferLink) -> None:
@@ -96,17 +96,19 @@ class OfferLinkRepositoryImpl(OfferLinkRepository):
         await self.session.execute(
             update(OfferLink)
             .where(
-                OfferLink.id == offer_link.id  # type: ignore
+                OfferLink.id == offer_link.id,  # type: ignore
             )
             .values(
                 request_offer_id=offer_link.request_offer_id,
                 response_offer_id=offer_link.response_offer_id,
                 status=offer_link.status,
-            )
+            ),
         )
 
     async def get_by_offers_ids(
-        self, from_offer_id: OfferId, to_offer_id: OfferId
+        self,
+        from_offer_id: OfferId,
+        to_offer_id: OfferId,
     ) -> OfferLink | None:
         logger.info(
             "Repository get offer link by offer ids",
@@ -118,8 +120,8 @@ class OfferLinkRepositoryImpl(OfferLinkRepository):
                 and_(
                     OfferLink.request_offer_id == to_offer_id,  # type: ignore
                     OfferLink.response_offer_id == from_offer_id,  # type: ignore
-                )
-            )
+                ),
+            ),
         )
         logger.info("Repository fetched offer link by id", found=result is not None)
 
@@ -150,21 +152,22 @@ class OfferGroupRepositoryImpl(OfferGroupRepository):
                         "updated_at": group.updated_at,
                     }
                     for group in offer_groups
-                ]
-            )
+                ],
+            ),
         )
 
     async def get_by_offer_id(self, offer_id: OfferId) -> list[OfferGroup]:
         logger.info("Repository get offer group by offer id")
         result = await self.session.execute(
             select(OfferGroup).where(
-                OfferGroup.offer_id == offer_id  # type: ignore
-            )
+                OfferGroup.offer_id == offer_id,  # type: ignore
+            ),
         )
 
         result_offer_groups = list(result.scalars().all())
         logger.info(
-            "Repository offer groups by offer id", found_count=len(result_offer_groups)
+            "Repository offer groups by offer id",
+            found_count=len(result_offer_groups),
         )
 
         return result_offer_groups
@@ -195,16 +198,16 @@ class OfferContextRepositoryImpl(OfferContextRepository):
                         "updated_at": context.updated_at,
                     }
                     for context in offer_contexts
-                ]
-            )
+                ],
+            ),
         )
 
     async def get_by_offer_id(self, offer_id: OfferId) -> list[OfferContext]:
         logger.info("Repository get offer group by offer id")
         result = await self.session.execute(
             select(OfferContext).where(
-                OfferContext.offer_id == offer_id  # type: ignore
-            )
+                OfferContext.offer_id == offer_id,  # type: ignore
+            ),
         )
 
         result_offer_contexts = list(result.scalars().all())

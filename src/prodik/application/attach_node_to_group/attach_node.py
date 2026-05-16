@@ -40,12 +40,13 @@ class AttachNodeInteractor:
             group = await self.group_repository.get_by_id(request.group_id)
             if group is None:
                 raise GroupNotFoundError(
-                    "Group not found", [{"key": "group_id", "value": request.group_id}]
+                    "Group not found",
+                    [{"key": "group_id", "value": request.group_id}],
                 )
 
             request_nodes = set(request.nodes)
             existing_nodes = await self.node_repository.get_all_by_ids(
-                list(request_nodes)
+                list(request_nodes),
             )
 
             if len(existing_nodes) != len(request_nodes):
@@ -56,7 +57,7 @@ class AttachNodeInteractor:
 
             existing_associations = (
                 await self.node_association_repository.get_all_by_group_id(
-                    request.group_id
+                    request.group_id,
                 )
             )
 

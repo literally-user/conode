@@ -16,7 +16,8 @@ router = APIRouter(tags=["groups"], prefix="/groups", route_class=DishkaRoute)
 
 @router.post("/", status_code=HTTPStatus.CREATED)
 async def create_group(
-    request: CreateGroupRequest, interactor: FromDishka[CreateGroupInteractor]
+    request: CreateGroupRequest,
+    interactor: FromDishka[CreateGroupInteractor],
 ) -> GroupSchema:
     result = await interactor.execute(
         CreateGroupRequestDTO(
@@ -24,7 +25,7 @@ async def create_group(
             description=request.description,
             parent_group_id=request.parent_group_id,
             company_id=request.company_id,
-        )
+        ),
     )
 
     return GroupSchema(

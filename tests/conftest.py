@@ -94,7 +94,8 @@ async def user_factory(test_container: AsyncContainer) -> UserFactory:
 
 @pytest.fixture
 async def company_factory(
-    test_container: AsyncContainer, user_factory: UserFactory
+    test_container: AsyncContainer,
+    user_factory: UserFactory,
 ) -> CompanyFactory:
     async with test_container() as container:
         return CompanyFactory(
@@ -141,7 +142,8 @@ async def role_permissions_repository(
 ) -> RolePermissionsRepository:
     async with test_container() as container:
         return cast(
-            "RolePermissionsRepository", await container.get(RolePermissionsRepository)
+            "RolePermissionsRepository",
+            await container.get(RolePermissionsRepository),
         )
 
 
@@ -171,7 +173,8 @@ async def offer_link_repository(test_container: AsyncContainer) -> OfferLinkRepo
 
 @pytest.fixture
 async def group_factory(
-    test_container: AsyncContainer, company_factory: CompanyFactory
+    test_container: AsyncContainer,
+    company_factory: CompanyFactory,
 ) -> GroupFactory:
     async with test_container() as container:
         return GroupFactory(
@@ -212,7 +215,8 @@ async def offer_factory(
 
 @pytest.fixture
 async def context_factory(
-    test_container: AsyncContainer, company_factory: CompanyFactory
+    test_container: AsyncContainer,
+    company_factory: CompanyFactory,
 ) -> ContextFactory:
     async with test_container() as container:
         return ContextFactory(
@@ -286,7 +290,8 @@ async def test_session(test_config: Config) -> AsyncGenerator[AsyncSession]:
 
 @pytest.fixture
 async def test_container(
-    test_session: AsyncSession, test_config: Config
+    test_session: AsyncSession,
+    test_config: Config,
 ) -> AsyncGenerator[AsyncContainer]:
     class TestConnectionProvider(Provider):
         @provide(scope=Scope.REQUEST)
@@ -314,12 +319,14 @@ async def test_container(
 
 @pytest.fixture
 async def test_client(
-    test_config: Config, test_container: AsyncContainer
+    test_config: Config,
+    test_container: AsyncContainer,
 ) -> AsyncGenerator[AsyncClient]:
     app = create_app(test_config)
     setup_dishka(app=app, container=test_container)
 
     async with AsyncClient(
-        base_url="http://test.localhost.com", transport=ASGITransport(app)
+        base_url="http://test.localhost.com",
+        transport=ASGITransport(app),
     ) as client:
         yield client

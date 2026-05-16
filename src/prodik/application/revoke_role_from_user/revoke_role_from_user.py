@@ -31,7 +31,8 @@ class RevokeRoleFromUserInteractor:
             role = await self.role_repository.get_by_id(role_id)
             if role is None:
                 raise RoleNotFoundError(
-                    "Role not found", [{"key": "role_id", "value": role_id}]
+                    "Role not found",
+                    [{"key": "role_id", "value": role_id}],
                 )
 
             await self.access_control_service.ensure_user_can_manipulate_role(
@@ -42,11 +43,13 @@ class RevokeRoleFromUserInteractor:
             user = await self.user_repository.get_by_id(user_id)
             if user is None:
                 raise UserNotFoundError(
-                    "User not found", [{"key": "user_id", "value": user_id}]
+                    "User not found",
+                    [{"key": "user_id", "value": user_id}],
                 )
 
             grant = await self.user_grant_repository.get_by_user_and_role_id(
-                user.id, role.id
+                user.id,
+                role.id,
             )
             if grant is None:
                 raise GrantNotFoundError(

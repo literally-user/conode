@@ -56,7 +56,8 @@ class CreateRoleInteractor:
                 )
 
             await self.access_control_service.ensure_user_can_create_roles(
-                user, company
+                user,
+                company,
             )
 
             role = await self.role_repository.get_by_name(RoleName(request.name))

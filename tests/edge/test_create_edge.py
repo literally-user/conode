@@ -102,7 +102,9 @@ async def test_create_edge_context_forbidden(
     group = await group_factory.create_group(company=company)
     nodes = [
         await node_factory.create_node(
-            user=user_factory_response.user, group=group, company=company
+            user=user_factory_response.user,
+            group=group,
+            company=company,
         )
         for _ in range(2)
     ]
@@ -119,5 +121,6 @@ async def test_create_edge_context_forbidden(
 
     assert response.status_code == HTTPStatus.FORBIDDEN
     assert response.json() == IsPartialDict(
-        detail="Not enough rights to perform operation", meta=None
+        detail="Not enough rights to perform operation",
+        meta=None,
     )

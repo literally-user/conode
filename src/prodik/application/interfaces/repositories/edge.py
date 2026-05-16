@@ -12,5 +12,8 @@ class EdgeRepository(Protocol):
     async def get_by_id(self, edge_id: EdgeId) -> Edge | None: ...
     async def get_all_by_context_id(self, context_id: ContextId) -> list[Edge]: ...
     async def get_by_nodes_and_context(
-        self, node_a_id: NodeId, node_b_id: NodeId, context_id: ContextId
+        self,
+        node_a_id: NodeId,
+        node_b_id: NodeId,
+        context_id: ContextId,
     ) -> Edge | None: ...

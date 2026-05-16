@@ -46,14 +46,15 @@ class UpdateCurrentUserPasswordInteractor:
     access_control_service: AccessControlService
 
     async def execute(
-        self, request: UpdateCurrentUserPasswordRequestDTO
+        self,
+        request: UpdateCurrentUserPasswordRequestDTO,
     ) -> UpdateCurrentUserPasswordResponseDTO:
         async with self.transaction_manager:
             host = self.identity_provider.get_current_ip()
             user = await self.access_control_service.get_authorized_user()
 
             authorization = await self.local_authorization_repository.get_by_user_id(
-                user.id
+                user.id,
             )
             if authorization is None:
                 raise AuthorizationNotFoundError(
@@ -62,7 +63,8 @@ class UpdateCurrentUserPasswordInteractor:
                 )
 
             if not self.password_hasher.verify(
-                authorization.password, request.old_password
+                authorization.password,
+                request.old_password,
             ):
                 raise InvalidOldPasswordError(
                     "Invalid old password",
@@ -78,7 +80,8 @@ class UpdateCurrentUserPasswordInteractor:
             session = await self.session_repository.get_by_host(host)
             if session is None:
                 raise SessionNotFoundError(
-                    "Session not found", [{"key": "host", "value": host}]
+                    "Session not found",
+                    [{"key": "host", "value": host}],
                 )
 
             access_token, expires_in = self.access_token_manager.encode(user)

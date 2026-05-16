@@ -49,7 +49,7 @@ class CreateGroupInteractor:
             parent_group = None
             if request.parent_group_id:
                 parent_group = await self.group_repository.get_by_id(
-                    request.parent_group_id
+                    request.parent_group_id,
                 )
                 if parent_group is None:
                     raise GroupNotFoundError(

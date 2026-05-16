@@ -24,7 +24,7 @@ class RoleRepositoryImpl(RoleRepository):
                 owner_company_id=role.owner_company_id,
                 created_at=role.created_at,
                 updated_at=role.updated_at,
-            )
+            ),
         )
 
     async def get_all_by_ids(self, roles_ids: list[RoleId]) -> list[Role]:
@@ -48,8 +48,8 @@ class RoleRepositoryImpl(RoleRepository):
         logger.info("Repository get role by name", role_name=name)
         result = await self.session.execute(
             select(Role).where(
-                Role.name == name  # type: ignore
-            )
+                Role.name == name,  # type: ignore
+            ),
         )
 
         role = result.scalar_one_or_none()
@@ -62,25 +62,25 @@ class RoleRepositoryImpl(RoleRepository):
         await self.session.execute(
             update(Role)
             .where(
-                Role.id == role.id  # type: ignore
+                Role.id == role.id,  # type: ignore
             )
             .values(
                 name=role.name,
-            )
+            ),
         )
 
     async def delete(self, role: Role) -> None:
         logger.info("Repository delete role", role_id=role.id)
         await self.session.execute(
             delete(Role).where(
-                Role.id == role.id  # type: ignore
-            )
+                Role.id == role.id,  # type: ignore
+            ),
         )
 
     async def get_by_id(self, role_id: RoleId) -> Role | None:
         logger.info("Repository get role by id", role_id=role_id)
         result = await self.session.execute(
-            select(Role).where(Role.id == role_id)  # type: ignore
+            select(Role).where(Role.id == role_id),  # type: ignore
         )
 
         role = result.scalar_one_or_none()

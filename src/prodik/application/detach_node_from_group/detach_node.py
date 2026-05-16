@@ -30,7 +30,7 @@ class DetachNodeInteractor:
             user = await self.access_control_service.get_authorized_user()
 
             association = await self.node_association_repository.get_by_id(
-                association_id
+                association_id,
             )
             if association is None:
                 raise AssociationNotFoundError(
@@ -52,7 +52,7 @@ class DetachNodeInteractor:
 
             existing_node_association = (
                 await self.node_association_repository.get_by_node_id(
-                    association.node_id
+                    association.node_id,
                 )
             )
             if existing_node_association is None:
