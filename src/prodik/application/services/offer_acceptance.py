@@ -48,7 +48,7 @@ class OfferAcceptanceService:
         company_b_role_id: RoleId | None,
     ) -> Contract:
         return Contract.new(
-            id=ContractId(uuid4()),
+            contract_id=ContractId(uuid4()),
             company_a=company_a,
             company_b=company_b,
             company_a_offer=company_a_offer,

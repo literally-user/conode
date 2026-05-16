@@ -1,5 +1,6 @@
 from typing import Protocol
 
+from prodik.domain.company import CompanyId
 from prodik.domain.role import Role, RoleId, RoleName
 
 
@@ -10,3 +11,6 @@ class RoleRepository(Protocol):
     async def get_by_name(self, name: RoleName) -> Role | None: ...
     async def get_by_id(self, role_id: RoleId) -> Role | None: ...
     async def get_all_by_ids(self, roles_ids: list[RoleId]) -> list[Role]: ...
+    async def get_by_name_and_company_id(
+        self, name: RoleName, company_id: CompanyId
+    ) -> Role | None: ...
