@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from typing import Final, NewType
+from typing import Final, NewType, Self
 from uuid import UUID
 
 from prodik.domain.company import Company, CompanyId
@@ -62,7 +62,7 @@ class Group(Entity[GroupId]):
         description: str,
         company: Company,
         parent_group: "Group | None",
-    ) -> "Group":
+    ) -> Self:
         if parent_group is not None and parent_group.id == id:
             raise GroupCannotInheritedFromItselfError(
                 "Group cannot inherit from itself",
@@ -70,7 +70,7 @@ class Group(Entity[GroupId]):
             )
 
         now = datetime.now(UTC)
-        return Group(
+        return cls(
             id=id,
             name=GroupName(name),
             description=GroupDescription(description),

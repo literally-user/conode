@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from enum import StrEnum
-from typing import Final, NewType
+from typing import Final, NewType, Self
 from uuid import UUID
 
 from prodik.domain.company import Company, CompanyId
@@ -51,9 +51,9 @@ class Role(Entity[RoleId]):
     name: RoleName
 
     @classmethod
-    def new(cls, id: RoleId, name: str, company: Company) -> "Role":
+    def new(cls, id: RoleId, name: str, company: Company) -> Self:
         now = datetime.now(UTC)
-        return Role(
+        return cls(
             id=id,
             owner_company_id=company.id,
             name=RoleName(name),
@@ -81,9 +81,9 @@ class RolePermission(Entity[RolePermissionId]):
         permission: PermissionType,
         entity_type: EntityType,
         entity_id: RolePermissionEntityId,
-    ) -> "RolePermission":
+    ) -> Self:
         now = datetime.now(UTC)
-        return RolePermission(
+        return cls(
             id=id,
             role_id=role.id,
             permission=permission,

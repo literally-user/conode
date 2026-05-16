@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from typing import Final, NewType
+from typing import Final, NewType, Self
 from uuid import UUID
 
 from prodik.domain.company import Company, CompanyId
@@ -55,11 +55,9 @@ class Context(Entity[ContextId]):
     company_id: CompanyId
 
     @classmethod
-    def new(
-        cls, id: ContextId, name: str, description: str, company: Company
-    ) -> "Context":
+    def new(cls, id: ContextId, name: str, description: str, company: Company) -> Self:
         now = datetime.now(UTC)
-        return Context(
+        return cls(
             id=id,
             name=ContextName(name),
             description=ContextDescription(description),

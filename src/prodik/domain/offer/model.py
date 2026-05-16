@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from enum import StrEnum
-from typing import Final, NewType
+from typing import Final, NewType, Self
 from uuid import UUID
 
 from prodik.domain.company import Company, CompanyId
@@ -100,7 +100,7 @@ class Offer(Entity[OfferId]):
         expires_in: datetime,
         *,
         requires_counteroffer: bool,
-    ) -> "Offer":
+    ) -> Self:
         if from_offer is not None and from_offer.id == id:
             raise OfferCannotAnswerToItselfError(
                 "Offer cannot answer to itself",
@@ -121,7 +121,7 @@ class Offer(Entity[OfferId]):
         now = datetime.now(UTC)
         if expires_in.timestamp() < now.timestamp():
             raise OfferCannotExpireAtPastError("Offer cannot expire at past", None)
-        return Offer(
+        return cls(
             id=id,
             title=OfferTitle(title),
             description=OfferDescription(description),
@@ -166,9 +166,9 @@ class OfferGroup(Entity[OfferGroupId]):
         offer: Offer,
         group: Group,
         permission_type: PermissionType,
-    ) -> "OfferGroup":
+    ) -> Self:
         now = datetime.now(UTC)
-        return OfferGroup(
+        return cls(
             id=id,
             offer_id=offer.id,
             group_id=group.id,
@@ -191,9 +191,9 @@ class OfferContext(Entity[OfferContextId]):
         offer: Offer,
         context: Context,
         permission_type: PermissionType,
-    ) -> "OfferContext":
+    ) -> Self:
         now = datetime.now(UTC)
-        return OfferContext(
+        return cls(
             id=id,
             offer_id=offer.id,
             context_id=context.id,
@@ -210,11 +210,9 @@ class OfferLink(Entity[OfferLinkId]):
     status: OfferLinkStatus
 
     @classmethod
-    def new(
-        cls, id: OfferLinkId, request_offer: Offer, response_offer: Offer
-    ) -> "OfferLink":
+    def new(cls, id: OfferLinkId, request_offer: Offer, response_offer: Offer) -> Self:
         now = datetime.now(UTC)
-        return OfferLink(
+        return cls(
             id=id,
             request_offer_id=request_offer.id,
             response_offer_id=response_offer.id,

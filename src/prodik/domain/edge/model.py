@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from typing import NewType
+from typing import NewType, Self
 from uuid import UUID
 
 from prodik.domain.company import Company, CompanyId
@@ -29,7 +29,7 @@ class Edge(Entity[EdgeId]):
         company: Company,
         context: Context,
         weight: float,
-    ) -> "Edge":
+    ) -> Self:
         if node_a == node_b:
             raise EdgeCannotConnectTwoSameNodesError(
                 "Edge cannot connect two same nodes",
@@ -40,7 +40,7 @@ class Edge(Entity[EdgeId]):
             )
 
         now = datetime.now(UTC)
-        return Edge(
+        return cls(
             id=id,
             company_id=company.id,
             context_id=context.id,

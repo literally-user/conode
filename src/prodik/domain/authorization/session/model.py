@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from typing import NewType
+from typing import NewType, Self
 from uuid import UUID
 
 from prodik.domain.shared import Entity
@@ -16,9 +16,9 @@ class Session(Entity[SessionId]):
     host: str
 
     @classmethod
-    def new(cls, id: SessionId, user: User, host: str, token: str) -> "Session":
+    def new(cls, id: SessionId, user: User, host: str, token: str) -> Self:
         now = datetime.now(UTC)
-        return Session(
+        return cls(
             id=id,
             host=host,
             token=token,

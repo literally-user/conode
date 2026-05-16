@@ -1,6 +1,7 @@
 from collections.abc import AsyncIterator
 
 from dishka import Provider, Scope, provide
+from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
@@ -35,3 +36,15 @@ class ConnectionProvider(Provider):
     ) -> AsyncIterator[AsyncSession]:
         async with session_factory() as session:
             yield session
+
+    @provide(scope=Scope.APP)
+    async def get_redis_connection(
+        self,
+    ) -> AsyncIterator[Redis]:
+        client = Redis(
+            host="cache.literally.io",
+            decode_responses=True,
+            port=6379,
+        )
+        yield client
+        await client.aclose()

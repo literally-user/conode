@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from typing import Final, NewType
+from typing import Final, NewType, Self
 from uuid import UUID
 
 from prodik.domain.company.errors import (
@@ -62,9 +62,9 @@ class Company(Entity[CompanyId]):
     verified: bool
 
     @classmethod
-    def new(cls, id: CompanyId, name: str, description: str, owner: User) -> "Company":
+    def new(cls, id: CompanyId, name: str, description: str, owner: User) -> Self:
         now = datetime.now(UTC)
-        return Company(
+        return cls(
             id=id,
             name=CompanyName(name),
             description=CompanyDescription(description),
