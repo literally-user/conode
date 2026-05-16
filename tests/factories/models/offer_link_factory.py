@@ -16,7 +16,7 @@ class OfferLinkFactory:
         response_offer: Offer,
     ) -> OfferLink:
         offer_link = OfferLink.new(
-            id=OfferLinkId(uuid4()),
+            offer_link_id=OfferLinkId(uuid4()),
             request_offer=request_offer,
             response_offer=response_offer,
         )

@@ -29,14 +29,14 @@ class RoleManagmentService:
         self, name: str, company: Company, request: RoleManagmentServiceRequest
     ) -> RoleManagmentServiceResponse:
         role = Role.new(
-            id=RoleId(uuid4()),
+            role_id=RoleId(uuid4()),
             company=company,
             name=name,
         )
 
         permissions = [
             RolePermission.new(
-                id=RolePermissionId(uuid4()),
+                role_permission_id=RolePermissionId(uuid4()),
                 role=role,
                 permission=permission[2],
                 entity_type=permission[1],

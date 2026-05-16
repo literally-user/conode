@@ -80,7 +80,10 @@ class LoginInteractor:
             session = await self.session_repository.get_by_host(host)
             if session is None:
                 session = Session.new(
-                    id=SessionId(uuid4()), user=user, host=host, token=refresh_token
+                    session_id=SessionId(uuid4()),
+                    user=user,
+                    host=host,
+                    token=refresh_token,
                 )
                 await self.session_repository.create(session)
             else:

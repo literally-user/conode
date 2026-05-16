@@ -33,7 +33,7 @@ class RoleFactory:
     ) -> Role:
 
         role = Role.new(
-            id=RoleId(uuid4()),
+            role_id=RoleId(uuid4()),
             name=name or generate_random_string(10),
             company=company,
         )
@@ -45,14 +45,14 @@ class RoleFactory:
 
             permissions = [
                 RolePermission.new(
-                    id=RolePermissionId(uuid4()),
+                    role_permission_id=RolePermissionId(uuid4()),
                     role=role,
                     permission=PermissionType.READ,
                     entity_type=EntityType.COMPANY,
                     entity_id=entity_id,
                 ),
                 RolePermission.new(
-                    id=RolePermissionId(uuid4()),
+                    role_permission_id=RolePermissionId(uuid4()),
                     role=role,
                     permission=PermissionType.MODIFY,
                     entity_type=EntityType.COMPANY,

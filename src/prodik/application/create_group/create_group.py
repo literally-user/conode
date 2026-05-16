@@ -58,7 +58,7 @@ class CreateGroupInteractor:
                     )
 
             group = Group.new(
-                id=GroupId(uuid4()),
+                group_id=GroupId(uuid4()),
                 name=request.name,
                 description=request.description,
                 company=company,

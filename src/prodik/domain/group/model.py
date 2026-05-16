@@ -57,7 +57,7 @@ class Group(Entity[GroupId]):
     @classmethod
     def new(
         cls,
-        id: GroupId,
+        group_id: GroupId,
         name: str,
         description: str,
         company: Company,
@@ -71,7 +71,7 @@ class Group(Entity[GroupId]):
 
         now = datetime.now(UTC)
         return cls(
-            id=id,
+            id=group_id,
             name=GroupName(name),
             description=GroupDescription(description),
             company_id=company.id,

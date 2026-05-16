@@ -17,7 +17,7 @@ class GroupFactory:
         self, company: Company | None = None, parent_group: Group | None = None
     ) -> Group:
         group = Group.new(
-            id=GroupId(uuid4()),
+            group_id=GroupId(uuid4()),
             name=generate_random_string(10),
             description=generate_random_string(30),
             company=company or await self.company_factory.create_company(),

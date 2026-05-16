@@ -56,7 +56,7 @@ class OfferFactory:
             to_company = await self.company_factory.create_company()
 
         offer = Offer.new(
-            id=OfferId(uuid4()),
+            offer_id=OfferId(uuid4()),
             title=generate_random_string(15),
             description=generate_random_string(100),
             from_company=from_company,

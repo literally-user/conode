@@ -23,7 +23,7 @@ class Edge(Entity[EdgeId]):
     @classmethod
     def new(
         cls,
-        id: EdgeId,
+        edge_id: EdgeId,
         node_a: Node,
         node_b: Node,
         company: Company,
@@ -41,7 +41,7 @@ class Edge(Entity[EdgeId]):
 
         now = datetime.now(UTC)
         return cls(
-            id=id,
+            id=edge_id,
             company_id=company.id,
             context_id=context.id,
             node_a_id=node_a.id,

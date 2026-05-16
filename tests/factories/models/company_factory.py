@@ -36,24 +36,24 @@ class CompanyFactory:
             user = (await self.user_factory.create_user(admin=False)).user
 
         company = Company.new(
-            id=CompanyId(uuid4()),
+            company_id=CompanyId(uuid4()),
             name=generate_random_string(10),
             description=generate_random_string(300),
             owner=user,
         )
 
-        role = Role.new(id=RoleId(uuid4()), name="owner", company=company)
+        role = Role.new(role_id=RoleId(uuid4()), name="owner", company=company)
 
         permissions = [
             RolePermission.new(
-                id=RolePermissionId(uuid4()),
+                role_permission_id=RolePermissionId(uuid4()),
                 role=role,
                 permission=PermissionType.READ,
                 entity_type=EntityType.COMPANY,
                 entity_id=company.id,
             ),
             RolePermission.new(
-                id=RolePermissionId(uuid4()),
+                role_permission_id=RolePermissionId(uuid4()),
                 role=role,
                 permission=PermissionType.MODIFY,
                 entity_type=EntityType.COMPANY,
@@ -62,7 +62,7 @@ class CompanyFactory:
         ]
 
         grant = UserGrant.new(
-            id=UserGrantId(uuid4()),
+            user_grant_id=UserGrantId(uuid4()),
             role=role,
             user=user,
         )

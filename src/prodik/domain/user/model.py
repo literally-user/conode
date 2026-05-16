@@ -121,7 +121,7 @@ class User(Entity[UserId]):
     @classmethod
     def new(
         cls,
-        id: UserId,
+        user_id: UserId,
         first_name: str,
         last_name: str,
         username: str,
@@ -130,7 +130,7 @@ class User(Entity[UserId]):
     ) -> Self:
         now = datetime.now(UTC)
         return cls(
-            id=id,
+            id=user_id,
             first_name=FirstName(first_name),
             last_name=LastName(last_name),
             username=Username(username),

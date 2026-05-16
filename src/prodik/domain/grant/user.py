@@ -16,10 +16,10 @@ class UserGrant(Entity[UserGrantId]):
     role_id: RoleId
 
     @classmethod
-    def new(cls, id: UserGrantId, role: Role, user: User) -> Self:
+    def new(cls, user_grant_id: UserGrantId, role: Role, user: User) -> Self:
         now = datetime.now(UTC)
         return cls(
-            id=id,
+            id=user_grant_id,
             user_id=user.id,
             role_id=role.id,
             created_at=now,

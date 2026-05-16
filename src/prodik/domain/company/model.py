@@ -62,10 +62,12 @@ class Company(Entity[CompanyId]):
     verified: bool
 
     @classmethod
-    def new(cls, id: CompanyId, name: str, description: str, owner: User) -> Self:
+    def new(
+        cls, company_id: CompanyId, name: str, description: str, owner: User
+    ) -> Self:
         now = datetime.now(UTC)
         return cls(
-            id=id,
+            id=company_id,
             name=CompanyName(name),
             description=CompanyDescription(description),
             verified=False,

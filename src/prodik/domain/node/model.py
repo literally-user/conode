@@ -57,10 +57,12 @@ class Node(Entity[NodeId]):
     company_id: CompanyId
 
     @classmethod
-    def new(cls, id: NodeId, name: str, description: str, company: Company) -> Self:
+    def new(
+        cls, node_id: NodeId, name: str, description: str, company: Company
+    ) -> Self:
         now = datetime.now(UTC)
         return cls(
-            id=id,
+            id=node_id,
             name=NodeName(name),
             description=NodeDescription(description),
             company_id=company.id,
@@ -83,10 +85,12 @@ class NodeAssociation(Entity[NodeAssociationId]):
     group_id: GroupId
 
     @classmethod
-    def new(cls, id: NodeAssociationId, node: Node, group: Group) -> Self:
+    def new(
+        cls, node_association_id: NodeAssociationId, node: Node, group: Group
+    ) -> Self:
         now = datetime.now(UTC)
         return cls(
-            id=id,
+            id=node_association_id,
             node_id=node.id,
             group_id=group.id,
             created_at=now,

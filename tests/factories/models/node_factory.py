@@ -34,7 +34,7 @@ class NodeFactory:
             company = await self.company_factory.create_company(user)
 
         node = Node.new(
-            id=NodeId(uuid4()),
+            node_id=NodeId(uuid4()),
             name=generate_random_string(10),
             description=generate_random_string(30),
             company=company,

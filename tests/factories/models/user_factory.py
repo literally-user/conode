@@ -43,7 +43,7 @@ class UserFactory:
 
     async def create_user(self, *, admin: bool = False) -> UserFactoryResponse:
         user = User.new(
-            id=UserId(uuid4()),
+            user_id=UserId(uuid4()),
             username=generate_random_string(10),
             first_name=generate_random_string(10),
             last_name=generate_random_string(10),
@@ -60,13 +60,13 @@ class UserFactory:
         refresh_token = self.refresh_token_manager.encode()
 
         authorization = LocalAuthorization.new(
-            id=LocalAuthorizationId(uuid4()),
+            local_authorization_id=LocalAuthorizationId(uuid4()),
             password=hashed_password,
             user=user,
         )
 
         session = Session.new(
-            id=SessionId(uuid4()),
+            session_id=SessionId(uuid4()),
             user=user,
             host="127.0.0.1",
             token=refresh_token,

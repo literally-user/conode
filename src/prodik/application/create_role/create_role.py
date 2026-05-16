@@ -67,14 +67,14 @@ class CreateRoleInteractor:
                 )
 
             role = Role.new(
-                id=RoleId(uuid4()),
+                role_id=RoleId(uuid4()),
                 name=request.name,
                 company=company,
             )
 
             permissions = [
                 RolePermission.new(
-                    id=RolePermissionId(uuid4()),
+                    role_permission_id=RolePermissionId(uuid4()),
                     role=role,
                     permission=permission.permission,
                     entity_type=permission.entity_type,

@@ -34,8 +34,8 @@ async def register_company(
     )
 
 
-@router.patch("/{id}/verify", status_code=HTTPStatus.NO_CONTENT)
+@router.patch("/{company_id}/verify", status_code=HTTPStatus.NO_CONTENT)
 async def verify_company(
-    id: CompanyId, interactor: FromDishka[VerifyCompanyInteractor]
+    company_id: CompanyId, interactor: FromDishka[VerifyCompanyInteractor]
 ) -> None:
-    await interactor.execute(id)
+    await interactor.execute(company_id)

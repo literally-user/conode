@@ -90,7 +90,7 @@ class CreateEdgeInteractor:
                 )
 
             edge = Edge.new(
-                id=EdgeId(uuid4()),
+                edge_id=EdgeId(uuid4()),
                 node_a=nodes[0],
                 node_b=nodes[1],
                 company=company,

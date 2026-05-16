@@ -56,14 +56,14 @@ class CreateNodeInteractor:
             )
 
             node = Node.new(
-                id=NodeId(uuid4()),
+                node_id=NodeId(uuid4()),
                 name=request.name,
                 description=request.description,
                 company=company,
             )
 
             association = NodeAssociation.new(
-                id=NodeAssociationId(uuid4()),
+                node_association_id=NodeAssociationId(uuid4()),
                 node=node,
                 group=group,
             )

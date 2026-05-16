@@ -14,10 +14,10 @@ class OAuthAuthorization(Entity[OAuthAuthorizationId]):
     user_id: UserId
 
     @classmethod
-    def new(cls, id: OAuthAuthorizationId, user: User) -> Self:
+    def new(cls, oauth_authorization_id: OAuthAuthorizationId, user: User) -> Self:
         now = datetime.now(UTC)
         return cls(
-            id=id,
+            id=oauth_authorization_id,
             user_id=user.id,
             created_at=now,
             updated_at=now,

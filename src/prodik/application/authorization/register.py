@@ -67,7 +67,7 @@ class RegisterInteractor:
                 )
 
             user = User.new(
-                id=UserId(uuid4()),
+                user_id=UserId(uuid4()),
                 first_name=request.first_name,
                 last_name=request.last_name,
                 username=request.username,
@@ -79,7 +79,7 @@ class RegisterInteractor:
             refresh_token = self.refresh_token_manager.encode()
 
             session = Session.new(
-                id=SessionId(uuid4()),
+                session_id=SessionId(uuid4()),
                 user=user,
                 host=host,
                 token=refresh_token,
@@ -88,7 +88,9 @@ class RegisterInteractor:
             hashed_password = self.password_hasher.hash(request.password)
 
             authorization = LocalAuthorization.new(
-                id=LocalAuthorizationId(uuid4()), user=user, password=hashed_password
+                local_authorization_id=LocalAuthorizationId(uuid4()),
+                user=user,
+                password=hashed_password,
             )
 
             await self.user_repository.create(user=user)

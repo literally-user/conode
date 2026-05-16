@@ -12,7 +12,7 @@ class NodeAssociationFactory:
 
     async def create_association(self, node: Node, group: Group) -> NodeAssociation:
         association = NodeAssociation.new(
-            id=NodeAssociationId(uuid4()),
+            node_association_id=NodeAssociationId(uuid4()),
             node=node,
             group=group,
         )

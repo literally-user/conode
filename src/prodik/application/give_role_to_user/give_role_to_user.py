@@ -61,7 +61,7 @@ class GiveRoleToUserInteractor:
                 )
 
             grant = UserGrant.new(
-                id=UserGrantId(uuid4()),
+                user_grant_id=UserGrantId(uuid4()),
                 role=role,
                 user=user,
             )

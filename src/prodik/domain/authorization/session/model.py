@@ -16,10 +16,10 @@ class Session(Entity[SessionId]):
     host: str
 
     @classmethod
-    def new(cls, id: SessionId, user: User, host: str, token: str) -> Self:
+    def new(cls, session_id: SessionId, user: User, host: str, token: str) -> Self:
         now = datetime.now(UTC)
         return cls(
-            id=id,
+            id=session_id,
             host=host,
             token=token,
             user_id=user.id,

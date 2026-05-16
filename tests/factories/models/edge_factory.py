@@ -21,7 +21,7 @@ class EdgeFactory:
         weight: float = 0,
     ) -> Edge:
         edge = Edge.new(
-            id=EdgeId(uuid4()),
+            edge_id=EdgeId(uuid4()),
             node_a=node_a,
             node_b=node_b,
             company=company,

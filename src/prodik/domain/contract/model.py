@@ -36,7 +36,7 @@ class Contract(Entity[ContractId]):
     @classmethod
     def new(
         cls,
-        id: ContractId,
+        contract_id: ContractId,
         company_a: Company,
         company_b: Company,
         company_a_offer: Offer | None,
@@ -55,7 +55,7 @@ class Contract(Entity[ContractId]):
             )
         now = datetime.now(UTC)
         return cls(
-            id=id,
+            id=contract_id,
             company_a_id=company_a.id,
             company_b_id=company_b.id,
             company_a_offer_id=company_a_offer.id

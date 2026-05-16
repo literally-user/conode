@@ -42,7 +42,7 @@ class CreateContextInteractor:
             )
 
             context = Context.new(
-                id=ContextId(uuid4()),
+                context_id=ContextId(uuid4()),
                 name=request.name,
                 description=request.description,
                 company=company,

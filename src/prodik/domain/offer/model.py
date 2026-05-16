@@ -91,7 +91,7 @@ class Offer(Entity[OfferId]):
     @classmethod
     def new(
         cls,
-        id: OfferId,
+        offer_id: OfferId,
         title: str,
         description: str,
         from_company: Company,
@@ -122,7 +122,7 @@ class Offer(Entity[OfferId]):
         if expires_in.timestamp() < now.timestamp():
             raise OfferCannotExpireAtPastError("Offer cannot expire at past", None)
         return cls(
-            id=id,
+            id=offer_id,
             title=OfferTitle(title),
             description=OfferDescription(description),
             status=OfferStatus.PENDING,
@@ -162,14 +162,14 @@ class OfferGroup(Entity[OfferGroupId]):
     @classmethod
     def new(
         cls,
-        id: OfferGroupId,
+        offer_group_id: OfferGroupId,
         offer: Offer,
         group: Group,
         permission_type: PermissionType,
     ) -> Self:
         now = datetime.now(UTC)
         return cls(
-            id=id,
+            id=offer_group_id,
             offer_id=offer.id,
             group_id=group.id,
             permission_type=permission_type,
@@ -187,14 +187,14 @@ class OfferContext(Entity[OfferContextId]):
     @classmethod
     def new(
         cls,
-        id: OfferContextId,
+        offer_context_id: OfferContextId,
         offer: Offer,
         context: Context,
         permission_type: PermissionType,
     ) -> Self:
         now = datetime.now(UTC)
         return cls(
-            id=id,
+            id=offer_context_id,
             offer_id=offer.id,
             context_id=context.id,
             permission_type=permission_type,
@@ -210,10 +210,12 @@ class OfferLink(Entity[OfferLinkId]):
     status: OfferLinkStatus
 
     @classmethod
-    def new(cls, id: OfferLinkId, request_offer: Offer, response_offer: Offer) -> Self:
+    def new(
+        cls, offer_link_id: OfferLinkId, request_offer: Offer, response_offer: Offer
+    ) -> Self:
         now = datetime.now(UTC)
         return cls(
-            id=id,
+            id=offer_link_id,
             request_offer_id=request_offer.id,
             response_offer_id=response_offer.id,
             status=OfferLinkStatus.PENDING,

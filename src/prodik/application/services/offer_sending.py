@@ -45,7 +45,7 @@ class OfferSendingService:
         expires_in: datetime,
     ) -> OfferSendingServiceResponse:
         offer = Offer.new(
-            id=OfferId(uuid4()),
+            offer_id=OfferId(uuid4()),
             title=title,
             description=description,
             from_company=from_company,
@@ -57,7 +57,7 @@ class OfferSendingService:
 
         offer_groups = [
             OfferGroup.new(
-                id=OfferGroupId(uuid4()),
+                offer_group_id=OfferGroupId(uuid4()),
                 offer=offer,
                 group=group,
                 permission_type=group_permissions[group.id],
@@ -66,7 +66,7 @@ class OfferSendingService:
         ]
         offer_contexts = [
             OfferContext.new(
-                id=OfferContextId(uuid4()),
+                offer_context_id=OfferContextId(uuid4()),
                 offer=offer,
                 context=context,
                 permission_type=context_permissions[context.id],
@@ -78,7 +78,7 @@ class OfferSendingService:
         if from_offer is not None:
             from_offer.accept()
             offer_link = OfferLink.new(
-                id=OfferLinkId(uuid4()),
+                offer_link_id=OfferLinkId(uuid4()),
                 request_offer=from_offer,
                 response_offer=offer,
             )

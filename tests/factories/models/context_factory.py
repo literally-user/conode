@@ -15,7 +15,7 @@ class ContextFactory:
 
     async def create_context(self, company: Company | None = None) -> Context:
         context = Context.new(
-            id=ContextId(uuid4()),
+            context_id=ContextId(uuid4()),
             name=generate_random_string(10),
             description=generate_random_string(30),
             company=company or await self.company_factory.create_company(),

@@ -79,7 +79,7 @@ class AttachNodeInteractor:
 
             associations = [
                 NodeAssociation.new(
-                    id=NodeAssociationId(uuid4()),
+                    node_association_id=NodeAssociationId(uuid4()),
                     node=node,
                     group=group,
                 )

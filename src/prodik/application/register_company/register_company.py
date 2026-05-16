@@ -50,7 +50,7 @@ class RegisterCompanyInteractor:
                 )
 
             company = Company.new(
-                id=CompanyId(uuid4()),
+                company_id=CompanyId(uuid4()),
                 name=request.name,
                 description=request.description,
                 owner=user,
@@ -76,7 +76,7 @@ class RegisterCompanyInteractor:
             )
 
             grant = UserGrant.new(
-                id=UserGrantId(uuid4()),
+                user_grant_id=UserGrantId(uuid4()),
                 role=role_managment_service_response.role,
                 user=user,
             )
