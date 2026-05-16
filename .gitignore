@@ -208,3 +208,4 @@ private.pem
 .docker-volumes
 
 config.toml
+test.config.toml
