@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from typing import Final, NewType
+from typing import Final, NewType, Self
 from uuid import UUID
 
 from prodik.domain.company import Company, CompanyId
@@ -57,9 +57,9 @@ class Node(Entity[NodeId]):
     company_id: CompanyId
 
     @classmethod
-    def new(cls, id: NodeId, name: str, description: str, company: Company) -> "Node":
+    def new(cls, id: NodeId, name: str, description: str, company: Company) -> Self:
         now = datetime.now(UTC)
-        return Node(
+        return cls(
             id=id,
             name=NodeName(name),
             description=NodeDescription(description),
@@ -83,9 +83,9 @@ class NodeAssociation(Entity[NodeAssociationId]):
     group_id: GroupId
 
     @classmethod
-    def new(cls, id: NodeAssociationId, node: Node, group: Group) -> "NodeAssociation":
+    def new(cls, id: NodeAssociationId, node: Node, group: Group) -> Self:
         now = datetime.now(UTC)
-        return NodeAssociation(
+        return cls(
             id=id,
             node_id=node.id,
             group_id=group.id,

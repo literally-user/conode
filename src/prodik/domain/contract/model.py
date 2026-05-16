@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from enum import StrEnum
-from typing import NewType
+from typing import NewType, Self
 from uuid import UUID
 
 from prodik.domain.company import Company, CompanyId
@@ -44,7 +44,7 @@ class Contract(Entity[ContractId]):
         company_a_role_id: RoleId | None,
         company_b_role_id: RoleId | None,
         expires_in: datetime,
-    ) -> "Contract":
+    ) -> Self:
         if company_a_offer is None and company_b_offer is None:
             raise InvalidCompanyOffersFormatError(
                 "Required at least one company offer", None
@@ -54,7 +54,7 @@ class Contract(Entity[ContractId]):
                 "Required at least one company offer", None
             )
         now = datetime.now(UTC)
-        return Contract(
+        return cls(
             id=id,
             company_a_id=company_a.id,
             company_b_id=company_b.id,

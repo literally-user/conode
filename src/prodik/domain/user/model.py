@@ -2,7 +2,7 @@ import re
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from enum import StrEnum
-from typing import Final, NewType
+from typing import Final, NewType, Self
 from uuid import UUID
 
 from prodik.domain.shared import Entity, ValueObject
@@ -127,9 +127,9 @@ class User(Entity[UserId]):
         username: str,
         email: str,
         bio: str,
-    ) -> "User":
+    ) -> Self:
         now = datetime.now(UTC)
-        return User(
+        return cls(
             id=id,
             first_name=FirstName(first_name),
             last_name=LastName(last_name),

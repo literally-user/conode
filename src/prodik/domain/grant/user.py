@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from typing import NewType
+from typing import NewType, Self
 from uuid import UUID
 
 from prodik.domain.role import Role, RoleId
@@ -16,9 +16,9 @@ class UserGrant(Entity[UserGrantId]):
     role_id: RoleId
 
     @classmethod
-    def new(cls, id: UserGrantId, role: Role, user: User) -> "UserGrant":
+    def new(cls, id: UserGrantId, role: Role, user: User) -> Self:
         now = datetime.now(UTC)
-        return UserGrant(
+        return cls(
             id=id,
             user_id=user.id,
             role_id=role.id,

@@ -12,6 +12,13 @@ services:
     networks:
       - prodik-network
 
+  redis:
+    image: redis:latest
+    networks:
+      prodik-network:
+        aliases:
+          - cache.literally.io
+
   postgres:
     image: postgres:16-alpine
     volumes:
