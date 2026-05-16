@@ -1,63 +1,91 @@
 from dataclasses import dataclass
+from datetime import datetime
 
 import structlog
-from sqlalchemy import insert, select, update
-from sqlalchemy.ext.asyncio import AsyncSession
+from redis.asyncio import Redis
 
 from prodik.application.interfaces.repositories import SessionRepository
-from prodik.domain.authorization import Session
+from prodik.domain.authorization import Session, SessionId
+from prodik.domain.user import UserId
+from prodik.infrastructure.config import CacheConfig
 
 logger = structlog.get_logger()
 
 
 @dataclass
 class SessionRepositoryImpl(SessionRepository):
-    session: AsyncSession
+    client: Redis
+    config: CacheConfig
 
     async def create(self, session: Session) -> None:
         logger.info("Repository create session", session_id=session.id)
-        await self.session.execute(
-            insert(Session).values(
-                id=session.id,
-                user_id=session.user_id,
-                token=session.token,
-                host=session.host,
-                created_at=session.created_at,
-                updated_at=session.updated_at,
-            )
+        session_key = f"session:{session.token}"
+        host_key = f"host:{session.host}"
+
+        await self.client.hset(
+            session_key,
+            mapping={  # type: ignore
+                "id": str(session.id),
+                "user_id": str(session.user_id),
+                "token": session.token,
+                "host": session.host,
+                "created_at": session.created_at.isoformat(),
+                "updated_at": session.updated_at.isoformat(),
+            },
         )
+
+        await self.client.set(host_key, session.token)
+
+        await self.client.expire(session_key, self.config.ttl)
 
     async def update(self, session: Session) -> None:
         logger.info("Repository update session", session_id=session.id)
-        await self.session.execute(
-            update(Session)
-            .where(
-                Session.id == session.id  # type: ignore
-            )
-            .values(
-                user_id=session.user_id,
-                token=session.token,
-                host=session.host,
-                updated_at=session.updated_at,
-            )
+        session_key = f"session:{session.token}"
+        await self.client.hset(
+            session_key,
+            mapping={  # type: ignore
+                "token": session.token,
+                "updated_at": session.updated_at.isoformat(),
+            },
         )
 
     async def get_by_token(self, token: str) -> Session | None:
         logger.info("Repository get session by token")
-        result = await self.session.execute(
-            select(Session).where(Session.token == token)  # type: ignore
+
+        data = await self.client.hgetall(f"session:{token}")  # type: ignore
+        if not data:
+            return None
+
+        session = Session(
+            id=SessionId(data["id"]),
+            user_id=UserId(data["user_id"]),
+            token=data["token"],
+            host=data["host"],
+            created_at=datetime.fromisoformat(data["created_at"]),
+            updated_at=datetime.fromisoformat(data["updated_at"]),
         )
 
-        session = result.scalar_one_or_none()
         logger.info("Repository fetched session by token", found=session is not None)
         return session
 
     async def get_by_host(self, host: str) -> Session | None:
         logger.info("Repository get session by host", host=host)
-        result = await self.session.execute(
-            select(Session).where(Session.host == host)  # type: ignore
+
+        token = await self.client.get(f"host:{host}")
+        if token is None:
+            return None
+
+        data = await self.client.hgetall(f"session:{token}")  # type: ignore
+
+        session = Session(
+            id=SessionId(data["id"]),
+            user_id=UserId(data["user_id"]),
+            token=data["token"],
+            host=data["host"],
+            created_at=datetime.fromisoformat(data["created_at"]),
+            updated_at=datetime.fromisoformat(data["updated_at"]),
         )
 
-        session = result.scalar_one_or_none()
         logger.info("Repository fetched session by host", found=session is not None)
+
         return session

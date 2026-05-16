@@ -3,11 +3,13 @@ from dishka.integrations.fastapi import FastapiProvider
 
 from prodik.bootstrap.di.providers import (
     ApplicationProvider,
-    ConnectionProvider,
+    CacheConnectionProvider,
+    DatabaseConnectionProvider,
     InfrastructureProvider,
 )
 from prodik.infrastructure.config import (
     APIConfig,
+    CacheConfig,
     Config,
     DatabaseConfig,
     SecretsConfig,
@@ -19,10 +21,12 @@ def get_async_container(config: Config) -> AsyncContainer:
         FastapiProvider(),
         InfrastructureProvider(),
         ApplicationProvider(),
-        ConnectionProvider(),
+        CacheConnectionProvider(),
+        DatabaseConnectionProvider(),
         context={
             APIConfig: config.api,
             DatabaseConfig: config.database,
             SecretsConfig: config.secrets,
+            CacheConfig: config.cache,
         },
     )

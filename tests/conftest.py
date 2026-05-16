@@ -6,6 +6,7 @@ import pytest
 from dishka import AsyncContainer, Provider, Scope, make_async_container, provide
 from dishka.integrations.fastapi import FastapiProvider, setup_dishka
 from httpx import ASGITransport, AsyncClient
+from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 
 from prodik.application.interfaces.password_hasher import PasswordHasher
@@ -32,9 +33,14 @@ from prodik.application.interfaces.token_managers import (
     RefreshTokenManager,
 )
 from prodik.bootstrap.api import create_app
-from prodik.bootstrap.di.providers import ApplicationProvider, InfrastructureProvider
+from prodik.bootstrap.di.providers import (
+    ApplicationProvider,
+    CacheConnectionProvider,
+    InfrastructureProvider,
+)
 from prodik.infrastructure.config import (
     APIConfig,
+    CacheConfig,
     Config,
     DatabaseConfig,
     SecretsConfig,
@@ -64,6 +70,13 @@ def test_config() -> Config:
 @pytest.fixture(scope="session", autouse=True)
 def startup() -> None:
     start_mapper()
+
+
+@pytest.fixture(autouse=True)
+async def clean_redis(test_container: AsyncContainer) -> AsyncGenerator[None]:
+    yield
+    redis = await test_container.get(Redis)
+    await redis.flushdb()
 
 
 @pytest.fixture
@@ -283,12 +296,14 @@ async def test_container(
     container = make_async_container(
         FastapiProvider(),
         InfrastructureProvider(),
+        CacheConnectionProvider(),
         ApplicationProvider(),
         TestConnectionProvider(),
         context={
             APIConfig: test_config.api,
             DatabaseConfig: test_config.database,
             SecretsConfig: test_config.secrets,
+            CacheConfig: test_config.cache,
         },
     )
 

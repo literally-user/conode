@@ -5,6 +5,10 @@ services:
     volumes:
       - "./src/prodik/:/prodik/src/prodik/"
 
+  redis:
+    ports:
+     - 6379:6379
+
   postgres:
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres", "-d", "postgres"]

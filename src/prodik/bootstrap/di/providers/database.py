@@ -9,10 +9,10 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 
-from prodik.infrastructure.config import DatabaseConfig
+from prodik.infrastructure.config import CacheConfig, DatabaseConfig
 
 
-class ConnectionProvider(Provider):
+class DatabaseConnectionProvider(Provider):
     @provide(scope=Scope.APP)
     async def get_engine(self, config: DatabaseConfig) -> AsyncIterator[AsyncEngine]:
         engine = create_async_engine(config.url, future=True)
@@ -37,14 +37,15 @@ class ConnectionProvider(Provider):
         async with session_factory() as session:
             yield session
 
-    @provide(scope=Scope.APP)
+    @provide(scope=Scope.REQUEST)
     async def get_redis_connection(
         self,
+        config: CacheConfig,
     ) -> AsyncIterator[Redis]:
         client = Redis(
-            host="cache.literally.io",
+            host=config.host,
+            port=config.port,
             decode_responses=True,
-            port=6379,
         )
         yield client
         await client.aclose()

@@ -19,6 +19,13 @@ class SecretsConfig:
 
 
 @dataclass(slots=True, frozen=True, kw_only=True)
+class CacheConfig:
+    host: str
+    port: int
+    ttl: int
+
+
+@dataclass(slots=True, frozen=True, kw_only=True)
 class DatabaseConfig:
     url: str
 
@@ -28,6 +35,7 @@ class Config:
     api: APIConfig
     database: DatabaseConfig
     secrets: SecretsConfig
+    cache: CacheConfig
 
 
 def load_config(path: str = "config.toml") -> Config:
@@ -44,5 +52,10 @@ def load_config(path: str = "config.toml") -> Config:
             secrets=SecretsConfig(
                 secret=config["secrets"]["secret"],
                 expires_in=config["secrets"]["expires_in"],
+            ),
+            cache=CacheConfig(
+                host=config["cache"]["host"],
+                port=config["cache"]["port"],
+                ttl=config["cache"]["ttl"],
             ),
         )
