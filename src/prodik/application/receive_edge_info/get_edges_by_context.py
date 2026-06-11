@@ -9,7 +9,7 @@ from prodik.application.interfaces.repositories import (
 )
 from prodik.application.services import AccessControlService
 from prodik.domain.context import ContextId
-from prodik.domain.node import Node
+from prodik.domain.edge import Edge
 
 
 @dataclass
@@ -20,7 +20,7 @@ class GetEdgesByContextInteractor:
     context_repository: ContextRepository
     node_repository: NodeRepository
 
-    async def execute(self, context_id: ContextId) -> list[Node]:
+    async def execute(self, context_id: ContextId) -> list[Edge]:
         user = await self.access_control_service.get_authorized_user()
 
         context = await self.context_repository.get_by_id(context_id)
@@ -35,9 +35,4 @@ class GetEdgesByContextInteractor:
             context,
         )
 
-        edges = await self.edge_repository.get_all_by_context_id(context_id)
-        node_ids = list(
-            {edge.node_a_id for edge in edges} | {edge.node_b_id for edge in edges},
-        )
-
-        return await self.node_repository.get_all_by_ids(node_ids)
+        return await self.edge_repository.get_all_by_context_id(context_id)
