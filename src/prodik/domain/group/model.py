@@ -63,7 +63,7 @@ class Group(Entity[GroupId]):
         company: Company,
         parent_group: "Group | None",
     ) -> Self:
-        if parent_group is not None and parent_group.id == id:
+        if parent_group is not None and parent_group.id == group_id:
             raise GroupCannotInheritedFromItselfError(
                 "Group cannot inherit from itself",
                 [{"key": "parent_group", "value": parent_group}],
