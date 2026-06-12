@@ -168,11 +168,11 @@ class AccessControlService:
     async def ensure_user_can_view_group(
         self,
         user: User,
-        context: Group,
+        group: Group,
     ) -> None:
         permissions = await self._get_all_permissions(user)
 
-        group_company = await self.company_repository.get_by_id(context.company_id)
+        group_company = await self.company_repository.get_by_id(group.company_id)
         if group_company is None:
             raise GroupNotFoundError("Group company not found", None)
 
@@ -180,7 +180,7 @@ class AccessControlService:
             permissions=permissions,
             required_permission=PermissionType.READ,
             required_entity=EntityType.GROUP,
-            entity_id=context.id,
+            entity_id=group.id,
             company=group_company,
         ):
             raise NotEnoughRightsError("Not enough rights to perform operation", None)
