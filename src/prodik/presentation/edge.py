@@ -3,11 +3,11 @@ from http import HTTPStatus
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
 from fastapi import APIRouter
 
-from prodik.application.create_edge import (
+from prodik.application.manage_edge import (
     CreateEdgeInteractor,
     CreateEdgeRequestDTO,
+    DeleteEdgeInteractor,
 )
-from prodik.application.delete_edge import DeleteEdgeInteractor
 from prodik.application.receive_edge_info import GetEdgesByContextInteractor
 from prodik.application.update_edge_weight import (
     DecrementEdgeWeightInteractor,
@@ -21,7 +21,6 @@ from prodik.presentation.schemas.edge import (
     EdgeSchema,
     UpdateEdgeWeightRequest,
 )
-from prodik.presentation.schemas.node import NodeSchema
 
 router = APIRouter(tags=["edges"], prefix="/edges", route_class=DishkaRoute)
 
@@ -84,15 +83,16 @@ async def update_edge_weight(
 async def get_all_edges_by_context(
     context_id: ContextId,
     interactor: FromDishka[GetEdgesByContextInteractor],
-) -> list[NodeSchema]:
+) -> list[EdgeSchema]:
     result = await interactor.execute(context_id)
 
     return [
-        NodeSchema(
-            id=node.id,
-            name=node.name.value,
-            description=node.description.value,
-            company_id=node.company_id,
+        EdgeSchema(
+            id=edge.id,
+            node_a_id=edge.node_a_id,
+            node_b_id=edge.node_b_id,
+            context_id=edge.context_id,
+            company_id=edge.company_id,
         )
-        for node in result
+        for edge in result
     ]

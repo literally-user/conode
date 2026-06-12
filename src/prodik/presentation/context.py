@@ -3,11 +3,9 @@ from http import HTTPStatus
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
 from fastapi import APIRouter
 
-from prodik.application.create_context import (
+from prodik.application.manage_context import (
     CreateContextInteractor,
     CreateContextRequestDTO,
-)
-from prodik.application.delete_context import (
     DeleteContextInteractor,
 )
 from prodik.domain.context import ContextId

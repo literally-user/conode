@@ -8,32 +8,27 @@ from prodik.application.authorization import (
     RefreshTokenInteractor,
     RegisterInteractor,
 )
-from prodik.application.create_context import CreateContextInteractor
-from prodik.application.create_edge import CreateEdgeInteractor
-from prodik.application.create_group import CreateGroupInteractor
-from prodik.application.create_node import (
-    CreateNodeInteractor,
-)
-from prodik.application.create_role import (
-    CreateRoleInteractor,
-)
-from prodik.application.delete_context import (
-    DeleteContextInteractor,
-)
-from prodik.application.delete_edge import DeleteEdgeInteractor
-from prodik.application.delete_group import DeleteGroupInteractor
-from prodik.application.delete_node import (
-    DeleteNodeInteractor,
-)
-from prodik.application.delete_role import (
-    DeleteRoleInteractor,
-)
 from prodik.application.detach_node_from_group import (
     DetachNodeInteractor,
 )
-from prodik.application.give_role_to_user import GiveRoleToUserInteractor
+from prodik.application.manage_context import (
+    CreateContextInteractor,
+    DeleteContextInteractor,
+)
 from prodik.application.manage_credentials import UpdateCurrentUserPasswordInteractor
+from prodik.application.manage_edge import CreateEdgeInteractor, DeleteEdgeInteractor
+from prodik.application.manage_group import CreateGroupInteractor, DeleteGroupInteractor
+from prodik.application.manage_node import CreateNodeInteractor, DeleteNodeInteractor
 from prodik.application.manage_profile import UpdateCurrentUserProfileInteractor
+from prodik.application.manage_role import (
+    CreateRoleInteractor,
+    DeleteRoleInteractor,
+    UpdateRoleInteractor,
+)
+from prodik.application.manage_user_rights import (
+    GiveRoleToUserInteractor,
+    RevokeRoleFromUserInteractor,
+)
 from prodik.application.receive_context_info import (
     GetContextByIdInteractor,
 )
@@ -47,7 +42,6 @@ from prodik.application.receive_user_info import (
 from prodik.application.register_company import (
     RegisterCompanyInteractor,
 )
-from prodik.application.revoke_role_from_user import RevokeRoleFromUserInteractor
 from prodik.application.services import (
     AccessControlService,
     OfferAcceptanceService,
@@ -66,9 +60,6 @@ from prodik.application.update_edge_weight import (
 )
 from prodik.application.update_node import (
     UpdateNodeInteractor,
-)
-from prodik.application.update_role import (
-    UpdateRoleInteractor,
 )
 from prodik.application.verify_company import VerifyCompanyInteractor
 

@@ -7,14 +7,12 @@ from prodik.application.attach_node_to_group import (
     AttachNodeInteractor,
     AttachNodeRequestDTO,
 )
-from prodik.application.create_node import (
+from prodik.application.detach_node_from_group import DetachNodeInteractor
+from prodik.application.manage_node import (
     CreateNodeInteractor,
     CreateNodeRequestDTO,
-)
-from prodik.application.delete_node import (
     DeleteNodeInteractor,
 )
-from prodik.application.detach_node_from_group import DetachNodeInteractor
 from prodik.application.receive_node_info import GetNodesByGroupInteractor
 from prodik.application.update_node import (
     UpdateNodeInteractor,
