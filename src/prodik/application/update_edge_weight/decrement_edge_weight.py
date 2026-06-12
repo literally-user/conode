@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 from prodik.application.errors import (
+    EdgeWeightCannotBeNegativeError,
     CompanyNotFoundError,
     ContextNotFoundError,
     EdgeNotFoundError,
@@ -32,6 +33,12 @@ class DecrementEdgeWeightInteractor:
                 raise EdgeNotFoundError(
                     "Edge not found",
                     [{"key": "edge_id", "value": edge_id}],
+                )
+            
+            if edge.weight <= 0:
+                raise EdgeWeightCannotBeNegativeError(
+                    "Edge weight cannot be negative",
+                    None
                 )
 
             context = await self.context_repository.get_by_id(edge.context_id)
