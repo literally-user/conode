@@ -28,9 +28,10 @@ class NodeFactory:
         group: Group | None = None,
         user: User | None = None,
     ) -> Node:
-        if user is None:
-            user = (await self.user_factory.create_user(admin=False)).user
         if company is None:
+            if user is None:
+                user = (await self.user_factory.create_user(admin=False)).user
+
             company = await self.company_factory.create_company(user)
 
         node = Node.new(

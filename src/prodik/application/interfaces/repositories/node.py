@@ -12,7 +12,7 @@ class NodeRepository(Protocol):
     async def get_all_by_ids(self, nodes_ids: list[NodeId]) -> list[Node]: ...
     async def get_all_by_associations(
         self,
-        nodes: list[NodeAssociation],
+        associations: list[NodeAssociation],
     ) -> list[Node]: ...
 
 
