@@ -4,7 +4,6 @@ import structlog
 from sqlalchemy import delete, insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from prodik.application.errors import AssociationNotFoundError, NodeNotFoundError
 from prodik.application.interfaces.repositories import (
     NodeAssociationRepository,
     NodeRepository,
@@ -55,7 +54,7 @@ class NodeRepositoryImpl(NodeRepository):
             ),
         )
 
-    async def get_by_id(self, node_id: NodeId) -> Node:
+    async def get_by_id(self, node_id: NodeId) -> Node | None:
         logger.info("Repository get node by id", node_id=node_id)
         result = await self.session.execute(
             select(Node).where(
@@ -64,15 +63,7 @@ class NodeRepositoryImpl(NodeRepository):
         )
 
         node = result.scalar_one_or_none()
-
         logger.info("Repository fetched node by id", found=node is not None)
-
-        if node is None:
-            raise NodeNotFoundError(
-                "Node not found",
-                [{"key": "node_id", "value": node_id}],
-            )
-
         return node
 
     async def update(self, node: Node) -> None:
@@ -144,7 +135,7 @@ class NodeAssociationRepositoryImpl(NodeAssociationRepository):
     async def get_by_id(
         self,
         node_association_id: NodeAssociationId,
-    ) -> NodeAssociation:
+    ) -> NodeAssociation | None:
         logger.info(
             "Repository get node association by id",
             association_id=node_association_id,
@@ -156,18 +147,10 @@ class NodeAssociationRepositoryImpl(NodeAssociationRepository):
         )
 
         association = result.scalar_one_or_none()
-
         logger.info(
             "Repository fetched node association by id",
             found=association is not None,
         )
-
-        if association is None:
-            raise AssociationNotFoundError(
-                "Association not found error",
-                [{"key": "node_association_id", "value": node_association_id}],
-            )
-
         return association
 
     async def create_all(self, node_association: list[NodeAssociation]) -> None:

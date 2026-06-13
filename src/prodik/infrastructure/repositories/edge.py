@@ -4,7 +4,6 @@ import structlog
 from sqlalchemy import and_, delete, insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from prodik.application.errors import EdgeNotFoundError
 from prodik.application.interfaces.repositories import EdgeRepository
 from prodik.domain.context import ContextId
 from prodik.domain.edge import Edge, EdgeId
@@ -53,7 +52,7 @@ class EdgeRepositoryImpl(EdgeRepository):
             ),
         )
 
-    async def get_by_id(self, edge_id: EdgeId) -> Edge:
+    async def get_by_id(self, edge_id: EdgeId) -> Edge | None:
         logger.info("Repository get edge by id", edge_id=edge_id)
         result = await self.session.execute(
             select(Edge).where(
@@ -62,15 +61,7 @@ class EdgeRepositoryImpl(EdgeRepository):
         )
 
         edge = result.scalar_one_or_none()
-
         logger.info("Repository fetched edge by id", found=edge is not None)
-
-        if edge is None:
-            raise EdgeNotFoundError(
-                "Edge not found",
-                [{"key": "edge_id", "value": edge_id}],
-            )
-
         return edge
 
     async def get_by_nodes_and_context(

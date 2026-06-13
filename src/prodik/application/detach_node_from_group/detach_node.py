@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 from prodik.application.errors import (
+    AssociationNotFoundError,
     GroupNotFoundError,
     NodeMustHaveAtLeastOneAssociationError,
 )
@@ -31,6 +32,11 @@ class DetachNodeInteractor:
             association = await self.node_association_repository.get_by_id(
                 association_id,
             )
+            if association is None:
+                raise AssociationNotFoundError(
+                    "Association not found error",
+                    [{"key": "association_id", "value": association_id}],
+                )
 
             group = await self.group_repository.get_by_id(association.group_id)
             if group is None:

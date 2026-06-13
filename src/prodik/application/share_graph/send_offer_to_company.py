@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from datetime import datetime
 
 from prodik.application.errors import (
+    CompanyNotFoundError,
     ContextNotFoundError,
     GroupNotFoundError,
     OfferNotFoundError,
@@ -59,6 +60,16 @@ class SendOfferToCompanyInteractor:
                 self.company_repository.get_by_id(request.from_company_id),
                 self.company_repository.get_by_id(request.to_company_id),
             )
+            if from_company is None:
+                raise CompanyNotFoundError(
+                    "Company not found",
+                    [{"key": "company_id", "value": request.from_company_id}],
+                )
+            if to_company is None:
+                raise CompanyNotFoundError(
+                    "Company not found",
+                    [{"key": "company_id", "value": request.to_company_id}],
+                )
 
             await self.access_control_service.ensure_user_can_send_offers(
                 user,

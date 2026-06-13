@@ -1,6 +1,9 @@
 import asyncio
 from dataclasses import dataclass
 
+from prodik.application.errors import (
+    NodeNotFoundError,
+)
 from prodik.application.interfaces.repositories import (
     CompanyRepository,
     GroupRepository,
@@ -26,6 +29,11 @@ class DeleteNodeInteractor:
             user = await self.access_control_service.get_authorized_user()
 
             node = await self.node_repository.get_by_id(node_id)
+            if node is None:
+                raise NodeNotFoundError(
+                    "Node not found",
+                    [{"key": "node_id", "value": node_id}],
+                )
 
             existing_associations = (
                 await self.node_association_repository.get_all_by_node_id(node.id)
@@ -34,7 +42,6 @@ class DeleteNodeInteractor:
                 [association.group_id for association in existing_associations],
             )
 
-            # TODO @LTU: Reduce useless connection using
             await asyncio.gather(
                 *[
                     self.access_control_service.ensure_user_can_manipulate_group(

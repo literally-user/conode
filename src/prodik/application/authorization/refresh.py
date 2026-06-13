@@ -31,6 +31,11 @@ class RefreshTokenInteractor:
             user_meta = self.identity_provider.get_current_user_meta()
 
             user = await self.user_repository.get_by_id(user_meta["user_id"])
+            if user is None:
+                raise SessionNotFoundError(
+                    "User not found",
+                    [{"key": "user_id", "value": user_meta["user_id"]}],
+                )
 
             session = await self.session_repository.get_by_token(token)
             if session is None:

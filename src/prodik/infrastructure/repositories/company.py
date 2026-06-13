@@ -4,7 +4,6 @@ import structlog
 from sqlalchemy import insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from prodik.application.errors import CompanyNotFoundError
 from prodik.application.interfaces.repositories import CompanyRepository
 from prodik.domain.company.model import Company, CompanyId, CompanyName
 from prodik.domain.user import UserId
@@ -57,7 +56,7 @@ class CompanyRepositoryImpl(CompanyRepository):
         logger.info("Repository fetched company by name", found=company is not None)
         return company
 
-    async def get_by_id(self, company_id: CompanyId) -> Company:
+    async def get_by_id(self, company_id: CompanyId) -> Company | None:
         logger.info("Repository get company by id", company_id=company_id)
         result = await self.session.execute(
             select(Company).where(
@@ -66,18 +65,10 @@ class CompanyRepositoryImpl(CompanyRepository):
         )
 
         company = result.scalar_one_or_none()
-
         logger.info(
             "Repository fetched company by id",
             found=company is not None,
         )
-
-        if company is None:
-            raise CompanyNotFoundError(
-                "Company not found",
-                [{"key": "company_id", "value": company_id}],
-            )
-
         return company
 
     async def get_by_user_id(self, user_id: UserId) -> Company | None:
