@@ -1,4 +1,6 @@
 from dataclasses import dataclass
+from math import ceil
+from random import choice, randint
 from uuid import uuid4
 
 from prodik.application.interfaces.repositories import EdgeRepository
@@ -30,3 +32,30 @@ class EdgeFactory:
         )
         await self.edge_repository.create(edge)
         return edge
+
+    async def generate_random_graph(
+        self,
+        nodes: list[Node],
+        company: Company,
+        context: Context,
+        coupling: float = 1.0,
+    ) -> list[Edge]:
+        edges = []
+
+        for _ in range(ceil(len(nodes) * 2 * coupling)):
+            while True:
+                node_a, node_b = choice(nodes), choice(nodes)
+                if node_a != node_b:
+                    break
+
+            edges.append(
+                await self.create_edge(
+                    node_a,
+                    node_b,
+                    company=company,
+                    context=context,
+                    weight=randint(1, 100),
+                )
+            )
+
+        return edges
