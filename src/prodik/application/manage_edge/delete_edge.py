@@ -3,7 +3,6 @@ from dataclasses import dataclass
 from prodik.application.errors import (
     CompanyNotFoundError,
     ContextNotFoundError,
-    EdgeNotFoundError,
 )
 from prodik.application.interfaces.repositories import (
     CompanyRepository,
@@ -28,11 +27,6 @@ class DeleteEdgeInteractor:
             user = await self.access_control_service.get_authorized_user()
 
             edge = await self.edge_repository.get_by_id(edge_id)
-            if edge is None:
-                raise EdgeNotFoundError(
-                    "Edge not found",
-                    [{"key": "edge_id", "value": edge_id}],
-                )
 
             context = await self.context_repository.get_by_id(edge.context_id)
             if context is None:
