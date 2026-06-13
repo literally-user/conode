@@ -4,6 +4,7 @@ import structlog
 from sqlalchemy import delete, insert, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from prodik.application.errors import ContextNotFoundError
 from prodik.application.interfaces.repositories import ContextRepository
 from prodik.domain.company import CompanyId
 from prodik.domain.context import Context, ContextId
@@ -28,7 +29,7 @@ class ContextRepositoryImpl(ContextRepository):
             ),
         )
 
-    async def get_by_id(self, context_id: ContextId) -> Context | None:
+    async def get_by_id(self, context_id: ContextId) -> Context:
         logger.info("Repository get context by id", context_id=context_id)
         result = await self.session.execute(
             select(Context).where(
@@ -37,10 +38,18 @@ class ContextRepositoryImpl(ContextRepository):
         )
 
         context = result.scalar_one_or_none()
+
         logger.info(
             "Repository fetched context by id",
             found=context is not None,
         )
+
+        if context is None:
+            raise ContextNotFoundError(
+                "Context not found",
+                [{"key": "context_id", "value": context_id}],
+            )
+
         return context
 
     async def delete(self, context: Context) -> None:

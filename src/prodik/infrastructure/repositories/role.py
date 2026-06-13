@@ -4,6 +4,7 @@ import structlog
 from sqlalchemy import and_, delete, insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from prodik.application.errors import RoleNotFoundError
 from prodik.application.interfaces.repositories import RoleRepository
 from prodik.domain.company import CompanyId
 from prodik.domain.role import Role
@@ -78,14 +79,22 @@ class RoleRepositoryImpl(RoleRepository):
             ),
         )
 
-    async def get_by_id(self, role_id: RoleId) -> Role | None:
+    async def get_by_id(self, role_id: RoleId) -> Role:
         logger.info("Repository get role by id", role_id=role_id)
         result = await self.session.execute(
             select(Role).where(Role.id == role_id),  # type: ignore
         )
 
         role = result.scalar_one_or_none()
+
         logger.info("Repository fetched role by id", found=role is not None)
+
+        if role is None:
+            raise RoleNotFoundError(
+                "Role not found",
+                [{"key": "role_id", "value": role_id}],
+            )
+
         return role
 
     async def get_by_name_and_company_id(

@@ -4,6 +4,7 @@ import structlog
 from sqlalchemy import insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from prodik.application.errors import CompanyNotFoundError
 from prodik.application.interfaces.repositories import CompanyRepository
 from prodik.domain.company.model import Company, CompanyId, CompanyName
 from prodik.domain.user import UserId
@@ -56,7 +57,7 @@ class CompanyRepositoryImpl(CompanyRepository):
         logger.info("Repository fetched company by name", found=company is not None)
         return company
 
-    async def get_by_id(self, company_id: CompanyId) -> Company | None:
+    async def get_by_id(self, company_id: CompanyId) -> Company:
         logger.info("Repository get company by id", company_id=company_id)
         result = await self.session.execute(
             select(Company).where(
@@ -65,11 +66,40 @@ class CompanyRepositoryImpl(CompanyRepository):
         )
 
         company = result.scalar_one_or_none()
+
         logger.info(
             "Repository fetched company by id",
             found=company is not None,
         )
+
+        if company is None:
+            raise CompanyNotFoundError(
+                "Company not found",
+                [{"key": "company_id", "value": company_id}],
+            )
+
         return company
+
+    async def get_by_ids(self, company_ids: list[CompanyId]) -> list[Company]:
+        if not company_ids:
+            return []
+
+        logger.info("Repository get companies by ids", request_count=len(company_ids))
+
+        result = await self.session.execute(
+            select(Company).where(
+                Company.id.in_(company_ids)  # type: ignore
+            )
+        )
+
+        result_companies = list(result.scalars().all())
+
+        logger.info(
+            "Repository fetched companies by ids",
+            found_count=len(result_companies),
+        )
+
+        return result_companies
 
     async def get_by_user_id(self, user_id: UserId) -> Company | None:
         logger.info("Repository get company by user id", user_id=user_id)
