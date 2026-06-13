@@ -16,14 +16,12 @@ from prodik.domain.user import Bio, Email, FirstName, LastName, Username
 class BaseVOTypeDecorator[T: ValueObject[Any]](TypeDecorator[T]):
     vo_class: ClassVar[type]
 
-    @override
     def process_bind_param(self, value: T | None, dialect: Dialect) -> Any:
         if value is None:
             return None
 
         return value.value
 
-    @override
     def process_result_value(self, value: Any | None, dialect: Dialect) -> T | None:
         return self.vo_class(value) if value else None
 
