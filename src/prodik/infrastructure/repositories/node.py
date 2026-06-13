@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 import structlog
-from sqlalchemy import delete, insert, select, update, or_
+from sqlalchemy import delete, insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from prodik.application.errors import AssociationNotFoundError, NodeNotFoundError
@@ -9,7 +9,6 @@ from prodik.application.interfaces.repositories import (
     NodeAssociationRepository,
     NodeRepository,
 )
-from prodik.domain.edge import Edge
 from prodik.domain.group import GroupId
 from prodik.domain.node import Node, NodeAssociation, NodeAssociationId, NodeId
 
@@ -89,7 +88,9 @@ class NodeRepositoryImpl(NodeRepository):
             ),
         )
 
-    async def get_all_by_associations(self, associations: list[NodeAssociation]) -> list[Node]:
+    async def get_all_by_associations(
+        self, associations: list[NodeAssociation]
+    ) -> list[Node]:
         logger.info(
             "Repository get nodes by associations",
             request_count=len(associations),

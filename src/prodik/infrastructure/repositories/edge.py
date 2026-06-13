@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 import structlog
-from sqlalchemy import and_, delete, insert, select, update
+from sqlalchemy import and_, delete, insert, or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from prodik.application.errors import EdgeNotFoundError
@@ -52,6 +52,27 @@ class EdgeRepositoryImpl(EdgeRepository):
                 updated_at=edge.updated_at,
             ),
         )
+
+    async def get_neighbours_by_node_id(self, node_id: NodeId) -> list[Edge]:
+        logger.info("Repository get neighbours by node id", node_id=node_id)
+
+        result = await self.session.execute(
+            select(Edge).where(
+                or_(
+                    Edge.node_a_id == node_id,  # type: ignore
+                    Edge.node_b_id == node_id,  # type: ignore
+                )
+            )
+        )
+
+        result_edges = list(result.scalars().all())
+
+        logger.info(
+            "Repository fetched neighbours by node id",
+            found_count=len(result_edges),
+        )
+
+        return result_edges
 
     async def get_by_id(self, edge_id: EdgeId) -> Edge:
         logger.info("Repository get edge by id", edge_id=edge_id)
