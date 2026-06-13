@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from uuid import uuid4
 
+from prodik.application.errors import CompanyNotFoundError
 from prodik.application.interfaces.repositories import (
     CompanyRepository,
     ContextRepository,
@@ -30,6 +31,11 @@ class CreateContextInteractor:
             user = await self.access_control_service.get_authorized_user()
 
             company = await self.company_repository.get_by_id(request.company_id)
+            if company is None:
+                raise CompanyNotFoundError(
+                    "Company not found",
+                    [{"key": "company_id", "value": request.company_id}],
+                )
 
             await self.access_control_service.ensure_user_can_create_contexts(
                 user,

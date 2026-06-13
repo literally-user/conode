@@ -1,5 +1,9 @@
 from dataclasses import dataclass
 
+from prodik.application.errors import (
+    CompanyNotFoundError,
+    GroupNotFoundError,
+)
 from prodik.application.interfaces.repositories import (
     CompanyRepository,
     GroupRepository,
@@ -21,6 +25,18 @@ class DeleteGroupInteractor:
             user = await self.access_control_service.get_authorized_user()
 
             group = await self.group_repository.get_by_id(group_id)
+            if group is None:
+                raise GroupNotFoundError(
+                    "Group not found",
+                    [{"key": "group_id", "value": group_id}],
+                )
+
+            company = await self.company_repository.get_by_id(group.company_id)
+            if company is None:
+                raise CompanyNotFoundError(
+                    "Company by group not found",
+                    [{"key": "company_id", "value": group.company_id}],
+                )
 
             await self.access_control_service.ensure_user_can_manipulate_group(
                 user,

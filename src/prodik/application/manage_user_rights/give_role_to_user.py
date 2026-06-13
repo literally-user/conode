@@ -3,6 +3,8 @@ from uuid import uuid4
 
 from prodik.application.errors import (
     GrantAlreadyExistsError,
+    RoleNotFoundError,
+    UserNotFoundError,
 )
 from prodik.application.interfaces.repositories import (
     RoleRepository,
@@ -29,7 +31,18 @@ class GiveRoleToUserInteractor:
             executor = await self.access_control_service.get_authorized_user()
 
             role = await self.role_repository.get_by_id(role_id)
+            if role is None:
+                raise RoleNotFoundError(
+                    "Role not found",
+                    [{"key": "role_id", "value": role_id}],
+                )
+
             user = await self.user_repository.get_by_id(user_id)
+            if user is None:
+                raise UserNotFoundError(
+                    "User not found",
+                    [{"key": "user_id", "value": user_id}],
+                )
 
             await self.access_control_service.ensure_user_can_manipulate_role(
                 executor,

@@ -5,6 +5,7 @@ from typing import cast
 from prodik.application.errors import (
     CompanyNotFoundError,
     OfferLinkNotFoundError,
+    OfferNotFoundError,
 )
 from prodik.application.interfaces.repositories import (
     CompanyRepository,
@@ -47,6 +48,11 @@ class AcceptOfferInteractor:
         async with self.transaction_manager:
             user = await self.access_control_service.get_authorized_user()
             offer = await self.offer_repository.get_by_id(offer_id)
+            if offer is None:
+                raise OfferNotFoundError(
+                    "Offer not found",
+                    [{"key": "offer_id", "value": offer_id}],
+                )
 
             offer_from_company, offer_to_company = await self._get_offer_companies(
                 offer,
@@ -64,6 +70,11 @@ class AcceptOfferInteractor:
                 from_offer = await self.offer_repository.get_by_id(
                     offer.get_from_offer_id(),
                 )
+                if from_offer is None:
+                    raise OfferNotFoundError(
+                        "Counter offer not found",
+                        [{"key": "offer_id", "value": offer.get_from_offer_id()}],
+                    )
 
                 offer_link = await self.offer_link_repository.get_by_offers_ids(
                     offer.id,

@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from uuid import uuid4
 
 from prodik.application.errors import (
+    GroupNotFoundError,
     NodeCannotHaveSameAssociationsError,
     NodeNotFoundError,
 )
@@ -37,6 +38,11 @@ class AttachNodeInteractor:
             user = await self.access_control_service.get_authorized_user()
 
             group = await self.group_repository.get_by_id(request.group_id)
+            if group is None:
+                raise GroupNotFoundError(
+                    "Group not found",
+                    [{"key": "group_id", "value": request.group_id}],
+                )
 
             request_nodes = set(request.nodes)
             existing_nodes = await self.node_repository.get_all_by_ids(
