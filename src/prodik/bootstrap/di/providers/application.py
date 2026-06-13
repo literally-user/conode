@@ -33,6 +33,7 @@ from prodik.application.receive_context_info import (
     GetContextByIdInteractor,
 )
 from prodik.application.receive_edge_info import GetEdgesByContextInteractor
+from prodik.application.receive_graph_statistics import FindShortestPathInteractor
 from prodik.application.receive_group_info import GetGroupByIdInteractor
 from prodik.application.receive_node_info import GetNodesByGroupInteractor
 from prodik.application.receive_user_info import (
@@ -84,6 +85,7 @@ class ApplicationProvider(Provider):
         SendOfferToCompanyInteractor,
         DecrementEdgeWeightInteractor,
         GetUserByUsernameInteractor,
+        FindShortestPathInteractor,
         GetNodesByGroupInteractor,
         RegisterCompanyInteractor,
         GetCurrentUserInteractor,

@@ -9,6 +9,10 @@ from prodik.application.manage_edge import (
     DeleteEdgeInteractor,
 )
 from prodik.application.receive_edge_info import GetEdgesByContextInteractor
+from prodik.application.receive_graph_statistics import (
+    FindShortestPathInteractor,
+    FindShortestPathRequestDTO,
+)
 from prodik.application.update_edge_weight import (
     DecrementEdgeWeightInteractor,
     IncrementEdgeWeightInteractor,
@@ -16,6 +20,7 @@ from prodik.application.update_edge_weight import (
 )
 from prodik.domain.context import ContextId
 from prodik.domain.edge import EdgeId
+from prodik.domain.node import NodeId
 from prodik.presentation.schemas.edge import (
     CreateEdgeRequest,
     EdgeSchema,
@@ -44,6 +49,33 @@ async def create_edge(
         context_id=result.context_id,
         company_id=result.company_id,
     )
+
+
+@router.get("/shortest")
+async def find_shortest_path(
+    from_node_id: NodeId,
+    to_node_id: NodeId,
+    context_id: ContextId,
+    interactor: FromDishka[FindShortestPathInteractor],
+) -> list[EdgeSchema]:
+    result = await interactor.execute(
+        FindShortestPathRequestDTO(
+            from_node_id=from_node_id,
+            to_node_id=to_node_id,
+            context_id=context_id,
+        )
+    )
+
+    return [
+        EdgeSchema(
+            id=edge.id,
+            node_a_id=edge.node_a_id,
+            node_b_id=edge.node_b_id,
+            context_id=edge.context_id,
+            company_id=edge.company_id,
+        )
+        for edge in result
+    ]
 
 
 @router.delete("/{edge_id}", status_code=HTTPStatus.NO_CONTENT)
