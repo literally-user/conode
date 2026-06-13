@@ -22,3 +22,9 @@ class EdgeSchema(BaseModel):
     node_b_id: NodeId
     context_id: ContextId
     company_id: CompanyId
+
+
+class FindShortestPathRequest(BaseModel):
+    from_node_id: NodeId
+    to_node_id: NodeId
+    context_id: ContextId
