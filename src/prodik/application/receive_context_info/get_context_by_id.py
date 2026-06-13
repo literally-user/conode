@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 
-from prodik.application.errors import ContextNotFoundError
 from prodik.application.interfaces.repositories import ContextRepository
 from prodik.application.services import AccessControlService
 from prodik.domain.context import Context, ContextId
@@ -15,11 +14,6 @@ class GetContextByIdInteractor:
         user = await self.access_control_service.get_authorized_user()
 
         context = await self.context_repository.get_by_id(context_id)
-        if context is None:
-            raise ContextNotFoundError(
-                "Context not found",
-                [{"key": "context_id", "value": context_id}],
-            )
 
         await self.access_control_service.ensure_user_can_view_context(
             user,

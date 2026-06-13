@@ -4,6 +4,7 @@ import structlog
 from sqlalchemy import delete, insert, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from prodik.application.errors import GroupNotFoundError
 from prodik.application.interfaces.repositories import GroupRepository
 from prodik.domain.company import CompanyId
 from prodik.domain.group import Group, GroupId
@@ -28,7 +29,7 @@ class GroupRepositoryImpl(GroupRepository):
             ),
         )
 
-    async def get_by_id(self, group_id: GroupId) -> Group | None:
+    async def get_by_id(self, group_id: GroupId) -> Group:
         logger.info("Repository get group by id", group_id=group_id)
         result = await self.session.execute(
             select(Group).where(
@@ -37,7 +38,15 @@ class GroupRepositoryImpl(GroupRepository):
         )
 
         group = result.scalar_one_or_none()
+
         logger.info("Repository fetched group by id", found=group is not None)
+
+        if group is None:
+            raise GroupNotFoundError(
+                "Group not found",
+                [{"key": "group_id", "value": group_id}],
+            )
+
         return group
 
     async def delete(self, group: Group) -> None:

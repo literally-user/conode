@@ -2,36 +2,38 @@ import structlog
 from fastapi import FastAPI
 
 from prodik.application.errors import ApplicationError
-from prodik.presentation.auth import router as auth_router
-from prodik.presentation.company import router as company_router
-from prodik.presentation.context import router as context_router
-from prodik.presentation.edge import router as edge_router
 from prodik.presentation.exceptions import (
     application_error_handler,
     default_error_handler,
 )
-from prodik.presentation.group import router as group_router
 from prodik.presentation.middlewares import LoggerMiddleware
-from prodik.presentation.node import router as node_router
-from prodik.presentation.offer import router as offer_router
-from prodik.presentation.role import router as role_router
-from prodik.presentation.root import router as root_router
-from prodik.presentation.user import router as user_router
+from prodik.presentation.views import (
+    auth,
+    company,
+    context,
+    edge,
+    group,
+    node,
+    offer,
+    role,
+    root,
+    user,
+)
 
 logger = structlog.get_logger()
 
 
 def include_handlers(app: FastAPI) -> None:
-    app.include_router(company_router)
-    app.include_router(context_router)
-    app.include_router(group_router)
-    app.include_router(offer_router)
-    app.include_router(role_router)
-    app.include_router(root_router)
-    app.include_router(auth_router)
-    app.include_router(user_router)
-    app.include_router(node_router)
-    app.include_router(edge_router)
+    app.include_router(company)
+    app.include_router(context)
+    app.include_router(group)
+    app.include_router(offer)
+    app.include_router(role)
+    app.include_router(root)
+    app.include_router(auth)
+    app.include_router(user)
+    app.include_router(node)
+    app.include_router(edge)
 
 
 def include_middlewares(app: FastAPI) -> None:

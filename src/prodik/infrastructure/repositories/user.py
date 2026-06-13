@@ -4,6 +4,7 @@ import structlog
 from sqlalchemy import insert, or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from prodik.application.errors import UserNotFoundError
 from prodik.application.interfaces.repositories import UserRepository
 from prodik.domain.user import Email, User, UserId, Username
 
@@ -89,14 +90,22 @@ class UserRepositoryImpl(UserRepository):
         logger.info("Repository fetched user by username", found=user is not None)
         return user
 
-    async def get_by_id(self, user_id: UserId) -> User | None:
+    async def get_by_id(self, user_id: UserId) -> User:
         logger.info("Repository get user by id", user_id=user_id)
         result = await self.session.execute(
             select(User).where(User.id == user_id),  # type: ignore
         )
 
         user = result.scalar_one_or_none()
+
         logger.info("Repository fetched user by id", found=user is not None)
+
+        if user is None:
+            raise UserNotFoundError(
+                "User not found",
+                [{"key": "user_id", "value": user_id}],
+            )
+
         return user
 
     async def get_by_email(self, email: Email) -> User | None:

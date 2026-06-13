@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 
-from prodik.application.errors import RoleNotFoundError
 from prodik.application.interfaces.repositories import (
     RolePermissionsRepository,
     RoleRepository,
@@ -50,11 +49,6 @@ class UpdateRoleInteractor:
             user = await self.access_control_service.get_authorized_user()
 
             role = await self.role_repository.get_by_id(request.role_id)
-            if role is None:
-                raise RoleNotFoundError(
-                    "Role not found",
-                    [{"key": "role_id", "value": request.role_id}],
-                )
 
             await self.access_control_service.ensure_user_can_manipulate_role(
                 user,

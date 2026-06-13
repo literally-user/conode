@@ -60,11 +60,33 @@ class RolePermissionsRepositoryImpl(RolePermissionsRepository):
             ),
         )
         result_permissions = list(result.scalars().all())
+
         logger.info(
             "Repository fetched permissions by role id",
             found_count=len(result_permissions),
         )
 
+        return result_permissions
+
+    async def get_all_by_role_ids(self, role_ids: list[RoleId]) -> list[RolePermission]:
+        if not role_ids:
+            return []
+
+        logger.info(
+            "Repository get permissions by role ids", request_count=len(role_ids)
+        )
+
+        result = await self.session.execute(
+            select(RolePermission).where(
+                RolePermission.role_id.in_(role_ids)  # type: ignore
+            )
+        )
+
+        result_permissions = list(result.scalars().all())
+        logger.info(
+            "Repository fetched permissions by role ids",
+            found_count=len(result_permissions),
+        )
         return result_permissions
 
     async def update_all(self, permissions: list[RolePermission]) -> None:
