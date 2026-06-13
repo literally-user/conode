@@ -13,13 +13,19 @@ from prodik.application.manage_node import (
     CreateNodeRequestDTO,
     DeleteNodeInteractor,
 )
+from prodik.application.receive_graph_statistics import (
+    GetNodeNeighboursInteractor,
+    GetNodeNeighboursRequestDTO,
+)
 from prodik.application.receive_node_info import GetNodesByGroupInteractor
 from prodik.application.update_node import (
     UpdateNodeInteractor,
     UpdateNodeRequestDTO,
 )
+from prodik.domain.context import ContextId
 from prodik.domain.group import GroupId
 from prodik.domain.node import NodeAssociationId, NodeId
+from prodik.presentation.schemas.edge import EdgeSchema
 from prodik.presentation.schemas.node import (
     AttachNodeRequest,
     CreateNodeRequest,
@@ -50,6 +56,39 @@ async def create_node(
         description=result.description.value,
         company_id=result.company_id,
     )
+
+
+@router.get("/{node_id}/neighbours")
+async def get_neighbours(
+    node_id: NodeId,
+    context_id: ContextId,
+    interactor: FromDishka[GetNodeNeighboursInteractor],
+) -> list[tuple[NodeSchema, EdgeSchema]]:
+    result = await interactor.execute(
+        GetNodeNeighboursRequestDTO(
+            node_id=node_id,
+            context_id=context_id,
+        )
+    )
+
+    return [
+        (
+            NodeSchema(
+                id=node.id,
+                name=node.name.value,
+                description=node.description.value,
+                company_id=node.company_id,
+            ),
+            EdgeSchema(
+                id=edge.id,
+                node_a_id=edge.node_a_id,
+                node_b_id=edge.node_b_id,
+                context_id=edge.context_id,
+                company_id=edge.company_id,
+            ),
+        )
+        for node, edge in result
+    ]
 
 
 @router.put("/{node_id}")
