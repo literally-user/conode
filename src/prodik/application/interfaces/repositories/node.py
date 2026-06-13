@@ -3,6 +3,7 @@ from typing import Protocol
 from prodik.domain.group import GroupId
 from prodik.domain.node import Node, NodeAssociation, NodeAssociationId, NodeId
 
+
 class NodeRepository(Protocol):
     async def create(self, node: Node) -> None: ...
     async def update(self, node: Node) -> None: ...
