@@ -62,6 +62,7 @@ class AttachNodeInteractor:
 
             existing_node_ids = {a.node_id for a in existing_associations}
 
+            # TODO @LTU: Fix toctou problem
             for node in existing_nodes:
                 if node.id in existing_node_ids:
                     raise NodeCannotHaveSameAssociationsError(
