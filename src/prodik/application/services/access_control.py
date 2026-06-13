@@ -151,7 +151,7 @@ class AccessControlService:
     ) -> None:
         permissions = await self._get_all_permissions(user)
 
-        group_company = await self.company_repository.get_by_id(context.company_id)
+        group_company = await self.company_repository.get_by_id(group.company_id)
 
         if not self.check(
             permissions=permissions,
