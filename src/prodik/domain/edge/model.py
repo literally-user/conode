@@ -5,7 +5,7 @@ from uuid import UUID
 
 from prodik.domain.company import Company, CompanyId
 from prodik.domain.context import Context, ContextId
-from prodik.domain.edge.errors import EdgeCannotConnectTwoSameNodesError
+from prodik.domain.edge.errors import EdgeCannotConnectTwoSameNodesError, EdgeWeightCannotBeNegativeError
 from prodik.domain.node import Node, NodeId
 from prodik.domain.shared import Entity
 
@@ -55,7 +55,17 @@ class Edge(Entity[EdgeId]):
         self.weight += 1
 
     def decrement_weight(self) -> None:
+        if self.weight <= 0:
+            raise EdgeWeightCannotBeNegativeError(
+                "Edge weight cannot be negative",
+                None,
+            )
         self.weight -= 1
 
     def update_weight(self, weight: float) -> None:
+        if weight < 0:
+            raise EdgeWeightCannotBeNegativeError(
+                "Edge weight cannot be negative",
+                None,
+            )
         self.weight = weight
