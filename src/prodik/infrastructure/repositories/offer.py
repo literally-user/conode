@@ -4,6 +4,7 @@ import structlog
 from sqlalchemy import and_, insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from prodik.application.errors import OfferNotFoundError
 from prodik.application.interfaces.repositories import (
     OfferContextRepository,
     OfferGroupRepository,
@@ -61,7 +62,7 @@ class OfferRepositoryImpl(OfferRepository):
             ),
         )
 
-    async def get_by_id(self, offer_id: OfferId) -> Offer | None:
+    async def get_by_id(self, offer_id: OfferId) -> Offer:
         logger.info("Repository get offer by id", offer_id=offer_id)
         result = await self.session.execute(
             select(Offer).where(
@@ -70,7 +71,15 @@ class OfferRepositoryImpl(OfferRepository):
         )
 
         offer = result.scalar_one_or_none()
+
         logger.info("Repository fetched offer by id", found=offer is not None)
+
+        if offer is None:
+            raise OfferNotFoundError(
+                "Offer not found",
+                [{"key": "offer_id", "value": offer_id}],
+            )
+
         return offer
 
 

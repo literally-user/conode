@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import cast
 from uuid import uuid4
 
 from prodik.application.errors import CompanyAlreadyExistsError
@@ -16,7 +15,6 @@ from prodik.domain.grant import UserGrant, UserGrantId
 from prodik.domain.role import (
     EntityType,
     PermissionType,
-    RolePermissionEntityId,
 )
 
 
@@ -62,12 +60,12 @@ class RegisterCompanyInteractor:
                     company=company,
                     request=[
                         (
-                            cast("RolePermissionEntityId", company.id),
+                            company.id,
                             EntityType.COMPANY,
                             PermissionType.READ,
                         ),
                         (
-                            cast("RolePermissionEntityId", company.id),
+                            company.id,
                             EntityType.COMPANY,
                             PermissionType.MODIFY,
                         ),

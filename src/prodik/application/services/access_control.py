@@ -1,13 +1,9 @@
-import asyncio
 from dataclasses import dataclass
 from typing import Final
 
 from prodik.application.errors import (
-    CompanyNotFoundError,
-    GroupNotFoundError,
     NotEnoughRightsError,
     SessionExpiredError,
-    UserNotFoundError,
 )
 from prodik.application.interfaces.identity_provider import IdentityProvider
 from prodik.application.interfaces.repositories import (
@@ -55,23 +51,12 @@ class AccessControlService:
         grants = await self.user_grant_repository.get_all_by_user_id(user.id)
         role_ids = [g.role_id for g in grants]
 
-        roles = await self.role_repository.get_all_by_ids(role_ids)
-
-        role_permissions = await asyncio.gather(
-            *[
-                self.role_permissions_repository.get_all_by_role_id(role.id)
-                for role in roles
-            ],
-        )
-
-        return [p for group in role_permissions for p in group]
+        return await self.role_permissions_repository.get_all_by_role_ids(role_ids)
 
     async def get_authorized_user(self) -> User:
         meta = self.identity_provider.get_current_user_meta()
 
         user = await self.user_repository.get_by_id(meta["user_id"])
-        if user is None:
-            raise UserNotFoundError("User not found", None)
 
         self._ensure_revision_is_valid(meta, user)
 
@@ -113,8 +98,6 @@ class AccessControlService:
         permissions = await self._get_all_permissions(user)
 
         group_company = await self.company_repository.get_by_id(group.company_id)
-        if group_company is None:
-            raise GroupNotFoundError("Group company not found", None)
 
         if not self.check(
             permissions=permissions,
@@ -133,8 +116,6 @@ class AccessControlService:
         permissions = await self._get_all_permissions(user)
 
         role_company = await self.company_repository.get_by_id(role.owner_company_id)
-        if role_company is None:
-            raise CompanyNotFoundError("Role company not found", None)
 
         if not self.check(
             permissions=permissions,
@@ -153,8 +134,6 @@ class AccessControlService:
         permissions = await self._get_all_permissions(user)
 
         context_company = await self.company_repository.get_by_id(context.company_id)
-        if context_company is None:
-            raise GroupNotFoundError("Context company not found", None)
 
         if not self.check(
             permissions=permissions,
@@ -173,8 +152,6 @@ class AccessControlService:
         permissions = await self._get_all_permissions(user)
 
         group_company = await self.company_repository.get_by_id(context.company_id)
-        if group_company is None:
-            raise GroupNotFoundError("Group company not found", None)
 
         if not self.check(
             permissions=permissions,
@@ -193,8 +170,6 @@ class AccessControlService:
         permissions = await self._get_all_permissions(user)
 
         context_company = await self.company_repository.get_by_id(context.company_id)
-        if context_company is None:
-            raise GroupNotFoundError("Group company not found", None)
 
         if not self.check(
             permissions=permissions,
