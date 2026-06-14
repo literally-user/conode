@@ -13,6 +13,7 @@ from prodik.application.errors import (
     CompanyAlreadyExistsError,
     CompanyNotFoundError,
     ContextNotFoundError,
+    DepthCannotBeNegativeError,
     EdgeAlreadyExistsError,
     EdgeNotFoundError,
     FailedToReadClientError,
@@ -46,6 +47,7 @@ logger = structlog.get_logger()
 
 EXCEPTION_HANDLERS: Final[dict[type[ApplicationError], HTTPStatus]] = {
     UserAlreadyExistsError: HTTPStatus.CONFLICT,
+    DepthCannotBeNegativeError: HTTPStatus.UNPROCESSABLE_CONTENT,
     CompanyAlreadyExistsError: HTTPStatus.CONFLICT,
     EdgeAlreadyExistsError: HTTPStatus.CONFLICT,
     InvalidTokenError: HTTPStatus.UNAUTHORIZED,

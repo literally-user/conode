@@ -62,12 +62,14 @@ async def create_node(
 async def get_neighbours(
     node_id: NodeId,
     context_id: ContextId,
+    depth: int,
     interactor: FromDishka[GetNodeNeighboursInteractor],
 ) -> list[tuple[NodeSchema, EdgeSchema]]:
     result = await interactor.execute(
         GetNodeNeighboursRequestDTO(
             node_id=node_id,
             context_id=context_id,
+            depth=depth,
         )
     )
 
