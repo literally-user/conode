@@ -36,14 +36,16 @@ class GetNodeNeighboursInteractor:
         node = await self.node_repository.get_by_id(request.node_id)
         neighbour_edges = await self.edge_repository.get_neighbours_by_node_id(node.id)
 
-        target_nodes_ids = []
-        for edge in neighbour_edges:
-            if edge.node_a_id == node.id:
-                target_nodes_ids.append(edge.node_b_id)
-                continue
+        edge_by_node_id = {
+            (edge.node_b_id if edge.node_a_id == node.id else edge.node_a_id): edge
+            for edge in neighbour_edges
+        }
+        
+        neighbour_nodes = await self.node_repository.get_all_by_ids(
+            list(edge_by_node_id.keys())
+        )
 
-            target_nodes_ids.append(edge.node_a_id)
-
-        neighbour_nodes = await self.node_repository.get_all_by_ids(target_nodes_ids)
-
-        return list(zip(neighbour_nodes, neighbour_edges, strict=True))
+        return [
+            (neighbour_node, edge_by_node_id[neighbour_node.id])
+            for neighbour_node in neighbour_nodes
+        ]
