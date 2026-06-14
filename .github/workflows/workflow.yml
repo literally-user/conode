@@ -2,9 +2,9 @@ name: Simple CI
 
 on:
   push:
-    branches: ["main"]
+    branches: ["dev", "master"]
   pull_request:
-    branches: ["main"]
+    branches: ["dev", "master"]
 
 permissions:
   contents: read
