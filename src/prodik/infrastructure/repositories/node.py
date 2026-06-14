@@ -20,7 +20,7 @@ class NodeRepositoryImpl(NodeRepository):
     session: AsyncSession
 
     async def create(self, node: Node) -> None:
-        logger.info("Repository create node", node_id=node.id)
+        logger.debug("Repository create node", node_id=node.id)
         await self.session.execute(
             insert(Node).values(
                 id=node.id,
@@ -33,7 +33,7 @@ class NodeRepositoryImpl(NodeRepository):
         )
 
     async def get_all_by_ids(self, nodes_ids: list[NodeId]) -> list[Node]:
-        logger.info("Repository get nodes by ids", request_count=len(nodes_ids))
+        logger.debug("Repository get nodes by ids", request_count=len(nodes_ids))
         if not nodes_ids:
             return []
 
@@ -44,11 +44,11 @@ class NodeRepositoryImpl(NodeRepository):
         )
 
         result_nodes = list(result.scalars().all())
-        logger.info("Repository fetched nodes by ids", found_count=len(result_nodes))
+        logger.debug("Repository fetched nodes by ids", found_count=len(result_nodes))
         return result_nodes
 
     async def delete(self, node: Node) -> None:
-        logger.info("Repository delete node", node_id=node.id)
+        logger.debug("Repository delete node", node_id=node.id)
         await self.session.execute(
             delete(Node).where(
                 Node.id == node.id,  # type: ignore
@@ -56,7 +56,7 @@ class NodeRepositoryImpl(NodeRepository):
         )
 
     async def get_by_id(self, node_id: NodeId) -> Node:
-        logger.info("Repository get node by id", node_id=node_id)
+        logger.debug("Repository get node by id", node_id=node_id)
         result = await self.session.execute(
             select(Node).where(
                 Node.id == node_id,  # type: ignore
@@ -65,7 +65,7 @@ class NodeRepositoryImpl(NodeRepository):
 
         node = result.scalar_one_or_none()
 
-        logger.info("Repository fetched node by id", found=node is not None)
+        logger.debug("Repository fetched node by id", found=node is not None)
 
         if node is None:
             raise NodeNotFoundError(
@@ -76,7 +76,7 @@ class NodeRepositoryImpl(NodeRepository):
         return node
 
     async def update(self, node: Node) -> None:
-        logger.info("Repository update node", node_id=node.id)
+        logger.debug("Repository update node", node_id=node.id)
         await self.session.execute(
             update(Node)
             .where(
@@ -91,7 +91,7 @@ class NodeRepositoryImpl(NodeRepository):
     async def get_all_by_associations(
         self, associations: list[NodeAssociation]
     ) -> list[Node]:
-        logger.info(
+        logger.debug(
             "Repository get nodes by associations",
             request_count=len(associations),
         )
@@ -106,7 +106,7 @@ class NodeRepositoryImpl(NodeRepository):
         )
 
         result_nodes = list(result.scalars().all())
-        logger.info(
+        logger.debug(
             "Repository fetched nodes by associations",
             found_count=len(result_nodes),
         )
@@ -118,7 +118,7 @@ class NodeAssociationRepositoryImpl(NodeAssociationRepository):
     session: AsyncSession
 
     async def create(self, node_association: NodeAssociation) -> None:
-        logger.info(
+        logger.debug(
             "Repository create node association",
             association_id=node_association.id,
         )
@@ -133,7 +133,7 @@ class NodeAssociationRepositoryImpl(NodeAssociationRepository):
         )
 
     async def delete(self, node_association: NodeAssociation) -> None:
-        logger.info(
+        logger.debug(
             "Repository delete node association",
             association_id=node_association.id,
         )
@@ -147,7 +147,7 @@ class NodeAssociationRepositoryImpl(NodeAssociationRepository):
         self,
         node_association_id: NodeAssociationId,
     ) -> NodeAssociation:
-        logger.info(
+        logger.debug(
             "Repository get node association by id",
             association_id=node_association_id,
         )
@@ -159,7 +159,7 @@ class NodeAssociationRepositoryImpl(NodeAssociationRepository):
 
         association = result.scalar_one_or_none()
 
-        logger.info(
+        logger.debug(
             "Repository fetched node association by id",
             found=association is not None,
         )
@@ -173,7 +173,7 @@ class NodeAssociationRepositoryImpl(NodeAssociationRepository):
         return association
 
     async def create_all(self, node_association: list[NodeAssociation]) -> None:
-        logger.info(
+        logger.debug(
             "Repository create node associations batch",
             request_count=len(node_association),
         )
@@ -196,7 +196,7 @@ class NodeAssociationRepositoryImpl(NodeAssociationRepository):
         )
 
     async def get_all_by_group_id(self, group_id: GroupId) -> list[NodeAssociation]:
-        logger.info("Repository get node associations by group id", group_id=group_id)
+        logger.debug("Repository get node associations by group id", group_id=group_id)
         result = await self.session.execute(
             select(NodeAssociation).where(
                 NodeAssociation.group_id == group_id,  # type: ignore
@@ -204,7 +204,7 @@ class NodeAssociationRepositoryImpl(NodeAssociationRepository):
         )
 
         result_associations = list(result.scalars())
-        logger.info(
+        logger.debug(
             "Repository fetched node associations by group id",
             count=len(result_associations),
         )
@@ -214,7 +214,7 @@ class NodeAssociationRepositoryImpl(NodeAssociationRepository):
         self,
         node_id: NodeId,
     ) -> list[NodeAssociation]:
-        logger.info(
+        logger.debug(
             "Repository get node associations by node id",
             node_id=node_id,
         )
@@ -226,7 +226,7 @@ class NodeAssociationRepositoryImpl(NodeAssociationRepository):
         )
         result_associations = list(result.scalars().all())
 
-        logger.info(
+        logger.debug(
             "Repository fetched all node associations by node id",
             found_count=len(result_associations),
         )

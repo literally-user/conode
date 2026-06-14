@@ -18,7 +18,7 @@ class SessionRepositoryImpl(SessionRepository):
     config: CacheConfig
 
     async def create(self, session: Session) -> None:
-        logger.info("Repository create session", session_id=session.id)
+        logger.debug("Repository create session", session_id=session.id)
         session_key = f"session:{session.token}"
         host_key = f"host:{session.host}"
 
@@ -39,7 +39,7 @@ class SessionRepositoryImpl(SessionRepository):
         await self.client.expire(session_key, self.config.ttl)
 
     async def update(self, session: Session) -> None:
-        logger.info("Repository update session", session_id=session.id)
+        logger.debug("Repository update session", session_id=session.id)
         session_key = f"session:{session.token}"
         await self.client.hset(
             session_key,
@@ -50,7 +50,7 @@ class SessionRepositoryImpl(SessionRepository):
         )
 
     async def get_by_token(self, token: str) -> Session | None:
-        logger.info("Repository get session by token")
+        logger.debug("Repository get session by token")
 
         data = await self.client.hgetall(f"session:{token}")  # type: ignore
         if not data:
@@ -65,11 +65,11 @@ class SessionRepositoryImpl(SessionRepository):
             updated_at=datetime.fromisoformat(data["updated_at"]),
         )
 
-        logger.info("Repository fetched session by token", found=session is not None)
+        logger.debug("Repository fetched session by token", found=session is not None)
         return session
 
     async def get_by_host(self, host: str) -> Session | None:
-        logger.info("Repository get session by host", host=host)
+        logger.debug("Repository get session by host", host=host)
 
         token = await self.client.get(f"host:{host}")
         if token is None:
@@ -86,6 +86,6 @@ class SessionRepositoryImpl(SessionRepository):
             updated_at=datetime.fromisoformat(data["updated_at"]),
         )
 
-        logger.info("Repository fetched session by host", found=session is not None)
+        logger.debug("Repository fetched session by host", found=session is not None)
 
         return session

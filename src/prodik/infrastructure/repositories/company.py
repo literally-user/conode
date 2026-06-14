@@ -17,7 +17,7 @@ class CompanyRepositoryImpl(CompanyRepository):
     session: AsyncSession
 
     async def create(self, company: Company) -> None:
-        logger.info("Repository create company", company_id=company.id)
+        logger.debug("Repository create company", company_id=company.id)
         await self.session.execute(
             insert(Company).values(
                 id=company.id,
@@ -31,7 +31,7 @@ class CompanyRepositoryImpl(CompanyRepository):
         )
 
     async def update(self, company: Company) -> None:
-        logger.info("Repository update company", company_id=company.id)
+        logger.debug("Repository update company", company_id=company.id)
         await self.session.execute(
             update(Company)
             .where(
@@ -46,7 +46,7 @@ class CompanyRepositoryImpl(CompanyRepository):
         )
 
     async def get_by_name(self, name: CompanyName) -> Company | None:
-        logger.info("Repository get company by name", company_name=name)
+        logger.debug("Repository get company by name", company_name=name)
         result = await self.session.execute(
             select(Company).where(
                 Company.name == name,  # type: ignore
@@ -54,11 +54,11 @@ class CompanyRepositoryImpl(CompanyRepository):
         )
 
         company = result.scalar_one_or_none()
-        logger.info("Repository fetched company by name", found=company is not None)
+        logger.debug("Repository fetched company by name", found=company is not None)
         return company
 
     async def get_by_id(self, company_id: CompanyId) -> Company:
-        logger.info("Repository get company by id", company_id=company_id)
+        logger.debug("Repository get company by id", company_id=company_id)
         result = await self.session.execute(
             select(Company).where(
                 Company.id == company_id,  # type: ignore
@@ -67,7 +67,7 @@ class CompanyRepositoryImpl(CompanyRepository):
 
         company = result.scalar_one_or_none()
 
-        logger.info(
+        logger.debug(
             "Repository fetched company by id",
             found=company is not None,
         )
@@ -84,7 +84,7 @@ class CompanyRepositoryImpl(CompanyRepository):
         if not company_ids:
             return []
 
-        logger.info("Repository get companies by ids", request_count=len(company_ids))
+        logger.debug("Repository get companies by ids", request_count=len(company_ids))
 
         result = await self.session.execute(
             select(Company).where(
@@ -94,7 +94,7 @@ class CompanyRepositoryImpl(CompanyRepository):
 
         result_companies = list(result.scalars().all())
 
-        logger.info(
+        logger.debug(
             "Repository fetched companies by ids",
             found_count=len(result_companies),
         )
@@ -102,7 +102,7 @@ class CompanyRepositoryImpl(CompanyRepository):
         return result_companies
 
     async def get_by_user_id(self, user_id: UserId) -> Company | None:
-        logger.info("Repository get company by user id", user_id=user_id)
+        logger.debug("Repository get company by user id", user_id=user_id)
         result = await self.session.execute(
             select(Company)
             .where(
@@ -112,7 +112,7 @@ class CompanyRepositoryImpl(CompanyRepository):
         )
 
         company = result.scalar_one_or_none()
-        logger.info(
+        logger.debug(
             "Repository fetched company by user id",
             found=company is not None,
         )

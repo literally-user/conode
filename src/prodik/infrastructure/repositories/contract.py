@@ -15,7 +15,7 @@ class ContractRepositoryImpl(ContractRepository):
     session: AsyncSession
 
     async def create(self, contract: Contract) -> None:
-        logger.info("Repository create contract", contract_id=contract.id)
+        logger.debug("Repository create contract", contract_id=contract.id)
 
         await self.session.execute(
             insert(Contract).values(

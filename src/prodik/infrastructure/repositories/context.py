@@ -17,7 +17,7 @@ class ContextRepositoryImpl(ContextRepository):
     session: AsyncSession
 
     async def create(self, context: Context) -> None:
-        logger.info("Repository create context", context_id=context.id)
+        logger.debug("Repository create context", context_id=context.id)
         await self.session.execute(
             insert(Context).values(
                 id=context.id,
@@ -30,7 +30,7 @@ class ContextRepositoryImpl(ContextRepository):
         )
 
     async def get_by_id(self, context_id: ContextId) -> Context:
-        logger.info("Repository get context by id", context_id=context_id)
+        logger.debug("Repository get context by id", context_id=context_id)
         result = await self.session.execute(
             select(Context).where(
                 Context.id == context_id,  # type: ignore
@@ -39,7 +39,7 @@ class ContextRepositoryImpl(ContextRepository):
 
         context = result.scalar_one_or_none()
 
-        logger.info(
+        logger.debug(
             "Repository fetched context by id",
             found=context is not None,
         )
@@ -53,7 +53,7 @@ class ContextRepositoryImpl(ContextRepository):
         return context
 
     async def delete(self, context: Context) -> None:
-        logger.info("Repository delete context", context_id=context.id)
+        logger.debug("Repository delete context", context_id=context.id)
         await self.session.execute(
             delete(Context).where(
                 Context.id == context.id,  # type: ignore
@@ -61,7 +61,7 @@ class ContextRepositoryImpl(ContextRepository):
         )
 
     async def get_all_by_company_id(self, company_id: CompanyId) -> list[Context]:
-        logger.info("Repository get groups by contexts id", company_id=company_id)
+        logger.debug("Repository get groups by contexts id", company_id=company_id)
         result = await self.session.execute(
             select(Context).where(
                 Context.company_id == company_id,  # type: ignore
@@ -69,14 +69,14 @@ class ContextRepositoryImpl(ContextRepository):
         )
 
         result_groups = list(result.scalars())
-        logger.info(
+        logger.debug(
             "Repository fetched contexts by company_id",
             found_count=len(result_groups),
         )
         return result_groups
 
     async def get_all_by_ids(self, context_ids: list[ContextId]) -> list[Context]:
-        logger.info("Repository get contexts by ids", request_count=len(context_ids))
+        logger.debug("Repository get contexts by ids", request_count=len(context_ids))
         if not context_ids:
             return []
 
@@ -85,7 +85,7 @@ class ContextRepositoryImpl(ContextRepository):
         )
 
         result_contexts = list(result.scalars().all())
-        logger.info(
+        logger.debug(
             "Repository fetched contexts by ids",
             found_count=len(result_contexts),
         )

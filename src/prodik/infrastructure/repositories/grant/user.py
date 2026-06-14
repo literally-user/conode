@@ -17,7 +17,7 @@ class UserGrantRepositoryImpl(UserGrantRepository):
     session: AsyncSession
 
     async def create(self, grant: UserGrant) -> None:
-        logger.info("Repository create user grant", grant_id=grant.id)
+        logger.debug("Repository create user grant", grant_id=grant.id)
         await self.session.execute(
             insert(UserGrant).values(
                 id=grant.id,
@@ -29,14 +29,14 @@ class UserGrantRepositoryImpl(UserGrantRepository):
         )
 
     async def get_all_by_user_id(self, user_id: UserId) -> list[UserGrant]:
-        logger.info("Repository get user grants by user id", user_id=user_id)
+        logger.debug("Repository get user grants by user id", user_id=user_id)
         result = await self.session.execute(
             select(UserGrant).where(
                 UserGrant.user_id == user_id,  # type: ignore
             ),
         )
         result_grants = list(result.scalars().all())
-        logger.info(
+        logger.debug(
             "Repository fetched grants by user id",
             count=len(result_grants),
         )
@@ -48,7 +48,7 @@ class UserGrantRepositoryImpl(UserGrantRepository):
         user_id: UserId,
         role_id: RoleId,
     ) -> UserGrant | None:
-        logger.info(
+        logger.debug(
             "Repository get user grant by user and role id",
             user_id=user_id,
             role_id=role_id,
@@ -60,7 +60,7 @@ class UserGrantRepositoryImpl(UserGrantRepository):
         )
 
         grant = result.scalar_one_or_none()
-        logger.info(
+        logger.debug(
             "Repository fetched context by id",
             found=grant is not None,
         )

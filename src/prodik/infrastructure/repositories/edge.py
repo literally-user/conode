@@ -18,7 +18,7 @@ class EdgeRepositoryImpl(EdgeRepository):
     session: AsyncSession
 
     async def create(self, edge: Edge) -> None:
-        logger.info("Repository create edge", edge_id=edge.id)
+        logger.debug("Repository create edge", edge_id=edge.id)
         await self.session.execute(
             insert(Edge).values(
                 id=edge.id,
@@ -33,7 +33,7 @@ class EdgeRepositoryImpl(EdgeRepository):
         )
 
     async def delete(self, edge: Edge) -> None:
-        logger.info("Repository delete edge", edge_id=edge.id)
+        logger.debug("Repository delete edge", edge_id=edge.id)
         await self.session.execute(
             delete(Edge).where(
                 Edge.id == edge.id,  # type: ignore
@@ -41,7 +41,7 @@ class EdgeRepositoryImpl(EdgeRepository):
         )
 
     async def update(self, edge: Edge) -> None:
-        logger.info("Repository update edge", edge_id=edge.id)
+        logger.debug("Repository update edge", edge_id=edge.id)
         await self.session.execute(
             update(Edge)
             .where(
@@ -54,7 +54,7 @@ class EdgeRepositoryImpl(EdgeRepository):
         )
 
     async def get_neighbours_by_node_id(self, node_id: NodeId) -> list[Edge]:
-        logger.info("Repository get neighbours by node id", node_id=node_id)
+        logger.debug("Repository get neighbours by node id", node_id=node_id)
 
         result = await self.session.execute(
             select(Edge).where(
@@ -67,7 +67,7 @@ class EdgeRepositoryImpl(EdgeRepository):
 
         result_edges = list(result.scalars().all())
 
-        logger.info(
+        logger.debug(
             "Repository fetched neighbours by node id",
             found_count=len(result_edges),
         )
@@ -75,7 +75,7 @@ class EdgeRepositoryImpl(EdgeRepository):
         return result_edges
 
     async def get_by_id(self, edge_id: EdgeId) -> Edge:
-        logger.info("Repository get edge by id", edge_id=edge_id)
+        logger.debug("Repository get edge by id", edge_id=edge_id)
         result = await self.session.execute(
             select(Edge).where(
                 Edge.id == edge_id,  # type: ignore
@@ -84,7 +84,7 @@ class EdgeRepositoryImpl(EdgeRepository):
 
         edge = result.scalar_one_or_none()
 
-        logger.info("Repository fetched edge by id", found=edge is not None)
+        logger.debug("Repository fetched edge by id", found=edge is not None)
 
         if edge is None:
             raise EdgeNotFoundError(
@@ -100,7 +100,7 @@ class EdgeRepositoryImpl(EdgeRepository):
         node_b_id: NodeId,
         context_id: ContextId,
     ) -> Edge | None:
-        logger.info(
+        logger.debug(
             "Repository get edge by nodes and context",
             node_a_id=node_a_id,
             node_b_id=node_b_id,
@@ -117,7 +117,7 @@ class EdgeRepositoryImpl(EdgeRepository):
         )
 
         edge = result.scalar_one_or_none()
-        logger.info(
+        logger.debug(
             "Repository fetched edge by nodes and context",
             found=edge is not None,
         )
@@ -125,7 +125,7 @@ class EdgeRepositoryImpl(EdgeRepository):
         return edge
 
     async def get_all_by_context_id(self, context_id: ContextId) -> list[Edge]:
-        logger.info("Repository get edges by context id", context_id=context_id)
+        logger.debug("Repository get edges by context id", context_id=context_id)
         result = await self.session.execute(
             select(Edge).where(
                 Edge.context_id == context_id,  # type: ignore
@@ -133,7 +133,7 @@ class EdgeRepositoryImpl(EdgeRepository):
         )
 
         result_edges = list(result.scalars())
-        logger.info(
+        logger.debug(
             "Repository fetched edges by context id",
             found_count=len(result_edges),
         )
