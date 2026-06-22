@@ -1,3 +1,11 @@
-from .authentication import LoginRequestFactory, RegisterRequestFactory
+from .authentication import (
+    LoginRequestFactory,
+    RefreshTokenRequestFactory,
+    RegisterRequestFactory,
+)
 
-__all__ = ("LoginRequestFactory", "RegisterRequestFactory")
+__all__ = (
+    "LoginRequestFactory",
+    "RefreshTokenRequestFactory",
+    "RegisterRequestFactory",
+)

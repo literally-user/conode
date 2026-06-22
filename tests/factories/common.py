@@ -26,3 +26,7 @@ def generate_random_string(
 
 def generate_random_ip() -> str:
     return ".".join([str(random.randint(1, 255)) for _ in range(4)])
+
+
+def authorization_header(access_token: str) -> dict[str, str]:
+    return {"Authorization": f"Bearer {access_token}"}

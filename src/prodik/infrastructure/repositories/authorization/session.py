@@ -4,6 +4,7 @@ from datetime import datetime
 import structlog
 from redis.asyncio import Redis
 
+from prodik.application.errors import SessionNotFoundError
 from prodik.application.interfaces.repositories import SessionRepository
 from prodik.domain.authorization import Session, SessionId
 from prodik.domain.user import UserId
@@ -49,12 +50,15 @@ class SessionRepositoryImpl(SessionRepository):
             },
         )
 
-    async def get_by_token(self, token: str) -> Session | None:
+    async def get_by_token(self, token: str) -> Session:
         logger.debug("Repository get session by token")
 
         data = await self.client.hgetall(f"session:{token}")  # type: ignore
         if not data:
-            return None
+            raise SessionNotFoundError(
+                "Session not found",
+                [{"key": "refresh_token", "value": token}],
+            )
 
         session = Session(
             id=SessionId(data["id"]),
