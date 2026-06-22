@@ -11,6 +11,7 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 
+from prodik.application.interfaces.password_hasher import PasswordHasher
 from prodik.application.interfaces.repositories import (
     LocalAuthorizationRepository,
     SessionRepository,
@@ -60,6 +61,7 @@ async def user_factory(container: AsyncContainer) -> UserFactory:
             access_token_manager=await test_container.get(AccessTokenManager),
             transaction_manager=await test_container.get(TransactionManager),
             session_repository=await test_container.get(SessionRepository),
+            password_hasher=await test_container.get(PasswordHasher),
             user_repository=await test_container.get(UserRepository),
         )
 

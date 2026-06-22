@@ -1,7 +1,7 @@
 from http import HTTPStatus
 
 import pytest
-from dirty_equals import IsPartialDict
+from dirty_equals import IsInt, IsPartialDict, IsStr
 from httpx import AsyncClient
 
 from tests.factories.models import UserFactory
@@ -15,6 +15,11 @@ async def test_register_ok(transport: AsyncClient) -> None:
     response = await transport.post("/auth/register", json=request.model_dump())
 
     assert response.status_code == HTTPStatus.CREATED
+    assert response.json() == IsPartialDict(
+        access_token=IsStr,
+        refresh_token=IsStr,
+        expires_in=IsInt,
+    )
 
 
 @pytest.mark.asyncio

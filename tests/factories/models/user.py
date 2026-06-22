@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from uuid import uuid4
 
+from prodik.application.interfaces.password_hasher import PasswordHasher
 from prodik.application.interfaces.repositories import (
     LocalAuthorizationRepository,
     SessionRepository,
@@ -37,6 +38,7 @@ class UserFactory:
     transaction_manager: TransactionManager
     session_repository: SessionRepository
     user_repository: UserRepository
+    password_hasher: PasswordHasher
 
     async def build(self) -> UserFactoryResponse:
         async with self.transaction_manager:
@@ -59,10 +61,11 @@ class UserFactory:
             access_token = self.access_token_manager.encode(user)
             refresh_token = self.refresh_token_manager.encode()
             password = generate_random_string()
+            hashed_password = self.password_hasher.hash(password)
 
             authorization = LocalAuthorization.new(
                 local_authorization_id=LocalAuthorizationId(uuid4()),
-                password=password,
+                password=hashed_password,
                 user=user,
             )
 

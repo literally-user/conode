@@ -1,3 +1,3 @@
-from .register import RegisterRequestFactory
+from .authentication import LoginRequestFactory, RegisterRequestFactory
 
-__all__ = ("RegisterRequestFactory",)
+__all__ = ("LoginRequestFactory", "RegisterRequestFactory")
