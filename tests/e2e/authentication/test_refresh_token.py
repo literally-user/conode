@@ -4,7 +4,7 @@ import pytest
 from dirty_equals import IsInt, IsPartialDict, IsStr
 from httpx import AsyncClient
 
-from tests.factories.common import authorization_header, generate_random_string
+from tests.factories.common import authorization_headers, generate_random_string
 from tests.factories.models import UserFactory
 from tests.factories.schemas import RefreshTokenRequestFactory
 
@@ -21,7 +21,7 @@ async def test_refresh_token_ok(
 
     response = await transport.post(
         "/auth/refresh",
-        headers=authorization_header(user_factory_response.access_token),
+        headers=authorization_headers(user_factory_response.access_token),
         json=request.model_dump(),
     )
 
@@ -44,7 +44,7 @@ async def test_refresh_token_without_active_session(
 
     response = await transport.post(
         "/auth/refresh",
-        headers=authorization_header(user_factory_response.access_token),
+        headers=authorization_headers(user_factory_response.access_token),
         json=request.model_dump(),
     )
 

@@ -80,6 +80,11 @@ class SessionRepositoryImpl(SessionRepository):
             return None
 
         data = await self.client.hgetall(f"session:{token}")  # type: ignore
+        if not data:
+            raise SessionNotFoundError(
+                "Session not found",
+                [{"key": "refresh_token", "value": token}],
+            )
 
         session = Session(
             id=SessionId(data["id"]),

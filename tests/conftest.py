@@ -13,8 +13,12 @@ from sqlalchemy.ext.asyncio import (
 
 from prodik.application.interfaces.password_hasher import PasswordHasher
 from prodik.application.interfaces.repositories import (
+    CompanyRepository,
     LocalAuthorizationRepository,
+    RolePermissionsRepository,
+    RoleRepository,
     SessionRepository,
+    UserGrantRepository,
     UserRepository,
 )
 from prodik.application.interfaces.token_managers import (
@@ -22,6 +26,7 @@ from prodik.application.interfaces.token_managers import (
     RefreshTokenManager,
 )
 from prodik.application.interfaces.transaction_manager import TransactionManager
+from prodik.application.services import RoleManagmentService
 from prodik.bootstrap.api.run import create_app
 from prodik.bootstrap.di.providers import (
     ApplicationProvider,
@@ -37,7 +42,7 @@ from prodik.infrastructure.config import (
     load_config,
 )
 from prodik.infrastructure.persistence import start_mapper
-from tests.factories.models import UserFactory
+from tests.factories.models import CompanyFactory, UserFactory
 
 
 @pytest.fixture(scope="session")
@@ -63,6 +68,21 @@ async def user_factory(container: AsyncContainer) -> UserFactory:
             session_repository=await test_container.get(SessionRepository),
             password_hasher=await test_container.get(PasswordHasher),
             user_repository=await test_container.get(UserRepository),
+        )
+
+
+@pytest.fixture
+async def company_factory(container: AsyncContainer) -> CompanyFactory:
+    async with container() as test_container:
+        return CompanyFactory(
+            role_permissions_repository=await test_container.get(
+                RolePermissionsRepository
+            ),
+            role_managment_service=await test_container.get(RoleManagmentService),
+            user_grant_repository=await test_container.get(UserGrantRepository),
+            transaction_manager=await test_container.get(TransactionManager),
+            company_repository=await test_container.get(CompanyRepository),
+            role_repository=await test_container.get(RoleRepository),
         )
 
 
