@@ -1,13 +1,12 @@
 from collections.abc import AsyncIterator
+from unittest.mock import AsyncMock
 
 import pytest
 from dishka import AsyncContainer, Provider, Scope, make_async_container, provide
 from dishka.integrations.fastapi import FastapiProvider, setup_dishka
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import (
-    AsyncEngine,
     AsyncSession,
-    async_sessionmaker,
     create_async_engine,
 )
 
@@ -56,6 +55,32 @@ def startup() -> None:
 
 
 @pytest.fixture
+async def session_repository(container: AsyncContainer) -> SessionRepository:
+    async with container() as test_container:
+        return await test_container.get(SessionRepository)  # type: ignore[no-any-return]
+
+
+@pytest.fixture
+async def local_authorization_repository(
+    container: AsyncContainer,
+) -> LocalAuthorizationRepository:
+    async with container() as test_container:
+        return await test_container.get(LocalAuthorizationRepository)  # type: ignore[no-any-return]
+
+
+@pytest.fixture
+async def access_token_manager(container: AsyncContainer) -> AccessTokenManager:
+    async with container() as test_container:
+        return await test_container.get(AccessTokenManager)  # type: ignore[no-any-return]
+
+
+@pytest.fixture
+async def user_repository(container: AsyncContainer) -> UserRepository:
+    async with container() as test_container:
+        return await test_container.get(UserRepository)  # type: ignore[no-any-return]
+
+
+@pytest.fixture
 async def user_factory(container: AsyncContainer) -> UserFactory:
     async with container() as test_container:
         return UserFactory(
@@ -87,31 +112,23 @@ async def company_factory(container: AsyncContainer) -> CompanyFactory:
 
 
 @pytest.fixture
-async def container(config: Config) -> AsyncIterator[AsyncContainer]:
+async def session(config: Config) -> AsyncIterator[AsyncSession]:
+    engine = create_async_engine(config.database.url)
+
+    async with AsyncSession(engine) as session:
+        session.commit = AsyncMock()  # type: ignore
+        yield session
+        await session.close()
+
+
+@pytest.fixture
+async def container(
+    config: Config, session: AsyncSession
+) -> AsyncIterator[AsyncContainer]:
     class TestConnectionProvider(Provider):
-        @provide(scope=Scope.APP)
-        async def provide_async_engine(self) -> AsyncIterator[AsyncEngine]:
-            engine = create_async_engine(config.database.url)
-            yield engine
-            await engine.dispose()
-
-        @provide(scope=Scope.APP)
-        def provide_async_sessionmaker(
-            self,
-            engine: AsyncEngine,
-        ) -> async_sessionmaker[AsyncSession]:
-            return async_sessionmaker(
-                engine,
-                expire_on_commit=False,
-            )
-
         @provide(scope=Scope.REQUEST)
-        async def provide_async_session(
-            self,
-            session_factory: async_sessionmaker[AsyncSession],
-        ) -> AsyncIterator[AsyncSession]:
-            async with session_factory() as session:
-                yield session
+        async def provide_async_session(self) -> AsyncSession:
+            return session
 
     container = make_async_container(
         FastapiProvider(),

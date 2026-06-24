@@ -1,21 +1,39 @@
 from http import HTTPStatus
 
 import pytest
-from dirty_equals import IsInt, IsPartialDict, IsStr
+from dirty_equals import IsInt, IsPartialDataclass, IsPartialDict, IsStr
 from httpx import AsyncClient
 
+from prodik.application.interfaces.repositories import (
+    SessionRepository,
+)
+from prodik.application.interfaces.token_managers import AccessTokenManager
 from tests.factories.models import UserFactory
 from tests.factories.schemas import RegisterRequestFactory
 
 
 @pytest.mark.asyncio
-async def test_register_ok(transport: AsyncClient) -> None:
+async def test_register_ok(
+    transport: AsyncClient,
+    session_repository: SessionRepository,
+    access_token_manager: AccessTokenManager,
+) -> None:
     request = RegisterRequestFactory.build()
 
     response = await transport.post("/auth/register", json=request.model_dump())
+    content = response.json()
+
+    session = await session_repository.get_by_token(content["refresh_token"])
+    token_content = access_token_manager.decode(content["access_token"])
 
     assert response.status_code == HTTPStatus.CREATED
-    assert response.json() == IsPartialDict(
+
+    assert session == IsPartialDataclass(
+        user_id=token_content["user_id"],
+        token=content["refresh_token"],
+        host=IsStr,
+    )
+    assert content == IsPartialDict(
         access_token=IsStr,
         refresh_token=IsStr,
         expires_in=IsInt,
