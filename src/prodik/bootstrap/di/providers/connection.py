@@ -1,6 +1,6 @@
 from collections.abc import AsyncIterator
 
-from dishka import Provider, Scope, provide
+from dishka import Provider, Scope, WithParents, provide, provide_all
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
@@ -10,9 +10,12 @@ from sqlalchemy.ext.asyncio import (
 )
 
 from prodik.infrastructure.config import CacheConfig, DatabaseConfig
+from prodik.infrastructure.transaction_manager import TransactionManagerImpl
 
 
-class DatabaseConnectionProvider(Provider):
+class ConnectionProvider(Provider):
+    provides = provide_all(WithParents[TransactionManagerImpl], scope=Scope.REQUEST)
+
     @provide(scope=Scope.APP)
     async def get_engine(self, config: DatabaseConfig) -> AsyncIterator[AsyncEngine]:
         engine = create_async_engine(config.url, future=True)

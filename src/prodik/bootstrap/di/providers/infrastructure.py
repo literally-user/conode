@@ -25,14 +25,12 @@ from prodik.infrastructure.token_managers import (
     AccessTokenManagerImpl,
     RefreshTokenManagerImpl,
 )
-from prodik.infrastructure.transaction_manager import TransactionManagerImpl
 
 
 class InfrastructureProvider(Provider):
     provides = provide_all(
         WithParents[IdentityProviderImpl],
         WithParents[GroupRepositoryImpl],
-        WithParents[TransactionManagerImpl],
         WithParents[PasswordHasherImpl],
         WithParents[AccessTokenManagerImpl],
         WithParents[RefreshTokenManagerImpl],

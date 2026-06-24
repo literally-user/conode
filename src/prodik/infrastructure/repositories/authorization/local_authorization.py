@@ -58,3 +58,19 @@ class LocalAuthorizationRepositoryImpl(LocalAuthorizationRepository):
             found=authorization is not None,
         )
         return authorization
+
+    async def get_all_by_user_id(self, user_id: UserId) -> list[LocalAuthorization]:
+        logger.debug("Repository get local authorizations by user id", user_id=user_id)
+        result = await self.session.execute(
+            select(LocalAuthorization).where(
+                LocalAuthorization.user_id == user_id  # type: ignore
+            )
+        )
+
+        result_local_authorizations = list(result.scalars().all())
+
+        logger.debug(
+            "Repository fetched edges by context id",
+            found_count=len(result_local_authorizations),
+        )
+        return result_local_authorizations

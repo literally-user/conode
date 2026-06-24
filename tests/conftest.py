@@ -1,8 +1,18 @@
 from collections.abc import AsyncIterator
+from dataclasses import dataclass
+from types import TracebackType
 from unittest.mock import AsyncMock
 
 import pytest
-from dishka import AsyncContainer, Provider, Scope, make_async_container, provide
+from dishka import (
+    AsyncContainer,
+    Provider,
+    Scope,
+    WithParents,
+    make_async_container,
+    provide,
+    provide_all,
+)
 from dishka.integrations.fastapi import FastapiProvider, setup_dishka
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import (
@@ -121,11 +131,31 @@ async def session(config: Config) -> AsyncIterator[AsyncSession]:
         await session.close()
 
 
+@dataclass
+class TestTransactionManagerImpl(TransactionManager):
+    session: AsyncSession
+
+    async def __aenter__(self) -> None:
+        self.tx = await self.session.begin_nested()
+
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc: BaseException | None,
+        tb: TracebackType | None,
+    ) -> None:
+        await self.tx.__aexit__(exc_type, exc, tb)
+
+
 @pytest.fixture
 async def container(
     config: Config, session: AsyncSession
 ) -> AsyncIterator[AsyncContainer]:
     class TestConnectionProvider(Provider):
+        provides = provide_all(
+            WithParents[TestTransactionManagerImpl], scope=Scope.REQUEST
+        )
+
         @provide(scope=Scope.REQUEST)
         async def provide_async_session(self) -> AsyncSession:
             return session
