@@ -18,7 +18,7 @@ from prodik.domain.authorization import (
     Session,
     SessionId,
 )
-from prodik.domain.user import User, UserId
+from prodik.domain.user import User, UserId, UserSystemRole
 from tests.factories.common import generate_random_string
 
 
@@ -40,7 +40,7 @@ class UserFactory:
     user_repository: UserRepository
     password_hasher: PasswordHasher
 
-    async def build(self) -> UserFactoryResponse:
+    async def build(self, *, admin: bool = False) -> UserFactoryResponse:
         async with self.transaction_manager:
             user = User.new(
                 user_id=UserId(uuid4()),
@@ -57,6 +57,8 @@ class UserFactory:
                 + "@testing.org",
                 bio=generate_random_string(100),
             )
+            if admin:
+                user.system_role = UserSystemRole.ADMIN
 
             access_token = self.access_token_manager.encode(user)
             refresh_token = self.refresh_token_manager.encode()
