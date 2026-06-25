@@ -19,7 +19,7 @@ from prodik.domain.authorization import (
     SessionId,
 )
 from prodik.domain.user import User, UserId
-from tests.factories.common import generate_random_ip, generate_random_string
+from tests.factories.common import generate_random_string
 
 
 @dataclass
@@ -71,7 +71,7 @@ class UserFactory:
 
             session = Session.new(
                 session_id=SessionId(uuid4()),
-                host=generate_random_ip(),
+                host="127.0.0.1",
                 token=refresh_token,
                 user=user,
             )
