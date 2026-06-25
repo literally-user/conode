@@ -20,8 +20,10 @@ class SessionRepositoryImpl(SessionRepository):
 
     async def create(self, session: Session) -> None:
         logger.debug("Repository create session", session_id=session.id)
-        session_key = f"session:{session.token}"
-        host_key = f"host:{session.host}"
+        session_key = f"session:{session.id}"
+
+        host_key = f"host:{session.host}:{session.user_id}"
+        token_key = f"token:{session.token}"
 
         await self.client.hset(
             session_key,
@@ -35,13 +37,17 @@ class SessionRepositoryImpl(SessionRepository):
             },
         )
 
-        await self.client.set(host_key, session.token)
+        await self.client.set(host_key, str(session.id))
+        await self.client.set(token_key, str(session.id))
 
         await self.client.expire(session_key, self.config.ttl)
 
-    async def update(self, session: Session) -> None:
+    async def update(self, prev_token: str, session: Session) -> None:
         logger.debug("Repository update session", session_id=session.id)
-        session_key = f"session:{session.token}"
+
+        session_key = f"session:{session.id}"
+        token_key = f"token:{prev_token}"
+
         await self.client.hset(
             session_key,
             mapping={  # type: ignore
@@ -50,11 +56,21 @@ class SessionRepositoryImpl(SessionRepository):
             },
         )
 
+        await self.client.delete(token_key)
+        await self.client.set(token_key, str(session.id))
+
     async def get_by_token(self, token: str) -> Session:
         logger.debug("Repository get session by token")
 
-        data = await self.client.hgetall(f"session:{token}")  # type: ignore
-        if not data:
+        session_id = await self.client.get(f"token:{token}")
+        if session_id is None:
+            raise SessionNotFoundError(
+                "Session not found",
+                [{"key": "refresh_token", "value": token}],
+            )
+
+        data = await self.client.hgetall(f"session:{session_id}")  # type: ignore
+        if data is None:
             raise SessionNotFoundError(
                 "Session not found",
                 [{"key": "refresh_token", "value": token}],
@@ -72,18 +88,20 @@ class SessionRepositoryImpl(SessionRepository):
         logger.debug("Repository fetched session by token", found=session is not None)
         return session
 
-    async def get_by_host(self, host: str) -> Session | None:
+    async def get_by_host_and_user_id(
+        self, user_id: UserId, host: str
+    ) -> Session | None:
         logger.debug("Repository get session by host", host=host)
 
-        token = await self.client.get(f"host:{host}")
-        if token is None:
+        session_id = await self.client.get(f"host:{host}:{user_id}")
+        if session_id is None:
             return None
 
-        data = await self.client.hgetall(f"session:{token}")  # type: ignore
-        if not data:
+        data = await self.client.hgetall(f"session:{session_id}")  # type: ignore
+        if data is None:
             raise SessionNotFoundError(
                 "Session not found",
-                [{"key": "refresh_token", "value": token}],
+                [{"key": "refresh_token", "value": session_id}],
             )
 
         session = Session(

@@ -77,7 +77,9 @@ class UpdateCurrentUserPasswordInteractor:
             authorization.update_password(hashed_password)
             user.increment_revision()
 
-            session = await self.session_repository.get_by_host(host)
+            session = await self.session_repository.get_by_host_and_user_id(
+                user.id, host
+            )
             if session is None:
                 raise SessionNotFoundError(
                     "Session not found",
@@ -87,11 +89,12 @@ class UpdateCurrentUserPasswordInteractor:
             access_token, expires_in = self.access_token_manager.encode(user)
             refresh_token = self.refresh_token_manager.encode()
 
+            prev_token = session.token
             session.update_token(refresh_token)
 
             await self.user_repository.update(user)
             await self.local_authorization_repository.update(authorization)
-            await self.session_repository.update(session)
+            await self.session_repository.update(prev_token, session)
 
             return UpdateCurrentUserPasswordResponseDTO(
                 access_token=access_token,

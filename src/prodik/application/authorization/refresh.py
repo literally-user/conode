@@ -35,9 +35,10 @@ class RefreshTokenInteractor:
             access_token, expires_in = self.access_token_manager.encode(user)
             refresh_token = self.refresh_token_manager.encode()
 
+            prev_token = session.token
             session.update_token(refresh_token)
 
-            await self.session_repository.update(session)
+            await self.session_repository.update(prev_token, session)
 
             return RefreshTokenResponse(
                 access_token=access_token,
