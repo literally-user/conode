@@ -15,6 +15,7 @@ from dishka import (
 )
 from dishka.integrations.fastapi import FastapiProvider, setup_dishka
 from httpx import ASGITransport, AsyncClient
+from sqlalchemy import URL
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     create_async_engine,
@@ -123,7 +124,19 @@ async def company_factory(container: AsyncContainer) -> CompanyFactory:
 
 @pytest.fixture
 async def session(config: Config) -> AsyncIterator[AsyncSession]:
-    engine = create_async_engine(config.database.url)
+    engine = create_async_engine(
+        url=URL.create(
+            "postgresql+asyncpg",
+            username=config.database.username,
+            password=config.database.password,
+            database=config.database.database,
+            port=config.database.port,
+            host=config.database.host,
+        ),
+        pool_size=5,
+        max_overflow=96,
+        pool_timeout=30,
+    )
 
     async with AsyncSession(engine) as session:
         session.commit = AsyncMock()  # type: ignore
