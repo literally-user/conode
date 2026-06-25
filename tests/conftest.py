@@ -13,9 +13,9 @@ from dishka import (
     provide,
     provide_all,
 )
-from redis.asyncio import Redis
 from dishka.integrations.fastapi import FastapiProvider, setup_dishka
 from httpx import ASGITransport, AsyncClient
+from redis.asyncio import Redis
 from sqlalchemy import URL
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
@@ -70,11 +70,13 @@ def config() -> Config:
 def startup() -> None:
     start_mapper()
 
+
 @pytest.fixture(autouse=True)
 async def clear_cache(container: AsyncContainer) -> AsyncIterator[None]:
     yield
     redis = await container.get(Redis)
     await redis.flushdb()
+
 
 @pytest.fixture
 async def session_repository(container: AsyncContainer) -> SessionRepository:

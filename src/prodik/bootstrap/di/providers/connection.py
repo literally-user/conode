@@ -4,7 +4,6 @@ from dishka import Provider, Scope, WithParents, provide, provide_all
 from redis.asyncio import Redis
 from sqlalchemy import URL
 from sqlalchemy.ext.asyncio import (
-    AsyncEngine,
     AsyncSession,
     async_sessionmaker,
     create_async_engine,
