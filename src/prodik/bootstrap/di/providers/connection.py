@@ -20,7 +20,7 @@ class ConnectionProvider(Provider):
     @provide(scope=Scope.APP)
     async def provide_async_engine(
         self, config: DatabaseConfig
-    ) -> AsyncIterator[AsyncEngine]:
+    ) -> AsyncIterator[async_sessionmaker[AsyncSession]]:
         engine = create_async_engine(
             url=URL.create(
                 "postgresql+asyncpg",
@@ -34,18 +34,11 @@ class ConnectionProvider(Provider):
             max_overflow=96,
             pool_timeout=30,
         )
-        yield engine
-        await engine.dispose()
-
-    @provide(scope=Scope.APP)
-    async def provide_async_sessionmaker(
-        self,
-        engine: AsyncEngine,
-    ) -> async_sessionmaker[AsyncSession]:
-        return async_sessionmaker(
+        yield async_sessionmaker(
             engine,
             expire_on_commit=False,
         )
+        await engine.dispose()
 
     @provide(scope=Scope.REQUEST)
     async def provide_async_session(
