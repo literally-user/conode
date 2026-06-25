@@ -10,10 +10,6 @@ from tests.factories.common import authorization_headers
 from tests.factories.models import CompanyFactory, GroupFactory, UserFactory
 from tests.factories.schemas import CreateGroupRequestFactory
 
-# Создание группы это:
-
-# 2. Проверка того что родителькая группа существует (если она указана).
-
 
 @pytest.mark.asyncio
 async def test_create_group_ok(
