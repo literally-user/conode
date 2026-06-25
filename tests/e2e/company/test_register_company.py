@@ -9,7 +9,7 @@ from prodik.application.interfaces.repositories import (
     RoleRepository,
     UserGrantRepository,
 )
-from prodik.domain.role import RoleName
+from tests.e2e.helpers.asserts import assert_user_have_correct_rights
 from tests.factories.common import authorization_headers
 from tests.factories.models import CompanyFactory, UserFactory
 from tests.factories.schemas import RegisterCompanyRequestFactory
@@ -34,19 +34,14 @@ async def test_register_company_ok(
     )
     content = response.json()
 
-    company = await company_repository.get_by_id(content["id"])
-    role = await role_repository.get_by_name_and_company_id(
-        RoleName("owner"), content["id"]
-    )
-    assert company is not None
-    assert role is not None
-
-    grant = await user_grant_repository.get_by_user_and_role_id(
-        user_factory_response.user.id, role.id
-    )
-    assert grant is not None
-
     assert response.status_code == HTTPStatus.CREATED
+    await assert_user_have_correct_rights(
+        content,
+        user_factory_response.user,
+        user_grant_repository,
+        company_repository,
+        role_repository,
+    )
     assert content == IsPartialDict(
         id=IsStr,
         name=request.name,
