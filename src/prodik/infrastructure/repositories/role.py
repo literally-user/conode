@@ -46,19 +46,6 @@ class RoleRepositoryImpl(RoleRepository):
 
         return roles
 
-    async def get_by_name(self, name: RoleName) -> Role | None:
-        logger.debug("Repository get role by name", role_name=name)
-        result = await self.session.execute(
-            select(Role).where(
-                Role.name == name,  # type: ignore
-            ),
-        )
-
-        role = result.scalar_one_or_none()
-        logger.debug("Repository fetched role by name", found=role is not None)
-
-        return role
-
     async def update(self, role: Role) -> None:
         logger.debug("Repository update role", role_id=role.id)
         await self.session.execute(

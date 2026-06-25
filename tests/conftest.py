@@ -92,6 +92,24 @@ async def user_repository(container: AsyncContainer) -> UserRepository:
 
 
 @pytest.fixture
+async def user_grant_repository(container: AsyncContainer) -> UserGrantRepository:
+    async with container() as test_container:
+        return await test_container.get(UserGrantRepository)  # type: ignore[no-any-return]
+
+
+@pytest.fixture
+async def company_repository(container: AsyncContainer) -> CompanyRepository:
+    async with container() as test_contaner:
+        return await test_contaner.get(CompanyRepository)  # type: ignore[no-any-return]
+
+
+@pytest.fixture
+async def role_repository(container: AsyncContainer) -> RoleRepository:
+    async with container() as test_container:
+        return await test_container.get(RoleRepository)  # type: ignore[no-any-return]
+
+
+@pytest.fixture
 async def user_factory(container: AsyncContainer) -> UserFactory:
     async with container() as test_container:
         return UserFactory(

@@ -10,6 +10,7 @@ from prodik.application.interfaces.repositories import (
 from prodik.application.interfaces.transaction_manager import TransactionManager
 from prodik.application.services import RoleManagmentService
 from prodik.domain.company import Company, CompanyId
+from prodik.domain.grant import UserGrant, UserGrantId
 from prodik.domain.role import EntityType, PermissionType
 from prodik.domain.user import User
 from tests.factories.common import generate_random_string
@@ -54,10 +55,17 @@ class CompanyFactory:
                 )
             )
 
+            grant = UserGrant.new(
+                user_grant_id=UserGrantId(uuid4()),
+                role=role_managment_service_response.role,
+                user=owner,
+            )
+
             await self.company_repository.create(company)
             await self.role_repository.create(role_managment_service_response.role)
             await self.role_permissions_repository.create_all(
                 role_managment_service_response.permissions
             )
+            await self.user_grant_repository.create(grant)
 
             return company
