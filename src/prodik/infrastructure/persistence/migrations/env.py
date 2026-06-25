@@ -2,7 +2,7 @@ import asyncio
 from logging.config import fileConfig
 
 from alembic import context
-from sqlalchemy import Connection, pool
+from sqlalchemy import Connection, pool, URL
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from prodik.infrastructure.config import load_config
@@ -36,7 +36,17 @@ target_metadata = metadata
 # ... etc.
 
 database_config = load_config()
-config.set_main_option("sqlalchemy.url", database_config.database.url)
+config.set_main_option(
+    "sqlalchemy.url",
+    URL.create(
+        "postgresql+asyncpg",
+        username=database_config.database.username,
+        password=database_config.database.password,
+        database=database_config.database.database,
+        port=database_config.database.port,
+        host=database_config.database.host,
+    ).render_as_string(hide_password=False)
+)
 
 
 def run_migrations_offline() -> None:

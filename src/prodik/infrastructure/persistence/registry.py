@@ -131,6 +131,11 @@ group_record_table = Table(
         ForeignKey("company_record.id", ondelete="CASCADE"),
         nullable=False,
     ),
+    Column(
+        "parent_group_id",
+        ForeignKey("group_record.id", ondelete="CASCADE"),
+        nullable=True,
+    ),
     Column("created_at", DateTime(timezone=True), nullable=False),
     Column("updated_at", DateTime(timezone=True), nullable=False),
 )

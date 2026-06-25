@@ -24,6 +24,7 @@ from sqlalchemy.ext.asyncio import (
 from prodik.application.interfaces.password_hasher import PasswordHasher
 from prodik.application.interfaces.repositories import (
     CompanyRepository,
+    GroupRepository,
     LocalAuthorizationRepository,
     RolePermissionsRepository,
     RoleRepository,
@@ -52,7 +53,11 @@ from prodik.infrastructure.config import (
     load_config,
 )
 from prodik.infrastructure.persistence import start_mapper
-from tests.factories.models import CompanyFactory, UserFactory
+from tests.factories.models import (
+    CompanyFactory,
+    GroupFactory,
+    UserFactory,
+)
 
 
 @pytest.fixture(scope="session")
@@ -77,6 +82,14 @@ async def local_authorization_repository(
 ) -> LocalAuthorizationRepository:
     async with container() as test_container:
         return await test_container.get(LocalAuthorizationRepository)  # type: ignore[no-any-return]
+
+
+@pytest.fixture
+async def group_repository(
+    container: AsyncContainer,
+) -> GroupRepository:
+    async with container() as test_container:
+        return await test_container.get(GroupRepository)  # type: ignore[no-any-return]
 
 
 @pytest.fixture
@@ -122,6 +135,15 @@ async def user_factory(container: AsyncContainer) -> UserFactory:
             session_repository=await test_container.get(SessionRepository),
             password_hasher=await test_container.get(PasswordHasher),
             user_repository=await test_container.get(UserRepository),
+        )
+
+
+@pytest.fixture
+async def group_factory(container: AsyncContainer) -> GroupFactory:
+    async with container() as test_container:
+        return GroupFactory(
+            group_repository=await test_container.get(GroupRepository),
+            transaction_manager=await test_container.get(TransactionManager),
         )
 
 

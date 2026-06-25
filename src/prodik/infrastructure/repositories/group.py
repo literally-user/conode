@@ -23,6 +23,7 @@ class GroupRepositoryImpl(GroupRepository):
                 id=group.id,
                 name=group.name,
                 description=group.description,
+                parent_group_id=group.parent_group_id,
                 company_id=group.company_id,
                 created_at=group.created_at,
                 updated_at=group.updated_at,
@@ -60,16 +61,17 @@ class GroupRepositoryImpl(GroupRepository):
     async def get_all_by_company_id(self, company_id: CompanyId) -> list[Group]:
         logger.debug("Repository get groups by company id", company_id=company_id)
         result = await self.session.execute(
-            delete(Group).where(
+            select(Group).where(
                 Group.company_id == company_id,  # type: ignore
             ),
         )
 
-        result_groups = list(result.scalars())
+        result_groups = list(result.scalars().all())
         logger.debug(
             "Repository fetched groups by company id",
             found_count=len(result_groups),
         )
+
         return result_groups
 
     async def get_all_by_ids(self, group_ids: list[GroupId]) -> list[Group]:
