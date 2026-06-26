@@ -88,8 +88,7 @@ async def application_error_handler(
 ) -> JSONResponse:
     status_code = HTTPStatus.INTERNAL_SERVER_ERROR
     for error in type(exception).mro():
-        handler_status = EXCEPTION_HANDLERS.get(error)
-        if handler_status is not None:
+        if EXCEPTION_HANDLERS.get(error) is not None:
             status_code = handler_status
             break
 
