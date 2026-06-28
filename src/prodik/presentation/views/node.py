@@ -93,25 +93,18 @@ async def get_neighbours(
     ]
 
 
-@router.put("/{node_id}")
+@router.put("/{node_id}", status_code=HTTPStatus.NO_CONTENT)
 async def update_node(
     node_id: NodeId,
     request: UpdateNodeRequest,
     interactor: FromDishka[UpdateNodeInteractor],
-) -> NodeSchema:
-    result = await interactor.execute(
+) -> None:
+    await interactor.execute(
         UpdateNodeRequestDTO(
             name=request.name,
             description=request.description,
             node_id=node_id,
         ),
-    )
-
-    return NodeSchema(
-        id=result.id,
-        name=result.name.value,
-        description=result.description.value,
-        company_id=result.company_id,
     )
 
 

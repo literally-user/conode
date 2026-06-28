@@ -8,7 +8,7 @@ from prodik.application.interfaces.repositories import (
 )
 from prodik.application.interfaces.transaction_manager import TransactionManager
 from prodik.application.services import AccessControlService
-from prodik.domain.node import Node, NodeId
+from prodik.domain.node import NodeId
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
@@ -27,7 +27,7 @@ class UpdateNodeInteractor:
     group_repository: GroupRepository
     transaction_manager: TransactionManager
 
-    async def execute(self, request: UpdateNodeRequestDTO) -> Node:
+    async def execute(self, request: UpdateNodeRequestDTO) -> None:
         async with self.transaction_manager:
             user = await self.access_control_service.get_authorized_user()
 
@@ -47,5 +47,3 @@ class UpdateNodeInteractor:
 
             node.set_name(request.name)
             node.set_description(request.description)
-
-            return node

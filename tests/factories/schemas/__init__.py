@@ -5,7 +5,7 @@ from .authentication import (
 )
 from .company import RegisterCompanyRequestFactory
 from .group import CreateGroupRequestFactory
-from .node import CreateNodeRequestFactory
+from .node import CreateNodeRequestFactory, UpdateNodeRequestFactory
 
 __all__ = (
     "CreateGroupRequestFactory",
@@ -14,4 +14,5 @@ __all__ = (
     "RefreshTokenRequestFactory",
     "RegisterCompanyRequestFactory",
     "RegisterRequestFactory",
+    "UpdateNodeRequestFactory",
 )
