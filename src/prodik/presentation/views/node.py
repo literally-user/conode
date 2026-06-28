@@ -116,7 +116,7 @@ async def delete_node(
     await interactor.execute(node_id)
 
 
-@router.post("/attach", status_code=HTTPStatus.CREATED)
+@router.post("/associations", status_code=HTTPStatus.CREATED)
 async def attach_nodes(
     request: AttachNodeRequest,
     interactor: FromDishka[AttachNodeInteractor],
@@ -135,7 +135,7 @@ async def attach_nodes(
     ]
 
 
-@router.delete("/association/{association_id}", status_code=HTTPStatus.NO_CONTENT)
+@router.delete("/associations/{association_id}", status_code=HTTPStatus.NO_CONTENT)
 async def detach_node(
     association_id: NodeAssociationId,
     interactor: FromDishka[DetachNodeInteractor],

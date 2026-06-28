@@ -223,7 +223,7 @@ class NodeAssociationRepositoryImpl(NodeAssociationRepository):
         except IntegrityError as e:
             raise NodeCannotHaveSameAssociationsError(
                 detail="Node cannot have same associations",
-                meta=[{"key": "node_associations", "value": node_associations}],
+                meta=None,
             ) from e
 
     async def get_all_by_group_id(self, group_id: GroupId) -> list[NodeAssociation]:
