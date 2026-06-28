@@ -10,6 +10,7 @@ from sqlalchemy import (
     MetaData,
     String,
     Table,
+    UniqueConstraint,
 )
 from sqlalchemy.orm import registry
 
@@ -152,6 +153,9 @@ node_association_record_table = Table(
     Column("node_id", ForeignKey("node_record.id", ondelete="CASCADE"), nullable=False),
     Column("created_at", DateTime(timezone=True), nullable=False),
     Column("updated_at", DateTime(timezone=True), nullable=False),
+    UniqueConstraint(
+        "group_id", "node_id", name="uq_node_association_record_group_id_node_id"
+    ),
 )
 
 

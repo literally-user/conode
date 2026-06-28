@@ -2,7 +2,6 @@ from dataclasses import dataclass
 from uuid import uuid4
 
 from prodik.application.errors import (
-    NodeCannotHaveSameAssociationsError,
     NodeNotFoundError,
 )
 from prodik.application.interfaces.repositories import (
@@ -49,29 +48,10 @@ class AttachNodeInteractor:
                     [{"key": "node_ids", "value": list(request_nodes)}],
                 )
 
-            existing_associations = (
-                await self.node_association_repository.get_all_by_group_id(
-                    request.group_id,
-                )
-            )
-
             await self.access_control_service.ensure_user_can_manipulate_group(
                 user,
                 group,
             )
-
-            existing_node_ids = {a.node_id for a in existing_associations}
-
-            # TODO @LTU: Fix toctou problem
-            for node in existing_nodes:
-                if node.id in existing_node_ids:
-                    raise NodeCannotHaveSameAssociationsError(
-                        "Node cannot have same associations",
-                        [
-                            {"key": "node_id", "value": node.id},
-                            {"key": "group_id", "value": group.id},
-                        ],
-                    )
 
             associations = [
                 NodeAssociation.new(
