@@ -89,7 +89,7 @@ async def application_error_handler(
     status_code = HTTPStatus.INTERNAL_SERVER_ERROR
     for error in type(exception).mro():
         if EXCEPTION_HANDLERS.get(error) is not None:
-            status_code = handler_status
+            status_code = EXCEPTION_HANDLERS[error]
             break
 
     logger.warning(
