@@ -44,12 +44,12 @@ class DetachNodeInteractor:
                 group,
             )
 
-            existing_node_association = (
-                await self.node_association_repository.get_by_node_id(
+            existing_node_associations = (
+                await self.node_association_repository.get_all_by_node_id(
                     association.node_id,
                 )
             )
-            if existing_node_association is None:
+            if len(existing_node_associations) == 1:
                 raise NodeMustHaveAtLeastOneAssociationError(
                     "Node must have at least one association",
                     [{"key": "node_id", "value": association.node_id}],

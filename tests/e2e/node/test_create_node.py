@@ -4,7 +4,10 @@ import pytest
 from dirty_equals import IsPartialDataclass, IsPartialDict, IsStr
 from httpx import AsyncClient
 
-from prodik.application.interfaces.repositories import NodeRepository
+from prodik.application.interfaces.repositories import (
+    NodeAssociationRepository,
+    NodeRepository,
+)
 from prodik.domain.node import NodeDescription, NodeName
 from tests.factories.common import authorization_headers
 from tests.factories.models import CompanyFactory, GroupFactory, UserFactory
@@ -15,6 +18,7 @@ from tests.factories.schemas import CreateNodeRequestFactory
 async def test_create_node_ok(
     transport: AsyncClient,
     node_repository: NodeRepository,
+    node_association_repository: NodeAssociationRepository,
     user_factory: UserFactory,
     company_factory: CompanyFactory,
     group_factory: GroupFactory,
@@ -33,8 +37,12 @@ async def test_create_node_ok(
     content = response.json()
 
     node = await node_repository.get_by_id(content["id"])
+    node_associations = await node_association_repository.get_all_by_node_id(
+        content["id"]
+    )
 
     assert response.status_code == HTTPStatus.CREATED
+    assert len(node_associations) == 1
     assert node == IsPartialDataclass(
         name=NodeName(request.name),
         description=NodeDescription(request.description),
@@ -51,6 +59,7 @@ async def test_create_node_ok(
 async def test_create_node_without_correct_rights(
     transport: AsyncClient,
     node_repository: NodeRepository,
+    node_association_repository: NodeAssociationRepository,
     user_factory: UserFactory,
     company_factory: CompanyFactory,
     group_factory: GroupFactory,
@@ -66,12 +75,15 @@ async def test_create_node_without_correct_rights(
         json=request.model_dump(mode="json"),
         headers=authorization_headers(users[1].access_token),
     )
+    content = response.json()
 
     nodes = await node_repository.get_all_by_company_id(company.id)
+    node_associations = await node_association_repository.get_all_by_group_id(group.id)
 
     assert len(nodes) == 0
+    assert len(node_associations) == 0
     assert response.status_code == HTTPStatus.FORBIDDEN
-    assert response.json() == IsPartialDict(
+    assert content == IsPartialDict(
         detail="Not enough rights to perform operation",
         meta=None,
     )

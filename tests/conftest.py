@@ -27,6 +27,7 @@ from prodik.application.interfaces.repositories import (
     CompanyRepository,
     GroupRepository,
     LocalAuthorizationRepository,
+    NodeAssociationRepository,
     NodeRepository,
     RolePermissionsRepository,
     RoleRepository,
@@ -58,6 +59,7 @@ from prodik.infrastructure.persistence import start_mapper
 from tests.factories.models import (
     CompanyFactory,
     GroupFactory,
+    NodeFactory,
     UserFactory,
 )
 
@@ -102,6 +104,14 @@ async def node_repository(
 
 
 @pytest.fixture
+async def node_association_repository(
+    container: AsyncContainer,
+) -> NodeAssociationRepository:
+    async with container() as test_container:
+        return await test_container.get(NodeAssociationRepository)  # type: ignore[no-any-return]
+
+
+@pytest.fixture
 async def group_repository(
     container: AsyncContainer,
 ) -> GroupRepository:
@@ -137,6 +147,18 @@ async def company_repository(container: AsyncContainer) -> CompanyRepository:
 async def role_repository(container: AsyncContainer) -> RoleRepository:
     async with container() as test_container:
         return await test_container.get(RoleRepository)  # type: ignore[no-any-return]
+
+
+@pytest.fixture
+async def node_factory(container: AsyncContainer) -> NodeFactory:
+    async with container() as test_container:
+        return NodeFactory(
+            node_repository=await test_container.get(NodeRepository),
+            transaction_manager=await test_container.get(TransactionManager),
+            node_association_repository=await test_container.get(
+                NodeAssociationRepository
+            ),
+        )
 
 
 @pytest.fixture
