@@ -5,9 +5,11 @@ from .authentication import (
 )
 from .company import RegisterCompanyRequestFactory
 from .group import CreateGroupRequestFactory
+from .node import CreateNodeRequestFactory
 
 __all__ = (
     "CreateGroupRequestFactory",
+    "CreateNodeRequestFactory",
     "LoginRequestFactory",
     "RefreshTokenRequestFactory",
     "RegisterCompanyRequestFactory",

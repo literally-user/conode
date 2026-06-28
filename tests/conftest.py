@@ -27,6 +27,7 @@ from prodik.application.interfaces.repositories import (
     CompanyRepository,
     GroupRepository,
     LocalAuthorizationRepository,
+    NodeRepository,
     RolePermissionsRepository,
     RoleRepository,
     SessionRepository,
@@ -90,6 +91,14 @@ async def local_authorization_repository(
 ) -> LocalAuthorizationRepository:
     async with container() as test_container:
         return await test_container.get(LocalAuthorizationRepository)  # type: ignore[no-any-return]
+
+
+@pytest.fixture
+async def node_repository(
+    container: AsyncContainer,
+) -> NodeRepository:
+    async with container() as test_container:
+        return await test_container.get(NodeRepository)  # type: ignore[no-any-return]
 
 
 @pytest.fixture

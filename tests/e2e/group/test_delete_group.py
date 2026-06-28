@@ -34,7 +34,7 @@ async def test_delete_group_ok(
 
 
 @pytest.mark.asyncio
-async def test_delete_group_user_have_not_access(
+async def test_delete_group_user_without_correct_rights(
     transport: AsyncClient,
     group_repository: GroupRepository,
     group_factory: GroupFactory,

@@ -14,6 +14,7 @@ from prodik.application.interfaces.repositories import (
     NodeAssociationRepository,
     NodeRepository,
 )
+from prodik.domain.company import CompanyId
 from prodik.domain.group import GroupId
 from prodik.domain.node import Node, NodeAssociation, NodeAssociationId, NodeId
 
@@ -59,6 +60,25 @@ class NodeRepositoryImpl(NodeRepository):
                 Node.id == node.id,  # type: ignore
             ),
         )
+
+    async def get_all_by_company_id(self, company_id: CompanyId) -> list[Node]:
+        logger.debug(
+            "Repository get nodes by company id",
+            company_id=company_id,
+        )
+
+        result = await self.session.execute(
+            select(Node).where(
+                Node.company_id == company_id  # type: ignore
+            ),
+        )
+
+        result_nodes = list(result.scalars().all())
+        logger.debug(
+            "Repository fetched nodes by company id",
+            found_count=len(result_nodes),
+        )
+        return result_nodes
 
     async def get_by_id(self, node_id: NodeId) -> Node:
         logger.debug("Repository get node by id", node_id=node_id)
