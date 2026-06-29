@@ -25,6 +25,8 @@ from sqlalchemy.ext.asyncio import (
 from prodik.application.interfaces.password_hasher import PasswordHasher
 from prodik.application.interfaces.repositories import (
     CompanyRepository,
+    ContextRepository,
+    EdgeRepository,
     GroupRepository,
     LocalAuthorizationRepository,
     NodeAssociationRepository,
@@ -58,6 +60,8 @@ from prodik.infrastructure.config import (
 from prodik.infrastructure.persistence import start_mapper
 from tests.factories.models import (
     CompanyFactory,
+    ContextFactory,
+    EdgeFactory,
     GroupFactory,
     NodeAssociationFactory,
     NodeFactory,
@@ -145,6 +149,12 @@ async def company_repository(container: AsyncContainer) -> CompanyRepository:
 
 
 @pytest.fixture
+async def edge_repository(container: AsyncContainer) -> EdgeRepository:
+    async with container() as test_contaner:
+        return await test_contaner.get(EdgeRepository)  # type: ignore[no-any-return]
+
+
+@pytest.fixture
 async def role_repository(container: AsyncContainer) -> RoleRepository:
     async with container() as test_container:
         return await test_container.get(RoleRepository)  # type: ignore[no-any-return]
@@ -170,6 +180,26 @@ async def node_association_factory(container: AsyncContainer) -> NodeAssociation
             node_association_repository=await test_container.get(
                 NodeAssociationRepository
             ),
+        )
+
+
+@pytest.fixture
+async def edge_factory(container: AsyncContainer) -> EdgeFactory:
+    async with container() as test_container:
+        return EdgeFactory(
+            transaction_manager=await test_container.get(TransactionManager),
+            edge_repository=await test_container.get(
+                EdgeRepository,
+            ),
+        )
+
+
+@pytest.fixture
+async def context_factory(container: AsyncContainer) -> ContextFactory:
+    async with container() as test_container:
+        return ContextFactory(
+            transaction_manager=await test_container.get(TransactionManager),
+            context_repository=await test_container.get(ContextRepository),
         )
 
 
