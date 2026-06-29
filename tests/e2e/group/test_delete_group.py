@@ -105,7 +105,7 @@ async def test_delete_group_with_associations(
 
     company = await company_factory.build(owner=user_factory_response.user)
     group = await group_factory.build(company=company)
-    node = await node_factory.build(company=company, group=group)
+    node, _ = await node_factory.build(company=company, group=group)
 
     response = await transport.delete(
         f"/groups/{group.id}",

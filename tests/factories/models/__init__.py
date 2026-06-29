@@ -1,6 +1,12 @@
 from .company import CompanyFactory
 from .group import GroupFactory
-from .node import NodeFactory
+from .node import NodeAssociationFactory, NodeFactory
 from .user import UserFactory
 
-__all__ = ("CompanyFactory", "GroupFactory", "NodeFactory", "UserFactory")
+__all__ = (
+    "CompanyFactory",
+    "GroupFactory",
+    "NodeAssociationFactory",
+    "NodeFactory",
+    "UserFactory",
+)

@@ -1,13 +1,14 @@
 from dataclasses import dataclass
 
 import structlog
-from sqlalchemy import delete, insert, select, update
+from sqlalchemy import and_, delete, func, insert, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from prodik.application.errors import (
     AssociationNotFoundError,
     NodeCannotHaveSameAssociationsError,
+    NodeMustHaveAtLeastOneAssociationError,
     NodeNotFoundError,
 )
 from prodik.application.interfaces.repositories import (
@@ -162,11 +163,27 @@ class NodeAssociationRepositoryImpl(NodeAssociationRepository):
             "Repository delete node association",
             association_id=node_association.id,
         )
-        await self.session.execute(
+        result = await self.session.execute(
             delete(NodeAssociation).where(
-                NodeAssociation.id == node_association.id,  # type: ignore
+                and_(
+                    NodeAssociation.id == node_association.id,  # type: ignore
+                    select(func.count())
+                    .where(
+                        NodeAssociation.node_id == node_association.node_id  # type: ignore
+                    )
+                    .scalar_subquery()
+                    > 1,
+                )
             ),
         )
+
+        if result.rowcount == 0:  # type: ignore[attr-defined]
+            raise NodeMustHaveAtLeastOneAssociationError(
+                detail="Node must have at least one association",
+                meta=[
+                    {"key": "node_association_id", "value": node_association.node_id}
+                ],
+            )
 
     async def get_by_id(
         self,

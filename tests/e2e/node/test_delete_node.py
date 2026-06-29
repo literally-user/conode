@@ -30,7 +30,7 @@ async def test_delete_node_ok(
     user_factory_response = await user_factory.build()
     company = await company_factory.build(owner=user_factory_response.user)
     group = await group_factory.build(company=company)
-    node = await node_factory.build(company, group)
+    node, _ = await node_factory.build(company, group)
 
     response = await transport.delete(
         f"/nodes/{node.id}",
@@ -58,7 +58,7 @@ async def test_delete_node_user_without_correct_rights(
     users = (await user_factory.build(), await user_factory.build())
     company = await company_factory.build(owner=users[0].user)
     group = await group_factory.build(company=company)
-    node = await node_factory.build(company, group)
+    node, _ = await node_factory.build(company, group)
 
     response = await transport.delete(
         f"/nodes/{node.id}", headers=authorization_headers(users[1].access_token)

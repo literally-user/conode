@@ -32,7 +32,7 @@ async def test_attach_node_ok(
     company = await company_factory.build(owner=user_factory_response.user)
     group_a = await group_factory.build(company=company)
     group_b = await group_factory.build(company=company)
-    node = await node_factory.build(group=group_a, company=company)
+    node, _ = await node_factory.build(group=group_a, company=company)
 
     request = AttachNodeRequestFactory.build(
         group_id=group_b.id,
@@ -63,7 +63,7 @@ async def test_attach_node_already_have_association(
     user_factory_response = await user_factory.build()
     company = await company_factory.build(owner=user_factory_response.user)
     group = await group_factory.build(company=company)
-    node = await node_factory.build(group=group, company=company)
+    node, _ = await node_factory.build(group=group, company=company)
 
     request = AttachNodeRequestFactory.build(
         group_id=group.id,
@@ -98,7 +98,7 @@ async def test_attach_node_user_without_correct_rights(
     users = (await user_factory.build(), await user_factory.build())
     company = await company_factory.build(owner=users[0].user)
     group = await group_factory.build(company=company)
-    node = await node_factory.build(group=group, company=company)
+    node, _ = await node_factory.build(group=group, company=company)
 
     request = AttachNodeRequestFactory.build(
         group_id=group.id,

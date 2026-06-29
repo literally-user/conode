@@ -28,7 +28,7 @@ async def test_update_node_ok(
     user = await user_factory.build()
     company = await company_factory.build(owner=user.user)
     group = await group_factory.build(company=company)
-    node = await node_factory.build(company=company, group=group)
+    node, _ = await node_factory.build(company=company, group=group)
 
     request = UpdateNodeRequestFactory.build()
 
@@ -59,7 +59,7 @@ async def test_update_node_user_without_correct_rights(
     users = (await user_factory.build(), await user_factory.build())
     company = await company_factory.build(owner=users[0].user)
     group = await group_factory.build(company=company)
-    node = await node_factory.build(company=company, group=group)
+    node, _ = await node_factory.build(company=company, group=group)
 
     request = UpdateNodeRequestFactory.build()
 

@@ -59,6 +59,7 @@ from prodik.infrastructure.persistence import start_mapper
 from tests.factories.models import (
     CompanyFactory,
     GroupFactory,
+    NodeAssociationFactory,
     NodeFactory,
     UserFactory,
 )
@@ -154,6 +155,17 @@ async def node_factory(container: AsyncContainer) -> NodeFactory:
     async with container() as test_container:
         return NodeFactory(
             node_repository=await test_container.get(NodeRepository),
+            transaction_manager=await test_container.get(TransactionManager),
+            node_association_repository=await test_container.get(
+                NodeAssociationRepository
+            ),
+        )
+
+
+@pytest.fixture
+async def node_association_factory(container: AsyncContainer) -> NodeAssociationFactory:
+    async with container() as test_container:
+        return NodeAssociationFactory(
             transaction_manager=await test_container.get(TransactionManager),
             node_association_repository=await test_container.get(
                 NodeAssociationRepository

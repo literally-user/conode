@@ -18,7 +18,9 @@ class NodeFactory:
     node_association_repository: NodeAssociationRepository
     node_repository: NodeRepository
 
-    async def build(self, company: Company, group: Group) -> Node:
+    async def build(
+        self, company: Company, group: Group
+    ) -> tuple[Node, NodeAssociation]:
         async with self.transaction_manager:
             node = Node.new(
                 node_id=NodeId(uuid4()),
@@ -36,4 +38,22 @@ class NodeFactory:
             await self.node_repository.create(node)
             await self.node_association_repository.create(node_association)
 
-            return node
+            return node, node_association
+
+
+@dataclass
+class NodeAssociationFactory:
+    transaction_manager: TransactionManager
+    node_association_repository: NodeAssociationRepository
+
+    async def build(self, node: Node, group: Group) -> NodeAssociation:
+        async with self.transaction_manager:
+            node_association = NodeAssociation.new(
+                node_association_id=NodeAssociationId(uuid4()),
+                node=node,
+                group=group,
+            )
+
+            await self.node_association_repository.create(node_association)
+
+            return node_association
