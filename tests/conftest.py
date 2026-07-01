@@ -79,11 +79,12 @@ def startup() -> None:
     start_mapper()
 
 
-@pytest.fixture(autouse=True)
-async def clear_cache(container: AsyncContainer) -> AsyncIterator[None]:
+@pytest.fixture(scope="session", autouse=True)
+async def clear_cache(config: Config) -> AsyncIterator[None]:
     yield
-    redis = await container.get(Redis)
+    redis = Redis(host=config.cache.host, port=config.cache.port)
     await redis.flushdb()
+    await redis.aclose()
 
 
 @pytest.fixture
