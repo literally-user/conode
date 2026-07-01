@@ -149,6 +149,12 @@ async def company_repository(container: AsyncContainer) -> CompanyRepository:
 
 
 @pytest.fixture
+async def context_repository(container: AsyncContainer) -> ContextRepository:
+    async with container() as test_container:
+        return await test_container.get(ContextRepository)  # type: ignore[no-any-return]
+
+
+@pytest.fixture
 async def edge_repository(container: AsyncContainer) -> EdgeRepository:
     async with container() as test_contaner:
         return await test_contaner.get(EdgeRepository)  # type: ignore[no-any-return]
