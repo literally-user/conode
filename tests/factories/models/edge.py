@@ -15,7 +15,13 @@ class EdgeFactory:
     transaction_manager: TransactionManager
 
     async def build(
-        self, *, node_a: Node, node_b: Node, context: Context, company: Company
+        self,
+        *,
+        node_a: Node,
+        node_b: Node,
+        context: Context,
+        company: Company,
+        weight: int = 0,
     ) -> Edge:
         async with self.transaction_manager:
             edge = Edge.new(
@@ -24,7 +30,7 @@ class EdgeFactory:
                 node_b=node_b,
                 context=context,
                 company=company,
-                weight=0,
+                weight=weight,
             )
 
             await self.edge_repository.create(edge)
