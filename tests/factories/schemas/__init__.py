@@ -5,6 +5,7 @@ from .authentication import (
 )
 from .company import RegisterCompanyRequestFactory
 from .context import CreateContextRequestFactory
+from .edge import CreateEdgeRequestFactory
 from .group import CreateGroupRequestFactory
 from .node import (
     AttachNodeRequestFactory,
@@ -15,6 +16,7 @@ from .node import (
 __all__ = (
     "AttachNodeRequestFactory",
     "CreateContextRequestFactory",
+    "CreateEdgeRequestFactory",
     "CreateGroupRequestFactory",
     "CreateNodeRequestFactory",
     "LoginRequestFactory",
