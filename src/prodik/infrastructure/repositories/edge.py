@@ -2,9 +2,10 @@ from dataclasses import dataclass
 
 import structlog
 from sqlalchemy import and_, delete, insert, or_, select, update
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from prodik.application.errors import EdgeNotFoundError
+from prodik.application.errors import EdgeAlreadyExistsError, EdgeNotFoundError
 from prodik.application.interfaces.repositories import EdgeRepository
 from prodik.domain.context import ContextId
 from prodik.domain.edge import Edge, EdgeId
@@ -19,18 +20,28 @@ class EdgeRepositoryImpl(EdgeRepository):
 
     async def create(self, edge: Edge) -> None:
         logger.debug("Repository create edge", edge_id=edge.id)
-        await self.session.execute(
-            insert(Edge).values(
-                id=edge.id,
-                company_id=edge.company_id,
-                context_id=edge.context_id,
-                node_a_id=edge.node_a_id,
-                node_b_id=edge.node_b_id,
-                created_at=edge.created_at,
-                updated_at=edge.updated_at,
-                weight=edge.weight,
-            ),
-        )
+        try:
+            await self.session.execute(
+                insert(Edge).values(
+                    id=edge.id,
+                    company_id=edge.company_id,
+                    context_id=edge.context_id,
+                    node_a_id=edge.node_a_id,
+                    node_b_id=edge.node_b_id,
+                    created_at=edge.created_at,
+                    updated_at=edge.updated_at,
+                    weight=edge.weight,
+                ),
+            )
+        except IntegrityError as e:
+            raise EdgeAlreadyExistsError(
+                "Edge between nodes in this context already exists",
+                [
+                    {"key": "node_a_id", "value": edge.node_a_id},
+                    {"key": "node_b_id", "value": edge.node_b_id},
+                    {"key": "context_id", "value": edge.context_id},
+                ],
+            ) from e
 
     async def delete(self, edge: Edge) -> None:
         logger.debug("Repository delete edge", edge_id=edge.id)
