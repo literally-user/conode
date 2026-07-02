@@ -8,7 +8,6 @@ from prodik.application.manage_edge import (
     CreateEdgeRequestDTO,
     DeleteEdgeInteractor,
 )
-from prodik.application.receive_edge_info import GetEdgesByContextInteractor
 from prodik.application.receive_graph_statistics import (
     FindShortestPathInteractor,
     FindShortestPathRequestDTO,
@@ -109,22 +108,3 @@ async def update_edge_weight(
     interactor: FromDishka[UpdateEdgeWeightInteractor],
 ) -> None:
     await interactor.execute(edge_id, request.weight)
-
-
-@router.get("/{context_id}")
-async def get_all_edges_by_context(
-    context_id: ContextId,
-    interactor: FromDishka[GetEdgesByContextInteractor],
-) -> list[EdgeSchema]:
-    result = await interactor.execute(context_id)
-
-    return [
-        EdgeSchema(
-            id=edge.id,
-            node_a_id=edge.node_a_id,
-            node_b_id=edge.node_b_id,
-            context_id=edge.context_id,
-            company_id=edge.company_id,
-        )
-        for edge in result
-    ]

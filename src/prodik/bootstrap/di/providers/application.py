@@ -32,7 +32,6 @@ from prodik.application.manage_user_rights import (
 from prodik.application.receive_context_info import (
     GetContextByIdInteractor,
 )
-from prodik.application.receive_edge_info import GetEdgesByContextInteractor
 from prodik.application.receive_graph_statistics import (
     FindShortestPathInteractor,
     GetNodeNeighboursInteractor,
@@ -82,7 +81,6 @@ class ApplicationProvider(Provider):
         IncrementEdgeWeightInteractor,
         GetGroupByIdInteractor,
         GetContextByIdInteractor,
-        GetEdgesByContextInteractor,
         UpdateCurrentUserProfileInteractor,
         UpdateCurrentUserPasswordInteractor,
         SendOfferToCompanyInteractor,
