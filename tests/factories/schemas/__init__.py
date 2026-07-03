@@ -12,6 +12,10 @@ from .node import (
     CreateNodeRequestFactory,
     UpdateNodeRequestFactory,
 )
+from .user import (
+    UpdateCurrentUserPasswordRequestFactory,
+    UpdateCurrentUserProfileRequestFactory,
+)
 
 __all__ = (
     "AttachNodeRequestFactory",
@@ -23,5 +27,7 @@ __all__ = (
     "RefreshTokenRequestFactory",
     "RegisterCompanyRequestFactory",
     "RegisterRequestFactory",
+    "UpdateCurrentUserPasswordRequestFactory",
+    "UpdateCurrentUserProfileRequestFactory",
     "UpdateNodeRequestFactory",
 )
