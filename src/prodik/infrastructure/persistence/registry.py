@@ -10,6 +10,7 @@ from sqlalchemy import (
     MetaData,
     String,
     Table,
+    UniqueConstraint,
 )
 from sqlalchemy.orm import registry
 
@@ -131,6 +132,11 @@ group_record_table = Table(
         ForeignKey("company_record.id", ondelete="CASCADE"),
         nullable=False,
     ),
+    Column(
+        "parent_group_id",
+        ForeignKey("group_record.id", ondelete="CASCADE"),
+        nullable=True,
+    ),
     Column("created_at", DateTime(timezone=True), nullable=False),
     Column("updated_at", DateTime(timezone=True), nullable=False),
 )
@@ -147,6 +153,9 @@ node_association_record_table = Table(
     Column("node_id", ForeignKey("node_record.id", ondelete="CASCADE"), nullable=False),
     Column("created_at", DateTime(timezone=True), nullable=False),
     Column("updated_at", DateTime(timezone=True), nullable=False),
+    UniqueConstraint(
+        "group_id", "node_id", name="uq_node_association_record_group_id_node_id"
+    ),
 )
 
 
@@ -192,6 +201,12 @@ edge_record_table = Table(
     Column("weight", Float, nullable=False),
     Column("created_at", DateTime(timezone=True), nullable=False),
     Column("updated_at", DateTime(timezone=True), nullable=False),
+    UniqueConstraint(
+        "context_id",
+        "node_a_id",
+        "node_b_id",
+        name="uq_edge_record_node_a_id_node_b_id_context_id",
+    ),
 )
 
 role_record_table = Table(

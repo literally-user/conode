@@ -1,14 +1,21 @@
 from dataclasses import dataclass
 
 import structlog
-from sqlalchemy import delete, insert, select, update
+from sqlalchemy import and_, delete, func, insert, select, update
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from prodik.application.errors import AssociationNotFoundError, NodeNotFoundError
+from prodik.application.errors import (
+    AssociationNotFoundError,
+    NodeCannotHaveSameAssociationsError,
+    NodeMustHaveAtLeastOneAssociationError,
+    NodeNotFoundError,
+)
 from prodik.application.interfaces.repositories import (
     NodeAssociationRepository,
     NodeRepository,
 )
+from prodik.domain.company import CompanyId
 from prodik.domain.group import GroupId
 from prodik.domain.node import Node, NodeAssociation, NodeAssociationId, NodeId
 
@@ -54,6 +61,25 @@ class NodeRepositoryImpl(NodeRepository):
                 Node.id == node.id,  # type: ignore
             ),
         )
+
+    async def get_all_by_company_id(self, company_id: CompanyId) -> list[Node]:
+        logger.debug(
+            "Repository get nodes by company id",
+            company_id=company_id,
+        )
+
+        result = await self.session.execute(
+            select(Node).where(
+                Node.company_id == company_id  # type: ignore
+            ),
+        )
+
+        result_nodes = list(result.scalars().all())
+        logger.debug(
+            "Repository fetched nodes by company id",
+            found_count=len(result_nodes),
+        )
+        return result_nodes
 
     async def get_by_id(self, node_id: NodeId) -> Node:
         logger.debug("Repository get node by id", node_id=node_id)
@@ -137,11 +163,27 @@ class NodeAssociationRepositoryImpl(NodeAssociationRepository):
             "Repository delete node association",
             association_id=node_association.id,
         )
-        await self.session.execute(
+        result = await self.session.execute(
             delete(NodeAssociation).where(
-                NodeAssociation.id == node_association.id,  # type: ignore
+                and_(
+                    NodeAssociation.id == node_association.id,  # type: ignore
+                    select(func.count())
+                    .where(
+                        NodeAssociation.node_id == node_association.node_id  # type: ignore
+                    )
+                    .scalar_subquery()
+                    > 1,
+                )
             ),
         )
+
+        if result.rowcount == 0:  # type: ignore[attr-defined]
+            raise NodeMustHaveAtLeastOneAssociationError(
+                detail="Node must have at least one association",
+                meta=[
+                    {"key": "node_association_id", "value": node_association.node_id}
+                ],
+            )
 
     async def get_by_id(
         self,
@@ -172,28 +214,34 @@ class NodeAssociationRepositoryImpl(NodeAssociationRepository):
 
         return association
 
-    async def create_all(self, node_association: list[NodeAssociation]) -> None:
+    async def create_all(self, node_associations: list[NodeAssociation]) -> None:
         logger.debug(
             "Repository create node associations batch",
-            request_count=len(node_association),
+            request_count=len(node_associations),
         )
-        if not node_association:
+        if not node_associations:
             return
 
-        await self.session.execute(
-            insert(NodeAssociation).values(
-                [
-                    {
-                        "id": association.id,
-                        "group_id": association.group_id,
-                        "node_id": association.node_id,
-                        "created_at": association.created_at,
-                        "updated_at": association.updated_at,
-                    }
-                    for association in node_association
-                ],
-            ),
-        )
+        try:
+            await self.session.execute(
+                insert(NodeAssociation).values(
+                    [
+                        {
+                            "id": association.id,
+                            "group_id": association.group_id,
+                            "node_id": association.node_id,
+                            "created_at": association.created_at,
+                            "updated_at": association.updated_at,
+                        }
+                        for association in node_associations
+                    ],
+                ),
+            )
+        except IntegrityError as e:
+            raise NodeCannotHaveSameAssociationsError(
+                detail="Node cannot have same associations",
+                meta=None,
+            ) from e
 
     async def get_all_by_group_id(self, group_id: GroupId) -> list[NodeAssociation]:
         logger.debug("Repository get node associations by group id", group_id=group_id)

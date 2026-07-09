@@ -38,7 +38,7 @@ class ContextName(ValueObject[str]):
 
 class ContextDescription(ValueObject[str]):
     def __init__(self, value: str) -> None:
-        if len(value) >= MAX_ALLOWED_CONTEXT_DESCRIPTION_LENGTH:
+        if len(value) > MAX_ALLOWED_CONTEXT_DESCRIPTION_LENGTH:
             raise InvalidContextDescriptionFormatError(
                 "Context description must be shorter than "
                 f"{MAX_ALLOWED_CONTEXT_DESCRIPTION_LENGTH}",

@@ -47,8 +47,6 @@ class GetNodeNeighboursInteractor:
         queue: deque[tuple[NodeId, int]] = deque([(node.id, 0)])
         neighbours: dict[NodeId, Edge] = {}
 
-        queue.append((node.id, 0))
-
         while queue:
             node_id, depth = queue.popleft()
 
@@ -59,8 +57,10 @@ class GetNodeNeighboursInteractor:
                 other = edge.other_end(node_id)
 
                 if (
-                    node_id in {edge.node_a_id, edge.node_b_id}
-                ) and other not in neighbours:
+                    (node_id in {edge.node_a_id, edge.node_b_id})
+                    and other not in neighbours
+                    and other != node.id
+                ):
                     neighbours[other] = edge
                     queue.append((other, depth + 1))
 

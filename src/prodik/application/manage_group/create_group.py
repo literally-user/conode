@@ -1,9 +1,6 @@
 from dataclasses import dataclass
 from uuid import uuid4
 
-from prodik.application.errors import (
-    GroupNotFoundError,
-)
 from prodik.application.interfaces.repositories import (
     CompanyRepository,
     GroupRepository,
@@ -43,20 +40,15 @@ class CreateGroupInteractor:
             parent_group = None
             if request.parent_group_id:
                 parent_group = await self.group_repository.get_by_id(
-                    request.parent_group_id,
+                    request.parent_group_id
                 )
-                if parent_group is None:
-                    raise GroupNotFoundError(
-                        "Group not found",
-                        [{"key": "group_id", "value": request.parent_group_id}],
-                    )
 
             group = Group.new(
                 group_id=GroupId(uuid4()),
                 name=request.name,
                 description=request.description,
                 company=company,
-                parent_group=parent_group if parent_group is not None else None,
+                parent_group=parent_group,
             )
 
             await self.group_repository.create(group)

@@ -3,7 +3,6 @@ from typing import Final
 from uuid import uuid4
 
 from prodik.application.errors import (
-    EdgeAlreadyExistsError,
     NodeNotFoundError,
 )
 from prodik.application.interfaces.repositories import (
@@ -58,21 +57,6 @@ class CreateEdgeInteractor:
                     [
                         {"key": "node_a_id", "value": request.node_a_id},
                         {"key": "node_b_id", "value": request.node_b_id},
-                    ],
-                )
-
-            edge = await self.edge_repository.get_by_nodes_and_context(
-                node_a_id=request.node_a_id,
-                node_b_id=request.node_b_id,
-                context_id=request.context_id,
-            )
-            if edge is not None:
-                raise EdgeAlreadyExistsError(
-                    "Edge between nodes in this context already exists",
-                    [
-                        {"key": "node_a_id", "value": request.node_a_id},
-                        {"key": "node_b_id", "value": request.node_b_id},
-                        {"key": "context_id", "value": request.context_id},
                     ],
                 )
 

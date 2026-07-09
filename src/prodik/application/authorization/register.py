@@ -57,6 +57,7 @@ class RegisterInteractor:
                 username=Username(request.username),
                 email=Email(request.email),
             )
+
             if user is not None:
                 raise UserAlreadyExistsError(
                     "User with this username or email already exists",

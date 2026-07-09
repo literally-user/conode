@@ -2,7 +2,6 @@ from dataclasses import dataclass
 
 from prodik.application.errors import (
     GroupNotFoundError,
-    NodeMustHaveAtLeastOneAssociationError,
 )
 from prodik.application.interfaces.repositories import (
     CompanyRepository,
@@ -43,16 +42,5 @@ class DetachNodeInteractor:
                 user,
                 group,
             )
-
-            existing_node_association = (
-                await self.node_association_repository.get_by_node_id(
-                    association.node_id,
-                )
-            )
-            if existing_node_association is None:
-                raise NodeMustHaveAtLeastOneAssociationError(
-                    "Node must have at least one association",
-                    [{"key": "node_id", "value": association.node_id}],
-                )
 
             await self.node_association_repository.delete(association)

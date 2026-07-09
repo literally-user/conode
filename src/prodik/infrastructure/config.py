@@ -27,7 +27,11 @@ class CacheConfig:
 
 @dataclass(slots=True, frozen=True, kw_only=True)
 class DatabaseConfig:
-    url: str
+    username: str
+    password: str
+    database: str
+    host: str
+    port: int
 
 
 @dataclass(slots=True, frozen=True, kw_only=True)
@@ -48,7 +52,13 @@ def load_config(path: str = "config.toml") -> Config:
                 port=config["api"]["port"],
                 debug=os.getenv("DEBUG", "false") in ("true", "false"),
             ),
-            database=DatabaseConfig(url=config["database"]["url"]),
+            database=DatabaseConfig(
+                username=config["database"]["username"],
+                password=config["database"]["password"],
+                database=config["database"]["database"],
+                host=config["database"]["host"],
+                port=config["database"]["port"],
+            ),
             secrets=SecretsConfig(
                 secret=config["secrets"]["secret"],
                 expires_in=config["secrets"]["expires_in"],

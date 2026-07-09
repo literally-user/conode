@@ -1,11 +1,11 @@
 from .application import ApplicationProvider
 from .cache import CacheConnectionProvider
-from .database import DatabaseConnectionProvider
+from .connection import ConnectionProvider
 from .infrastructure import InfrastructureProvider
 
 __all__ = (
     "ApplicationProvider",
     "CacheConnectionProvider",
-    "DatabaseConnectionProvider",
+    "ConnectionProvider",
     "InfrastructureProvider",
 )

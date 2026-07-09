@@ -79,7 +79,9 @@ class LoginInteractor:
             access_token, expires_in = self.access_token_manager.encode(user)
             refresh_token = self.refresh_token_manager.encode()
 
-            session = await self.session_repository.get_by_host(host)
+            session = await self.session_repository.get_by_host_and_user_id(
+                user.id, host
+            )
             if session is None:
                 session = Session.new(
                     session_id=SessionId(uuid4()),
@@ -89,7 +91,9 @@ class LoginInteractor:
                 )
                 await self.session_repository.create(session)
             else:
+                prev_token = session.token
                 session.update_token(refresh_token)
+                await self.session_repository.update(prev_token, session)
 
             return LoginResponseDTO(
                 access_token=access_token,
