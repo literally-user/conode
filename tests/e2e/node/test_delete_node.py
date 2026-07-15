@@ -4,7 +4,7 @@ import pytest
 from dirty_equals import IsPartialDict
 from httpx import AsyncClient
 
-from prodik.application.interfaces.repositories import (
+from conode.application.interfaces.repositories import (
     NodeAssociationRepository,
     NodeRepository,
 )

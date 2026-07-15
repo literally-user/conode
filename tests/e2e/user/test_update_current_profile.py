@@ -4,8 +4,8 @@ import pytest
 from dirty_equals import IsPartialDataclass
 from httpx import AsyncClient
 
-from prodik.application.interfaces.repositories import UserRepository
-from prodik.domain.user import Bio, Email, FirstName, LastName, Username
+from conode.application.interfaces.repositories import UserRepository
+from conode.domain.user import Bio, FirstName, LastName, Username
 from tests.factories.common import authorization_headers
 from tests.factories.models import UserFactory
 from tests.factories.schemas import (
@@ -35,6 +35,5 @@ async def test_update_current_user_profile_ok(
         first_name=FirstName(request.first_name),
         last_name=LastName(request.last_name),
         username=Username(request.username),
-        email=Email(request.email),
         bio=Bio(request.bio),
     )

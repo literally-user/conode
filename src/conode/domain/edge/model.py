@@ -1,0 +1,82 @@
+from dataclasses import dataclass
+from datetime import UTC, datetime
+from typing import NewType, Self
+from uuid import UUID
+
+from conode.domain.company import Company, CompanyId
+from conode.domain.context import Context, ContextId
+from conode.domain.edge.errors import (
+    EdgeCannotConnectTwoSameNodesError,
+    EdgeWeightCannotBeNegativeError,
+)
+from conode.domain.node import Node, NodeId
+from conode.domain.shared import Entity
+
+EdgeId = NewType("EdgeId", UUID)
+
+
+@dataclass
+class Edge(Entity[EdgeId]):
+    company_id: CompanyId
+    context_id: ContextId
+    node_a_id: NodeId
+    node_b_id: NodeId
+    weight: float
+
+    @classmethod
+    def new(
+        cls,
+        edge_id: EdgeId,
+        node_a: Node,
+        node_b: Node,
+        company: Company,
+        context: Context,
+        weight: float,
+    ) -> Self:
+        if weight < 0:
+            raise EdgeWeightCannotBeNegativeError(
+                "Edge weight cannot be negative",
+                None,
+            )
+        if node_a == node_b:
+            raise EdgeCannotConnectTwoSameNodesError(
+                "Edge cannot connect two same nodes",
+                [
+                    {"key": "node_a", "value": node_a},
+                    {"key": "node_b", "value": node_b},
+                ],
+            )
+
+        now = datetime.now(UTC)
+        return cls(
+            id=edge_id,
+            company_id=company.id,
+            context_id=context.id,
+            node_a_id=node_a.id,
+            node_b_id=node_b.id,
+            weight=weight,
+            created_at=now,
+            updated_at=now,
+        )
+
+    def increment_weight(self) -> None:
+        self.weight += 1
+
+    def decrement_weight(self) -> None:
+        if self.weight <= 0:
+            raise EdgeWeightCannotBeNegativeError(
+                "Edge weight cannot be negative",
+                None,
+            )
+        self.weight -= 1
+
+    def update_weight(self, weight: float) -> None:
+        if weight < 0:
+            raise EdgeWeightCannotBeNegativeError(
+                "Edge weight cannot be negative",
+                None,
+            )
+        self.weight = weight
+
+    def other_end(self, node_id: NodeId) -> NodeId:
+        return self.node_b_id if self.node_a_id == node_id else self.node_a_id

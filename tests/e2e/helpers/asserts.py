@@ -1,12 +1,12 @@
 from typing import Any
 
-from prodik.application.interfaces.repositories import (
+from conode.application.interfaces.repositories import (
     CompanyRepository,
     RoleRepository,
     UserGrantRepository,
 )
-from prodik.domain.role import RoleName
-from prodik.domain.user import User
+from conode.domain.role import RoleName
+from conode.domain.user import User
 
 
 async def assert_user_have_correct_rights(

@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 from uuid import uuid4
 
-from prodik.application.interfaces.repositories import ContextRepository
-from prodik.application.interfaces.transaction_manager import TransactionManager
-from prodik.domain.company import Company
-from prodik.domain.context import Context, ContextId
+from conode.application.interfaces.repositories import ContextRepository
+from conode.application.interfaces.transaction_manager import TransactionManager
+from conode.domain.company import Company
+from conode.domain.context import Context, ContextId
 from tests.factories.common import generate_random_string
 
 

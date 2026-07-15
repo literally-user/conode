@@ -3,11 +3,4 @@ services:
     environment:
       DEBUG: "false"
     volumes:
-      - "./src/prodik/infrastructure/db/migrations/versions/:/prodik/src/prodik/infrastructure/db/migrations/versions/"
-
-  postgres:
-    healthcheck:
-      test: ["CMD", "pg_isready", "-U", "postgres", "-d", "postgres"]
-      interval: 15s
-      timeout: 15s
-      retries: 5
+      - "./src/conode/infrastructure/db/migrations/versions/:/conode/src/conode/infrastructure/db/migrations/versions/"
