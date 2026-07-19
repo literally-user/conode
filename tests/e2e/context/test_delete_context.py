@@ -4,7 +4,7 @@ import pytest
 from dirty_equals import IsPartialDict
 from httpx import AsyncClient
 
-from prodik.application.interfaces.repositories import ContextRepository
+from conode.application.interfaces.repositories import ContextRepository
 from tests.factories.common import authorization_headers
 from tests.factories.models import CompanyFactory, ContextFactory, UserFactory
 

@@ -1,18 +1,18 @@
 from dataclasses import dataclass
 
-from prodik.application.interfaces.repositories import (
+from conode.application.interfaces.repositories import (
     RolePermissionsRepository,
     RoleRepository,
 )
-from prodik.application.interfaces.transaction_manager import TransactionManager
-from prodik.application.services import (
+from conode.application.interfaces.transaction_manager import TransactionManager
+from conode.application.services import (
     RoleManagmentService,
     RoleManagmentServiceResponse,
 )
-from prodik.domain.company import Company
-from prodik.domain.context import Context
-from prodik.domain.group import Group
-from prodik.domain.role import EntityType, PermissionType
+from conode.domain.company import Company
+from conode.domain.context import Context
+from conode.domain.group import Group
+from conode.domain.role import EntityType, PermissionType
 from tests.factories.common import generate_random_string
 
 entity_types_map = {

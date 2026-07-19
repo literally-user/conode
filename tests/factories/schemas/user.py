@@ -1,14 +1,8 @@
 from polyfactory.factories.pydantic_factory import ModelFactory
 
-from prodik.presentation.schemas.user import (
-    UpdateCurrentUserPasswordRequest,
+from conode.presentation.schemas.user import (
     UpdateCurrentUserProfileRequest,
 )
-
-
-class UpdateCurrentUserPasswordRequestFactory(
-    ModelFactory[UpdateCurrentUserPasswordRequest]
-): ...
 
 
 class UpdateCurrentUserProfileRequestFactory(

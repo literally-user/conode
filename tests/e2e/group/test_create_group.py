@@ -5,7 +5,7 @@ import pytest
 from dirty_equals import IsPartialDict, IsStr
 from httpx import AsyncClient
 
-from prodik.application.interfaces.repositories import GroupRepository
+from conode.application.interfaces.repositories import GroupRepository
 from tests.factories.common import authorization_headers
 from tests.factories.models import CompanyFactory, GroupFactory, UserFactory
 from tests.factories.schemas import CreateGroupRequestFactory

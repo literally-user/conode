@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from types import TracebackType
 from unittest.mock import AsyncMock
 
+import jwt
 import pytest
 from dishka import (
     AsyncContainer,
@@ -15,49 +16,45 @@ from dishka import (
 )
 from dishka.integrations.fastapi import FastapiProvider, setup_dishka
 from httpx import ASGITransport, AsyncClient
-from redis.asyncio import Redis
 from sqlalchemy import URL
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     create_async_engine,
 )
 
-from prodik.application.interfaces.password_hasher import PasswordHasher
-from prodik.application.interfaces.repositories import (
+from conode.application.interfaces.password_hasher import PasswordHasher
+from conode.application.interfaces.repositories import (
     CompanyRepository,
     ContextRepository,
     EdgeRepository,
     GroupRepository,
-    LocalAuthorizationRepository,
     NodeAssociationRepository,
     NodeRepository,
     RolePermissionsRepository,
     RoleRepository,
-    SessionRepository,
     UserGrantRepository,
     UserRepository,
 )
-from prodik.application.interfaces.token_managers import (
-    AccessTokenManager,
-    RefreshTokenManager,
+from conode.application.interfaces.token_manager import (
+    TokenManager,
+    UserMeta,
 )
-from prodik.application.interfaces.transaction_manager import TransactionManager
-from prodik.application.services import RoleManagmentService
-from prodik.bootstrap.api.run import create_app
-from prodik.bootstrap.di.providers import (
+from conode.application.interfaces.transaction_manager import TransactionManager
+from conode.application.services import RoleManagmentService
+from conode.bootstrap.api.run import create_app
+from conode.bootstrap.di.providers import (
     ApplicationProvider,
-    CacheConnectionProvider,
     InfrastructureProvider,
 )
-from prodik.infrastructure.config import (
+from conode.domain.user import User, UserSystemRole
+from conode.infrastructure.config import (
     APIConfig,
-    CacheConfig,
     Config,
     DatabaseConfig,
     SecretsConfig,
     load_config,
 )
-from prodik.infrastructure.persistence import start_mapper
+from conode.infrastructure.persistence import start_mapper
 from tests.factories.models import (
     CompanyFactory,
     ContextFactory,
@@ -69,6 +66,44 @@ from tests.factories.models import (
 )
 
 
+@dataclass
+class MockTokenManager(TokenManager):
+    config: SecretsConfig
+
+    def decode(self, token: str) -> UserMeta:
+        payload = jwt.decode(
+            token,
+            key=self.config.secret,
+            algorithms=["HS256"],
+        )
+        role = UserSystemRole.USER
+        if "realm-admin" in payload["resource_access"]["realm-management"]["roles"]:
+            role = UserSystemRole.ADMIN
+
+        return UserMeta(
+            email=payload["email"],
+            first_name=payload["given_name"],
+            last_name=payload["family_name"],
+            username=payload["preferred_username"],
+            system_role=role,
+        )
+
+    def encode(self, user: User, *, admin: bool = False) -> str:
+        return jwt.encode(
+            payload={
+                "email": user.email.value,
+                "given_name": user.first_name.value,
+                "family_name": user.last_name.value,
+                "preferred_username": user.username.value,
+                "resource_access": {
+                    "realm-management": {"roles": ["realm-admin" if admin else "user"]}
+                },
+            },
+            algorithm="HS256",
+            key=self.config.secret,
+        )
+
+
 @pytest.fixture(scope="session")
 def config() -> Config:
     return load_config("test.config.toml")
@@ -77,28 +112,6 @@ def config() -> Config:
 @pytest.fixture(scope="session", autouse=True)
 def startup() -> None:
     start_mapper()
-
-
-@pytest.fixture(scope="session", autouse=True)
-async def clear_cache(config: Config) -> AsyncIterator[None]:
-    yield
-    redis = Redis(host=config.cache.host, port=config.cache.port)
-    await redis.flushdb()
-    await redis.aclose()
-
-
-@pytest.fixture
-async def session_repository(container: AsyncContainer) -> SessionRepository:
-    async with container() as test_container:
-        return await test_container.get(SessionRepository)  # type: ignore[no-any-return]
-
-
-@pytest.fixture
-async def local_authorization_repository(
-    container: AsyncContainer,
-) -> LocalAuthorizationRepository:
-    async with container() as test_container:
-        return await test_container.get(LocalAuthorizationRepository)  # type: ignore[no-any-return]
 
 
 @pytest.fixture
@@ -123,12 +136,6 @@ async def group_repository(
 ) -> GroupRepository:
     async with container() as test_container:
         return await test_container.get(GroupRepository)  # type: ignore[no-any-return]
-
-
-@pytest.fixture
-async def access_token_manager(container: AsyncContainer) -> AccessTokenManager:
-    async with container() as test_container:
-        return await test_container.get(AccessTokenManager)  # type: ignore[no-any-return]
 
 
 @pytest.fixture
@@ -214,13 +221,8 @@ async def context_factory(container: AsyncContainer) -> ContextFactory:
 async def user_factory(container: AsyncContainer) -> UserFactory:
     async with container() as test_container:
         return UserFactory(
-            local_authorization_repository=await test_container.get(
-                LocalAuthorizationRepository
-            ),
-            refresh_token_manager=await test_container.get(RefreshTokenManager),
-            access_token_manager=await test_container.get(AccessTokenManager),
+            token_manager=await test_container.get(TokenManager),
             transaction_manager=await test_container.get(TransactionManager),
-            session_repository=await test_container.get(SessionRepository),
             password_hasher=await test_container.get(PasswordHasher),
             user_repository=await test_container.get(UserRepository),
         )
@@ -301,17 +303,19 @@ async def container(
         async def provide_async_session(self) -> AsyncSession:
             return session
 
+    class TestSecretsProvider(Provider):
+        provides = provide_all(WithParents[MockTokenManager], scope=Scope.REQUEST)
+
     container = make_async_container(
         FastapiProvider(),
         ApplicationProvider(),
         TestConnectionProvider(),
         InfrastructureProvider(),
-        CacheConnectionProvider(),
+        TestSecretsProvider(),
         context={
             APIConfig: config.api,
             DatabaseConfig: config.database,
             SecretsConfig: config.secrets,
-            CacheConfig: config.cache,
         },
     )
 

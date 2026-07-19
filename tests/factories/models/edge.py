@@ -1,12 +1,12 @@
 from dataclasses import dataclass
 from uuid import uuid4
 
-from prodik.application.interfaces.repositories import EdgeRepository
-from prodik.application.interfaces.transaction_manager import TransactionManager
-from prodik.domain.company import Company
-from prodik.domain.context import Context
-from prodik.domain.edge import Edge, EdgeId
-from prodik.domain.node import Node
+from conode.application.interfaces.repositories import EdgeRepository
+from conode.application.interfaces.transaction_manager import TransactionManager
+from conode.domain.company import Company
+from conode.domain.context import Context
+from conode.domain.edge import Edge, EdgeId
+from conode.domain.node import Node
 
 
 @dataclass

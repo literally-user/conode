@@ -9,11 +9,9 @@ host = "persistence.literally.io"
 database = "postgres"
 port = 5432
 
-[cache]
-host = "cache.literally.io"
-port = 6379
-ttl = 3600
-
 [secrets]
 secret = "ABC123"
 expires_in = 3600
+jwks_url = "http://keycloak:8080/realms/conode/protocol/openid-connect/certs"
+issuer = "http://keycloak.conode.com/realms/conode"
+audience = "conode"

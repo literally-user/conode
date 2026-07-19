@@ -1,14 +1,14 @@
 from dataclasses import dataclass
 from uuid import uuid4
 
-from prodik.application.interfaces.repositories import (
+from conode.application.interfaces.repositories import (
     NodeAssociationRepository,
     NodeRepository,
 )
-from prodik.application.interfaces.transaction_manager import TransactionManager
-from prodik.domain.company import Company
-from prodik.domain.group import Group
-from prodik.domain.node import Node, NodeAssociation, NodeAssociationId, NodeId
+from conode.application.interfaces.transaction_manager import TransactionManager
+from conode.domain.company import Company
+from conode.domain.group import Group
+from conode.domain.node import Node, NodeAssociation, NodeAssociationId, NodeId
 from tests.factories.common import generate_random_string
 
 

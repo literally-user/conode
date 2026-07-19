@@ -29,4 +29,4 @@ def generate_random_ip() -> str:
 
 
 def authorization_headers(access_token: str) -> dict[str, str]:
-    return {"Authorization": f"Bearer {access_token}"}
+    return {"X-Forwarded-Access-Token": access_token}

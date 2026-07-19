@@ -4,7 +4,7 @@ import pytest
 from dirty_equals import IsPartialDataclass, IsPartialDict
 from httpx import AsyncClient
 
-from prodik.application.interfaces.repositories import NodeAssociationRepository
+from conode.application.interfaces.repositories import NodeAssociationRepository
 from tests.factories.common import authorization_headers
 from tests.factories.models import (
     CompanyFactory,

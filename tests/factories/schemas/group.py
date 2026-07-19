@@ -1,6 +1,6 @@
 from polyfactory.factories.pydantic_factory import ModelFactory
 
-from prodik.presentation.schemas.group import CreateGroupRequest
+from conode.presentation.schemas.group import CreateGroupRequest
 
 
 class CreateGroupRequestFactory(ModelFactory[CreateGroupRequest]):

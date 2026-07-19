@@ -1,18 +1,18 @@
 from dataclasses import dataclass
 from uuid import uuid4
 
-from prodik.application.interfaces.repositories import (
+from conode.application.interfaces.repositories import (
     CompanyRepository,
     RolePermissionsRepository,
     RoleRepository,
     UserGrantRepository,
 )
-from prodik.application.interfaces.transaction_manager import TransactionManager
-from prodik.application.services import RoleManagmentService
-from prodik.domain.company import Company, CompanyId
-from prodik.domain.grant import UserGrant, UserGrantId
-from prodik.domain.role import EntityType, PermissionType
-from prodik.domain.user import User
+from conode.application.interfaces.transaction_manager import TransactionManager
+from conode.application.services import RoleManagmentService
+from conode.domain.company import Company, CompanyId
+from conode.domain.grant import UserGrant, UserGrantId
+from conode.domain.role import EntityType, PermissionType
+from conode.domain.user import User
 from tests.factories.common import generate_random_string
 
 

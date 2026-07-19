@@ -1,6 +1,6 @@
 from polyfactory.factories.pydantic_factory import ModelFactory
 
-from prodik.presentation.schemas.node import (
+from conode.presentation.schemas.node import (
     AttachNodeRequest,
     CreateNodeRequest,
     UpdateNodeRequest,

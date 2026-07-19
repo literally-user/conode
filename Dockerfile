@@ -3,7 +3,7 @@ FROM python:3.13-slim-bookworm AS python-base
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=1 \
-    APP_PATH=/prodik \
+    APP_PATH=/conode \
     UV_VERSION=0.9.22
 
 ENV VIRTUAL_ENV="$APP_PATH/.venv"

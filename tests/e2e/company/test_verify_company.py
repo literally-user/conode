@@ -3,7 +3,7 @@ from http import HTTPStatus
 import pytest
 from httpx import AsyncClient
 
-from prodik.application.interfaces.repositories import CompanyRepository
+from conode.application.interfaces.repositories import CompanyRepository
 from tests.factories.common import authorization_headers
 from tests.factories.models import CompanyFactory, UserFactory
 
