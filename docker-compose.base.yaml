@@ -35,7 +35,7 @@ services:
 
     environment:
       OAUTH2_PROXY_CLIENT_ID: conode
-      OAUTH2_PROXY_CLIENT_SECRET: HxZkeEWaKX0J1rXNPpkshkhojgm6roqrNxWWtTBtUiwSm4kN1QzIH1cCcTulKPlYqCEFVELVuFu94tqFGDyjuo
+      OAUTH2_PROXY_CLIENT_SECRET: RELW6bj1AsUr3yQUmc4Nn3y5mGfS6qzjD7tCnkIuekGa9mMmU9B6vuCFVyvUL9mBDrRUJVVPSe42hTzbFN6Vqi
       OAUTH2_PROXY_COOKIE_SECRET: x3CpXUQxfDgXzDDxIdST3mTbTDosKOlx
 
     volumes:
@@ -83,7 +83,7 @@ services:
         condition: service_healthy
 
     env_file:
-      - "./deploy/keycloak.env"
+      - "./deploy/keycloak/keycloak.env"
 
     healthcheck:
       test:
@@ -104,7 +104,7 @@ services:
 
     volumes:
       - keycloak-data:/opt/keycloak/
-      - ./deploy/keycloak.json:/opt/keycloak/data/import/realm-export.json
+      - ./deploy/keycloak/keycloak.json:/opt/keycloak/data/import/realm-export.json
 
     networks:
       - conode-network
@@ -114,7 +114,7 @@ services:
 
     volumes:
       - postgres-data:/var/lib/postgresql/data
-      - ./deploy:/docker-entrypoint-initdb.d:ro
+      - ./deploy/persistence:/docker-entrypoint-initdb.d:ro
 
     networks:
       conode-network:
@@ -122,13 +122,37 @@ services:
           - persistence.literally.io
 
     env_file:
-      - "./deploy/postgres.env"
+      - "./deploy/persistence/postgres.env"
 
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "conode", "-d", "conode"]
       interval: 5s
       timeout: 15s
       retries: 5
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: jaeger
+
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+
+    restart: unless-stopped
+    networks:
+      - conode-network
+
+  collector:
+    image: otel/opentelemetry-collector:0.156.0
+    command: --config=/etc/otelcol/config.yaml
+
+    depends_on:
+      - jaeger
+
+    volumes:
+      - ./deploy/observability/collector.yaml:/etc/otelcol/config.yaml:ro
+
+    networks:
+      - conode-network
 
 volumes:
   postgres-data:

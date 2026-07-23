@@ -5,9 +5,11 @@ import uvicorn
 from dishka.integrations.fastapi import setup_dishka
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 
 from conode.bootstrap.di import get_async_container
 from conode.bootstrap.logs import configure_structlog
+from conode.bootstrap.telemetry import configure_telemetry
 from conode.infrastructure.config import Config, load_config
 from conode.presentation.common import (
     include_exception_handlers,
@@ -52,8 +54,13 @@ def run_http(_argv: list[str]) -> None:
     config = load_config()
 
     app = create_app(config)
+
+    configure_telemetry(config.otel)
+
     container = get_async_container(config)
     log_configuration = configure_structlog()
+
+    FastAPIInstrumentor().instrument_app(app)
 
     setup_dishka(app=app, container=container)
 

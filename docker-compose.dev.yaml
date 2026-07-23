@@ -9,6 +9,13 @@ services:
     ports:
       - 5432:5432
 
+  jaeger:
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.jaeger.rule=Host(`jaeger.conode.com`)"
+      - "traefik.http.routers.jaeger.entrypoints=web"
+      - "traefik.http.services.jaeger.loadbalancer.server.port=16686"
+
   traefik:
     command:
       - "--log.level=DEBUG"

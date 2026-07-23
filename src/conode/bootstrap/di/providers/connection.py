@@ -1,6 +1,7 @@
 from collections.abc import AsyncIterator
 
 from dishka import Provider, Scope, WithParents, provide, provide_all
+from opentelemetry.instrumentation.sqlalchemy import SQLAlchemyInstrumentor
 from sqlalchemy import URL
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
@@ -31,6 +32,10 @@ class ConnectionProvider(Provider):
             pool_size=5,
             max_overflow=96,
             pool_timeout=30,
+        )
+        SQLAlchemyInstrumentor().instrument(
+            engine=engine.sync_engine,
+            enable_commenter=True,
         )
         yield async_sessionmaker(
             engine,

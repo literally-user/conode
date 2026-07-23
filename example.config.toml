@@ -15,3 +15,7 @@ expires_in = 3600
 jwks_url = "http://keycloak:8080/realms/conode/protocol/openid-connect/certs"
 issuer = "http://keycloak.conode.com/realms/conode"
 audience = "conode"
+
+[telemetry]
+endpoint = "collector:4317"
+enabled = true
