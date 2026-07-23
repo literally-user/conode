@@ -130,23 +130,61 @@ services:
       timeout: 15s
       retries: 5
 
-  jaeger:
-    image: jaegertracing/all-in-one:latest
-    container_name: jaeger
+  jaeger-collector:
+    image: jaegertracing/jaeger:2.20.0
+    command: --config /jaeger/config.yaml --feature-gates=storage.clickhouse
 
-    environment:
-      - COLLECTOR_OTLP_ENABLED=true
+    volumes:
+      - ./deploy/observability/jaeger/collector.yaml:/jaeger/config.yaml:ro
+      - ./deploy/observability/jaeger/config-ui.json:/jaeger/config-ui.json:ro
 
     restart: unless-stopped
     networks:
       - conode-network
 
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+
+  jaeger-query:
+    image: jaegertracing/jaeger:2.20.0
+    command: --config /jaeger/config.yaml --feature-gates=storage.clickhouse
+
+    volumes:
+      - ./deploy/observability/jaeger/query.yaml:/jaeger/config.yaml:ro
+      - ./deploy/observability/jaeger/config-ui.json:/jaeger/config-ui.json:ro
+
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+
+    restart: unless-stopped
+    networks:
+      - conode-network
+
+  clickhouse:
+    image: clickhouse/clickhouse-server:25.3
+    container_name: clickhouse
+    restart: unless-stopped
+
+    env_file:
+      - "./deploy/persistence/clickhouse.env"
+
+    volumes:
+      - clickhouse-data:/var/lib/clickhouse
+
+    networks:
+      - conode-network
+
+    healthcheck:
+      test: ["CMD", "clickhouse-client", "--query", "SELECT 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   collector:
     image: otel/opentelemetry-collector:0.156.0
     command: --config=/etc/otelcol/config.yaml
-
-    depends_on:
-      - jaeger
 
     volumes:
       - ./deploy/observability/collector.yaml:/etc/otelcol/config.yaml:ro
@@ -155,6 +193,7 @@ services:
       - conode-network
 
 volumes:
+  clickhouse-data:
   postgres-data:
   keycloak-data:
 
