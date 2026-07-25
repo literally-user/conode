@@ -29,13 +29,26 @@ services:
     networks:
       - conode-network
 
+  grafana:
+    image: grafana/grafana:12.1.1
+
+    labels:
+      - "traefik.enable=true"
+
+      - "traefik.http.routers.grafana.rule=Host(`grafana.conode.com`)"
+      - "traefik.http.routers.grafana.entrypoints=web"
+      - "traefik.http.services.grafana.loadbalancer.server.port=3000"
+
+    networks:
+      - conode-network
+
   oauth:
     image: quay.io/oauth2-proxy/oauth2-proxy:latest
     command: ["--config=/etc/oauth2-proxy/oauth2-proxy.toml"]
 
     environment:
       OAUTH2_PROXY_CLIENT_ID: conode
-      OAUTH2_PROXY_CLIENT_SECRET: RELW6bj1AsUr3yQUmc4Nn3y5mGfS6qzjD7tCnkIuekGa9mMmU9B6vuCFVyvUL9mBDrRUJVVPSe42hTzbFN6Vqi
+      OAUTH2_PROXY_CLIENT_SECRET: y9QISRU4LktDcAOvrXmw5q8t5s44JshMrnc4PIqPfq1vIEGipEtYgmUxvgiG9nb0PsxVwvlVQQ4FPOlhl9tiZ3
       OAUTH2_PROXY_COOKIE_SECRET: x3CpXUQxfDgXzDDxIdST3mTbTDosKOlx
 
     volumes:
