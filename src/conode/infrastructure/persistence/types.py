@@ -25,7 +25,7 @@ class BaseVOTypeDecorator[T: ValueObject[Any]](TypeDecorator[T]):
 
     @override
     def process_result_value(self, value: Any | None, dialect: Dialect) -> T | None:
-        return self.vo_class(value) if value else None
+        return self.vo_class(value) if value is not None else None
 
 
 class UsernameType(BaseVOTypeDecorator[Username]):

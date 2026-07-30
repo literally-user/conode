@@ -1,0 +1,63 @@
+otelcol.receiver.otlp "otlp_receiver" {
+  grpc {
+    endpoint = "0.0.0.0:4317"
+  }
+
+  http {
+    endpoint = "0.0.0.0:4318"
+  }
+
+  output {
+    metrics = [otelcol.processor.batch.metrics.input]
+    traces  = [otelcol.processor.batch.traces.input]
+  }
+}
+
+
+otelcol.processor.batch "metrics" {
+  timeout = "5s"
+
+  send_batch_size = 1024
+  send_batch_max_size = 2048
+
+  output {
+    metrics = [otelcol.exporter.prometheus.metrics.input]
+  }
+}
+
+
+otelcol.processor.batch "traces" {
+  timeout = "5s"
+
+  send_batch_size = 1024
+  send_batch_max_size = 2048
+
+  output {
+    traces = [otelcol.exporter.otlp.tempo.input]
+  }
+}
+
+
+otelcol.exporter.prometheus "metrics" {
+  forward_to = [
+    prometheus.remote_write.default.receiver,
+  ]
+}
+
+
+prometheus.remote_write "default" {
+  endpoint {
+    url = "http://prometheus:9090/api/v1/write"
+  }
+}
+
+
+otelcol.exporter.otlp "tempo" {
+  client {
+    endpoint = "tempo:4317"
+
+    tls {
+      insecure = true
+    }
+  }
+}

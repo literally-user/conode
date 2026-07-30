@@ -31,10 +31,17 @@ class DatabaseConfig:
 
 
 @dataclass(slots=True, frozen=True, kw_only=True)
+class OTELConfig:
+    endpoint: str
+    enabled: bool
+
+
+@dataclass(slots=True, frozen=True, kw_only=True)
 class Config:
     api: APIConfig
     database: DatabaseConfig
     secrets: SecretsConfig
+    otel: OTELConfig
 
 
 def load_config(path: str = "config.toml") -> Config:
@@ -60,5 +67,9 @@ def load_config(path: str = "config.toml") -> Config:
                 jwks_url=config["secrets"]["jwks_url"],
                 audience=config["secrets"]["audience"],
                 issuer=config["secrets"]["issuer"],
+            ),
+            otel=OTELConfig(
+                enabled=config["telemetry"]["enabled"],
+                endpoint=config["telemetry"]["endpoint"],
             ),
         )
