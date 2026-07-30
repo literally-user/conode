@@ -143,72 +143,62 @@ services:
       timeout: 15s
       retries: 5
 
-  jaeger-collector:
-    image: jaegertracing/jaeger:2.20.0
-    command: --config /jaeger/config.yaml --feature-gates=storage.clickhouse
+  alloy:
+    image: grafana/alloy:latest
 
     volumes:
-      - ./deploy/observability/jaeger/collector.yaml:/jaeger/config.yaml:ro
-      - ./deploy/observability/jaeger/config-ui.json:/jaeger/config-ui.json:ro
+      - ./deploy/observability/grafana/config.alloy:/etc/alloy/config.alloy
+      - alloy-data:/var/lib/alloy/data
 
-    restart: unless-stopped
-    networks:
-      - conode-network
-
-    depends_on:
-      clickhouse:
-        condition: service_healthy
-
-  jaeger-query:
-    image: jaegertracing/jaeger:2.20.0
-    command: --config /jaeger/config.yaml --feature-gates=storage.clickhouse
-
-    volumes:
-      - ./deploy/observability/jaeger/query.yaml:/jaeger/config.yaml:ro
-      - ./deploy/observability/jaeger/config-ui.json:/jaeger/config-ui.json:ro
-
-    depends_on:
-      clickhouse:
-        condition: service_healthy
-
-    restart: unless-stopped
-    networks:
-      - conode-network
-
-  clickhouse:
-    image: clickhouse/clickhouse-server:25.3
-    container_name: clickhouse
-    restart: unless-stopped
-
-    env_file:
-      - "./deploy/persistence/clickhouse.env"
-
-    volumes:
-      - clickhouse-data:/var/lib/clickhouse
+    command:
+      - run
+      - /etc/alloy/config.alloy
+      - --storage.path=/var/lib/alloy/data
+      - --server.http.listen-addr=0.0.0.0:12345
 
     networks:
       - conode-network
 
-    healthcheck:
-      test: ["CMD", "clickhouse-client", "--query", "SELECT 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
-  collector:
-    image: otel/opentelemetry-collector:0.156.0
-    command: --config=/etc/otelcol/config.yaml
+  prometheus:
+    image: prom/prometheus
+
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.enable-remote-write-receiver"
 
     volumes:
-      - ./deploy/observability/collector.yaml:/etc/otelcol/config.yaml:ro
+      - prometheus-data:/prometheus
+      - ./deploy/observability/grafana/prometheus.yml:/etc/prometheus/prometheus.yml
 
     networks:
       - conode-network
+
+
+  tempo:
+    image: grafana/tempo:latest
+
+    command:
+      - "-target=all"
+      - "-config.file=/etc/tempo.yaml"
+
+    restart: always
+
+    volumes:
+      - ./deploy/observability/grafana/tempo.yaml:/etc/tempo.yaml
+      - tempo-data:/var/tempo
+
+    networks:
+      - conode-network
+
 
 volumes:
-  clickhouse-data:
+  prometheus-data:
   postgres-data:
   keycloak-data:
+  tempo-data:
+  alloy-data:
 
 networks:
   conode-network:

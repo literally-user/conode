@@ -9,13 +9,6 @@ services:
     ports:
       - 5432:5432
 
-  jaeger-query:
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.observability.rule=Host(`observability.conode.com`)"
-      - "traefik.http.routers.observability.entrypoints=web"
-      - "traefik.http.services.observability.loadbalancer.server.port=16686"
-
   traefik:
     command:
       - "--log.level=DEBUG"
