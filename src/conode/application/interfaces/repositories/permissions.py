@@ -1,0 +1,16 @@
+from typing import Protocol
+
+from conode.domain.role import RoleId, RolePermission, RolePermissionId
+
+
+class RolePermissionsRepository(Protocol):
+    async def update_all(self, permissions: list[RolePermission]) -> None: ...
+    async def create_all(self, permissions: list[RolePermission]) -> None: ...
+    async def get_all_by_role_id(self, role_id: RoleId) -> list[RolePermission]: ...
+    async def get_all_by_role_ids(
+        self, role_ids: list[RoleId]
+    ) -> list[RolePermission]: ...
+    async def get_all_by_ids(
+        self,
+        permission_ids: list[RolePermissionId],
+    ) -> list[RolePermission]: ...

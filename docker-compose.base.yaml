@@ -1,40 +1,205 @@
 services:
   api:
     build: .
+
     restart: on-failure
-    container_name: api
-    command: ["prodik", "api", "run"]
-    ports:
-      - 8000:8000
+    command: ["conode", "api", "run"]
+
+    depends_on:
+      keycloak:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      migrations:
+        condition: service_completed_successfully
+
+    networks:
+      - conode-network
+
+  migrations:
+    build: .
+
+    restart: on-failure
+    command: ["conode", "migrations", "upgrade"]
+
     depends_on:
       postgres:
         condition: service_healthy
-    networks:
-      - prodik-network
 
-  redis:
-    image: redis:latest
     networks:
-      prodik-network:
+      - conode-network
+
+  grafana:
+    image: grafana/grafana:12.1.1
+
+    labels:
+      - "traefik.enable=true"
+
+      - "traefik.http.routers.grafana.rule=Host(`grafana.conode.com`)"
+      - "traefik.http.routers.grafana.entrypoints=web"
+      - "traefik.http.services.grafana.loadbalancer.server.port=3000"
+
+    networks:
+      - conode-network
+
+  oauth:
+    image: quay.io/oauth2-proxy/oauth2-proxy:latest
+    command: ["--config=/etc/oauth2-proxy/oauth2-proxy.toml"]
+
+    environment:
+      OAUTH2_PROXY_CLIENT_ID: conode
+      OAUTH2_PROXY_CLIENT_SECRET: y9QISRU4LktDcAOvrXmw5q8t5s44JshMrnc4PIqPfq1vIEGipEtYgmUxvgiG9nb0PsxVwvlVQQ4FPOlhl9tiZ3
+      OAUTH2_PROXY_COOKIE_SECRET: x3CpXUQxfDgXzDDxIdST3mTbTDosKOlx
+
+    volumes:
+      - "./deploy/oauth_proxy.toml:/etc/oauth2-proxy/oauth2-proxy.toml"
+
+    labels:
+      - "traefik.enable=true"
+
+      - "traefik.http.routers.oauth.rule=Host(`api.conode.com`)"
+      - "traefik.http.routers.oauth.entrypoints=web"
+      - "traefik.http.services.oauth.loadbalancer.server.port=4180"
+
+    networks:
+      - conode-network
+
+    depends_on:
+      keycloak:
+        condition: service_healthy
+
+  traefik:
+    image: traefik:latest
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "80:80"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+
+    networks:
+      conode-network:
         aliases:
-          - cache.literally.io
+          - keycloak.conode.com
+          - api.conode.com
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+
+    command: start-dev --import-realm
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    env_file:
+      - "./deploy/keycloak/keycloak.env"
+
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >
+          { printf 'HEAD /health/ready HTTP/1.0\r\n\r\n' >&0;
+          grep -q '200'; } 0<>/dev/tcp/localhost/9000
+      interval: 5s
+      timeout: 10s
+      retries: 30
+      start_period: 30s
+
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.keycloak.rule=Host(`keycloak.conode.com`)"
+      - "traefik.http.routers.keycloak.entrypoints=web"
+      - "traefik.http.services.keycloak.loadbalancer.server.port=8080"
+
+    volumes:
+      - keycloak-data:/opt/keycloak/
+      - ./deploy/keycloak/keycloak.json:/opt/keycloak/data/import/realm-export.json
+
+    networks:
+      - conode-network
 
   postgres:
     image: postgres:16-alpine
+
     volumes:
       - postgres-data:/var/lib/postgresql/data
-    ports:
-      - 5432:5432
+      - ./deploy/persistence:/docker-entrypoint-initdb.d:ro
+
     networks:
-      prodik-network:
+      conode-network:
         aliases:
           - persistence.literally.io
+
     env_file:
-      - "./deploy/postgres.env"
+      - "./deploy/persistence/postgres.env"
+
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "conode", "-d", "conode"]
+      interval: 5s
+      timeout: 15s
+      retries: 5
+
+  alloy:
+    image: grafana/alloy:latest
+
+    volumes:
+      - ./deploy/observability/grafana/config.alloy:/etc/alloy/config.alloy
+      - alloy-data:/var/lib/alloy/data
+
+    command:
+      - run
+      - /etc/alloy/config.alloy
+      - --storage.path=/var/lib/alloy/data
+      - --server.http.listen-addr=0.0.0.0:12345
+
+    networks:
+      - conode-network
+
+
+  prometheus:
+    image: prom/prometheus
+
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.enable-remote-write-receiver"
+
+    volumes:
+      - prometheus-data:/prometheus
+      - ./deploy/observability/grafana/prometheus.yml:/etc/prometheus/prometheus.yml
+
+    networks:
+      - conode-network
+
+
+  tempo:
+    image: grafana/tempo:latest
+
+    command:
+      - "-target=all"
+      - "-config.file=/etc/tempo.yaml"
+
+    restart: always
+
+    volumes:
+      - ./deploy/observability/grafana/tempo.yaml:/etc/tempo.yaml
+      - tempo-data:/var/tempo
+
+    networks:
+      - conode-network
+
 
 volumes:
+  prometheus-data:
   postgres-data:
+  keycloak-data:
+  tempo-data:
+  alloy-data:
 
 networks:
-  prodik-network:
+  conode-network:
     driver: bridge

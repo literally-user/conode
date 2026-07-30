@@ -1,0 +1,16 @@
+from conode.application.errors import ApplicationError
+
+
+class UserDomainValidationError(ApplicationError): ...
+
+
+class InvalidUserUsernameFormatError(UserDomainValidationError): ...
+
+
+class InvalidUserFirstNameFormatError(UserDomainValidationError): ...
+
+
+class InvalidUserLastNameFormatError(UserDomainValidationError): ...
+
+
+class InvalidUserEmailFormatError(UserDomainValidationError): ...

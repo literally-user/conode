@@ -1,0 +1,56 @@
+from dataclasses import dataclass
+from uuid import uuid4
+
+from conode.application.interfaces.repositories import (
+    CompanyRepository,
+    GroupRepository,
+)
+from conode.application.interfaces.transaction_manager import TransactionManager
+from conode.application.services import AccessControlService
+from conode.domain.company import CompanyId
+from conode.domain.group import Group, GroupId
+
+
+@dataclass(frozen=True, slots=True, kw_only=True)
+class CreateGroupRequestDTO:
+    name: str
+    description: str
+    parent_group_id: GroupId | None
+    company_id: CompanyId
+
+
+@dataclass
+class CreateGroupInteractor:
+    company_repository: CompanyRepository
+    group_repository: GroupRepository
+    transaction_manager: TransactionManager
+    access_control_service: AccessControlService
+
+    async def execute(self, request: CreateGroupRequestDTO) -> Group:
+        async with self.transaction_manager:
+            user = await self.access_control_service.get_authorized_user()
+
+            company = await self.company_repository.get_by_id(request.company_id)
+
+            await self.access_control_service.ensure_user_can_create_groups(
+                user,
+                company,
+            )
+
+            parent_group = None
+            if request.parent_group_id:
+                parent_group = await self.group_repository.get_by_id(
+                    request.parent_group_id
+                )
+
+            group = Group.new(
+                group_id=GroupId(uuid4()),
+                name=request.name,
+                description=request.description,
+                company=company,
+                parent_group=parent_group,
+            )
+
+            await self.group_repository.create(group)
+
+            return group

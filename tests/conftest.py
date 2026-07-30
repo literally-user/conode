@@ -1,69 +1,111 @@
-from collections.abc import AsyncGenerator
-from typing import cast
+from collections.abc import AsyncIterator
+from dataclasses import dataclass
+from types import TracebackType
 from unittest.mock import AsyncMock
 
+import jwt
 import pytest
-from dishka import AsyncContainer, Provider, Scope, make_async_container, provide
+from dishka import (
+    AsyncContainer,
+    Provider,
+    Scope,
+    WithParents,
+    make_async_container,
+    provide,
+    provide_all,
+)
 from dishka.integrations.fastapi import FastapiProvider, setup_dishka
 from httpx import ASGITransport, AsyncClient
-from redis.asyncio import Redis
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy import URL
+from sqlalchemy.ext.asyncio import (
+    AsyncSession,
+    create_async_engine,
+)
 
-from prodik.application.interfaces.password_hasher import PasswordHasher
-from prodik.application.interfaces.repositories import (
+from conode.application.interfaces.password_hasher import PasswordHasher
+from conode.application.interfaces.repositories import (
     CompanyRepository,
     ContextRepository,
     EdgeRepository,
     GroupRepository,
-    LocalAuthorizationRepository,
     NodeAssociationRepository,
     NodeRepository,
-    OfferContextRepository,
-    OfferGroupRepository,
-    OfferLinkRepository,
-    OfferRepository,
     RolePermissionsRepository,
     RoleRepository,
-    SessionRepository,
     UserGrantRepository,
     UserRepository,
 )
-from prodik.application.interfaces.token_managers import (
-    AccessTokenManager,
-    RefreshTokenManager,
+from conode.application.interfaces.token_manager import (
+    TokenManager,
+    UserMeta,
 )
-from prodik.bootstrap.api import create_app
-from prodik.bootstrap.di.providers import (
+from conode.application.interfaces.transaction_manager import TransactionManager
+from conode.application.services import RoleManagmentService
+from conode.bootstrap.api.run import create_app
+from conode.bootstrap.di.providers import (
     ApplicationProvider,
-    CacheConnectionProvider,
     InfrastructureProvider,
 )
-from prodik.infrastructure.config import (
+from conode.domain.user import User, UserSystemRole
+from conode.infrastructure.config import (
     APIConfig,
-    CacheConfig,
     Config,
     DatabaseConfig,
     SecretsConfig,
     load_config,
 )
-from prodik.infrastructure.persistence import start_mapper
-from tests.factories import (
+from conode.infrastructure.persistence import start_mapper
+from tests.factories.models import (
     CompanyFactory,
     ContextFactory,
     EdgeFactory,
     GroupFactory,
     NodeAssociationFactory,
     NodeFactory,
-    OfferFactory,
-    OfferLinkFactory,
-    RoleFactory,
     UserFactory,
 )
-from tests.services import EntityExistenceService
+
+
+@dataclass
+class MockTokenManager(TokenManager):
+    config: SecretsConfig
+
+    def decode(self, token: str) -> UserMeta:
+        payload = jwt.decode(
+            token,
+            key=self.config.secret,
+            algorithms=["HS256"],
+        )
+        role = UserSystemRole.USER
+        if "realm-admin" in payload["resource_access"]["realm-management"]["roles"]:
+            role = UserSystemRole.ADMIN
+
+        return UserMeta(
+            email=payload["email"],
+            first_name=payload["given_name"],
+            last_name=payload["family_name"],
+            username=payload["preferred_username"],
+            system_role=role,
+        )
+
+    def encode(self, user: User, *, admin: bool = False) -> str:
+        return jwt.encode(
+            payload={
+                "email": user.email.value,
+                "given_name": user.first_name.value,
+                "family_name": user.last_name.value,
+                "preferred_username": user.username.value,
+                "resource_access": {
+                    "realm-management": {"roles": ["realm-admin" if admin else "user"]}
+                },
+            },
+            algorithm="HS256",
+            key=self.config.secret,
+        )
 
 
 @pytest.fixture(scope="session")
-def test_config() -> Config:
+def config() -> Config:
     return load_config("test.config.toml")
 
 
@@ -72,261 +114,220 @@ def startup() -> None:
     start_mapper()
 
 
-@pytest.fixture(autouse=True)
-async def clean_redis(test_container: AsyncContainer) -> AsyncGenerator[None]:
-    yield
-    redis = await test_container.get(Redis)
-    await redis.flushdb()
-
-
 @pytest.fixture
-async def user_factory(test_container: AsyncContainer) -> UserFactory:
-    async with test_container() as container:
-        return UserFactory(
-            password_hasher=await container.get(PasswordHasher),
-            access_token_manager=await container.get(AccessTokenManager),
-            refresh_token_manager=await container.get(RefreshTokenManager),
-            user_repository=await container.get(UserRepository),
-            session_repository=await container.get(SessionRepository),
-            authorization_repository=await container.get(LocalAuthorizationRepository),
-        )
-
-
-@pytest.fixture
-async def company_factory(
-    test_container: AsyncContainer,
-    user_factory: UserFactory,
-) -> CompanyFactory:
-    async with test_container() as container:
-        return CompanyFactory(
-            role_repository=await container.get(RoleRepository),
-            role_permissions_repository=await container.get(RolePermissionsRepository),
-            user_grant_repository=await container.get(UserGrantRepository),
-            company_repository=await container.get(CompanyRepository),
-            user_factory=user_factory,
-        )
-
-
-@pytest.fixture
-async def role_factory(
-    test_container: AsyncContainer,
-) -> RoleFactory:
-    async with test_container() as container:
-        return RoleFactory(
-            role_repository=await container.get(RoleRepository),
-            role_permissions_repository=await container.get(RolePermissionsRepository),
-        )
-
-
-@pytest.fixture
-async def user_repository(test_container: AsyncContainer) -> UserRepository:
-    async with test_container() as container:
-        return cast("UserRepository", await container.get(UserRepository))
-
-
-@pytest.fixture
-async def user_grant_repository(test_container: AsyncContainer) -> UserGrantRepository:
-    async with test_container() as container:
-        return cast("UserGrantRepository", await container.get(UserGrantRepository))
-
-
-@pytest.fixture
-async def company_repository(test_container: AsyncContainer) -> CompanyRepository:
-    async with test_container() as container:
-        return cast("CompanyRepository", await container.get(CompanyRepository))
-
-
-@pytest.fixture
-async def role_permissions_repository(
-    test_container: AsyncContainer,
-) -> RolePermissionsRepository:
-    async with test_container() as container:
-        return cast(
-            "RolePermissionsRepository",
-            await container.get(RolePermissionsRepository),
-        )
-
-
-@pytest.fixture
-async def context_repository(test_container: AsyncContainer) -> ContextRepository:
-    async with test_container() as container:
-        return cast("ContextRepository", await container.get(ContextRepository))
-
-
-@pytest.fixture
-async def edge_repository(test_container: AsyncContainer) -> EdgeRepository:
-    async with test_container() as container:
-        return cast("EdgeRepository", await container.get(EdgeRepository))
-
-
-@pytest.fixture
-async def group_repository(test_container: AsyncContainer) -> GroupRepository:
-    async with test_container() as container:
-        return cast("GroupRepository", await container.get(GroupRepository))
-
-
-@pytest.fixture
-async def offer_link_repository(test_container: AsyncContainer) -> OfferLinkRepository:
-    async with test_container() as container:
-        return cast("OfferLinkRepository", await container.get(OfferLinkRepository))
-
-
-@pytest.fixture
-async def group_factory(
-    test_container: AsyncContainer,
-    company_factory: CompanyFactory,
-) -> GroupFactory:
-    async with test_container() as container:
-        return GroupFactory(
-            group_repository=await container.get(GroupRepository),
-            company_factory=company_factory,
-        )
-
-
-@pytest.fixture
-async def offer_link_factory(
-    test_container: AsyncContainer,
-) -> OfferLinkFactory:
-    async with test_container() as container:
-        return OfferLinkFactory(
-            offer_link_repository=await container.get(OfferLinkRepository),
-        )
-
-
-@pytest.fixture
-async def offer_factory(
-    test_container: AsyncContainer,
-    company_factory: CompanyFactory,
-    group_factory: GroupFactory,
-    context_factory: ContextFactory,
-    offer_link_factory: OfferLinkFactory,
-) -> OfferFactory:
-    async with test_container() as container:
-        return OfferFactory(
-            offer_link_factory=offer_link_factory,
-            offer_repository=await container.get(OfferRepository),
-            offer_group_repository=await container.get(OfferGroupRepository),
-            offer_context_repository=await container.get(OfferContextRepository),
-            company_factory=company_factory,
-            group_factory=group_factory,
-            context_factory=context_factory,
-        )
-
-
-@pytest.fixture
-async def context_factory(
-    test_container: AsyncContainer,
-    company_factory: CompanyFactory,
-) -> ContextFactory:
-    async with test_container() as container:
-        return ContextFactory(
-            context_repository=await container.get(ContextRepository),
-            company_factory=company_factory,
-        )
-
-
-@pytest.fixture
-async def edge_factory(test_container: AsyncContainer) -> EdgeFactory:
-    async with test_container() as container:
-        return EdgeFactory(
-            edge_repository=await container.get(EdgeRepository),
-        )
-
-
-@pytest.fixture
-async def node_factory(
-    test_container: AsyncContainer,
-    company_factory: CompanyFactory,
-    user_factory: UserFactory,
-    group_factory: GroupFactory,
-    node_association_factory: NodeAssociationFactory,
-) -> NodeFactory:
-    async with test_container() as container:
-        return NodeFactory(
-            node_repository=await container.get(NodeRepository),
-            user_factory=user_factory,
-            group_factory=group_factory,
-            company_factory=company_factory,
-            node_association_factory=node_association_factory,
-        )
-
-
-@pytest.fixture
-async def node_association_factory(
-    test_container: AsyncContainer,
-) -> NodeAssociationFactory:
-    async with test_container() as container:
-        return NodeAssociationFactory(
-            node_association_repository=await container.get(NodeAssociationRepository),
-        )
+async def node_repository(
+    container: AsyncContainer,
+) -> NodeRepository:
+    async with container() as test_container:
+        return await test_container.get(NodeRepository)  # type: ignore[no-any-return]
 
 
 @pytest.fixture
 async def node_association_repository(
-    test_container: AsyncContainer,
+    container: AsyncContainer,
 ) -> NodeAssociationRepository:
-    async with test_container() as container:
-        return cast(
-            "NodeAssociationRepository",
-            await container.get(NodeAssociationRepository),
+    async with container() as test_container:
+        return await test_container.get(NodeAssociationRepository)  # type: ignore[no-any-return]
+
+
+@pytest.fixture
+async def group_repository(
+    container: AsyncContainer,
+) -> GroupRepository:
+    async with container() as test_container:
+        return await test_container.get(GroupRepository)  # type: ignore[no-any-return]
+
+
+@pytest.fixture
+async def user_repository(container: AsyncContainer) -> UserRepository:
+    async with container() as test_container:
+        return await test_container.get(UserRepository)  # type: ignore[no-any-return]
+
+
+@pytest.fixture
+async def user_grant_repository(container: AsyncContainer) -> UserGrantRepository:
+    async with container() as test_container:
+        return await test_container.get(UserGrantRepository)  # type: ignore[no-any-return]
+
+
+@pytest.fixture
+async def company_repository(container: AsyncContainer) -> CompanyRepository:
+    async with container() as test_contaner:
+        return await test_contaner.get(CompanyRepository)  # type: ignore[no-any-return]
+
+
+@pytest.fixture
+async def context_repository(container: AsyncContainer) -> ContextRepository:
+    async with container() as test_container:
+        return await test_container.get(ContextRepository)  # type: ignore[no-any-return]
+
+
+@pytest.fixture
+async def edge_repository(container: AsyncContainer) -> EdgeRepository:
+    async with container() as test_contaner:
+        return await test_contaner.get(EdgeRepository)  # type: ignore[no-any-return]
+
+
+@pytest.fixture
+async def role_repository(container: AsyncContainer) -> RoleRepository:
+    async with container() as test_container:
+        return await test_container.get(RoleRepository)  # type: ignore[no-any-return]
+
+
+@pytest.fixture
+async def node_factory(container: AsyncContainer) -> NodeFactory:
+    async with container() as test_container:
+        return NodeFactory(
+            node_repository=await test_container.get(NodeRepository),
+            transaction_manager=await test_container.get(TransactionManager),
+            node_association_repository=await test_container.get(
+                NodeAssociationRepository
+            ),
         )
 
 
 @pytest.fixture
-async def entity_existence_service(
-    test_session: AsyncSession,
-) -> EntityExistenceService:
-    return EntityExistenceService(session=test_session)
+async def node_association_factory(container: AsyncContainer) -> NodeAssociationFactory:
+    async with container() as test_container:
+        return NodeAssociationFactory(
+            transaction_manager=await test_container.get(TransactionManager),
+            node_association_repository=await test_container.get(
+                NodeAssociationRepository
+            ),
+        )
 
 
 @pytest.fixture
-async def test_session(test_config: Config) -> AsyncGenerator[AsyncSession]:
-    engine = create_async_engine(test_config.database.url)
-    async with engine.begin() as conn, AsyncSession(conn) as session:
+async def edge_factory(container: AsyncContainer) -> EdgeFactory:
+    async with container() as test_container:
+        return EdgeFactory(
+            transaction_manager=await test_container.get(TransactionManager),
+            edge_repository=await test_container.get(
+                EdgeRepository,
+            ),
+        )
+
+
+@pytest.fixture
+async def context_factory(container: AsyncContainer) -> ContextFactory:
+    async with container() as test_container:
+        return ContextFactory(
+            transaction_manager=await test_container.get(TransactionManager),
+            context_repository=await test_container.get(ContextRepository),
+        )
+
+
+@pytest.fixture
+async def user_factory(container: AsyncContainer) -> UserFactory:
+    async with container() as test_container:
+        return UserFactory(
+            token_manager=await test_container.get(TokenManager),
+            transaction_manager=await test_container.get(TransactionManager),
+            password_hasher=await test_container.get(PasswordHasher),
+            user_repository=await test_container.get(UserRepository),
+        )
+
+
+@pytest.fixture
+async def group_factory(container: AsyncContainer) -> GroupFactory:
+    async with container() as test_container:
+        return GroupFactory(
+            group_repository=await test_container.get(GroupRepository),
+            transaction_manager=await test_container.get(TransactionManager),
+        )
+
+
+@pytest.fixture
+async def company_factory(container: AsyncContainer) -> CompanyFactory:
+    async with container() as test_container:
+        return CompanyFactory(
+            role_permissions_repository=await test_container.get(
+                RolePermissionsRepository
+            ),
+            role_managment_service=await test_container.get(RoleManagmentService),
+            user_grant_repository=await test_container.get(UserGrantRepository),
+            transaction_manager=await test_container.get(TransactionManager),
+            company_repository=await test_container.get(CompanyRepository),
+            role_repository=await test_container.get(RoleRepository),
+        )
+
+
+@pytest.fixture
+async def session(config: Config) -> AsyncIterator[AsyncSession]:
+    engine = create_async_engine(
+        url=URL.create(
+            "postgresql+asyncpg",
+            username=config.database.username,
+            password=config.database.password,
+            database=config.database.database,
+            port=config.database.port,
+            host=config.database.host,
+        ),
+        pool_size=5,
+        max_overflow=96,
+        pool_timeout=30,
+    )
+
+    async with AsyncSession(engine) as session:
         session.commit = AsyncMock()  # type: ignore
         yield session
-        await session.rollback()
+        await session.close()
+
+
+@dataclass
+class TestTransactionManagerImpl(TransactionManager):
+    session: AsyncSession
+
+    async def __aenter__(self) -> None:
+        self.tx = await self.session.begin_nested()
+
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc: BaseException | None,
+        tb: TracebackType | None,
+    ) -> None:
+        await self.tx.__aexit__(exc_type, exc, tb)
 
 
 @pytest.fixture
-async def test_container(
-    test_session: AsyncSession,
-    test_config: Config,
-) -> AsyncGenerator[AsyncContainer]:
+async def container(
+    config: Config, session: AsyncSession
+) -> AsyncIterator[AsyncContainer]:
     class TestConnectionProvider(Provider):
+        provides = provide_all(
+            WithParents[TestTransactionManagerImpl], scope=Scope.REQUEST
+        )
+
         @provide(scope=Scope.REQUEST)
-        async def session(self) -> AsyncSession:
-            return test_session
+        async def provide_async_session(self) -> AsyncSession:
+            return session
+
+    class TestSecretsProvider(Provider):
+        provides = provide_all(WithParents[MockTokenManager], scope=Scope.REQUEST)
 
     container = make_async_container(
         FastapiProvider(),
-        InfrastructureProvider(),
-        CacheConnectionProvider(),
         ApplicationProvider(),
         TestConnectionProvider(),
+        InfrastructureProvider(),
+        TestSecretsProvider(),
         context={
-            APIConfig: test_config.api,
-            DatabaseConfig: test_config.database,
-            SecretsConfig: test_config.secrets,
-            CacheConfig: test_config.cache,
+            APIConfig: config.api,
+            DatabaseConfig: config.database,
+            SecretsConfig: config.secrets,
         },
     )
 
     yield container
-
     await container.close()
 
 
 @pytest.fixture
-async def test_client(
-    test_config: Config,
-    test_container: AsyncContainer,
-) -> AsyncGenerator[AsyncClient]:
-    app = create_app(test_config)
-    setup_dishka(app=app, container=test_container)
+async def transport(container: AsyncContainer, config: Config) -> AsyncClient:
+    app = create_app(config)
+    setup_dishka(container, app)
 
-    async with AsyncClient(
-        base_url="http://test.localhost.com",
-        transport=ASGITransport(app),
-    ) as client:
-        yield client
+    return AsyncClient(
+        base_url="http://test.environment.org", transport=ASGITransport(app)
+    )

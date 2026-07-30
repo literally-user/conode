@@ -1,0 +1,151 @@
+from dataclasses import dataclass
+
+import structlog
+from sqlalchemy import and_, delete, insert, or_, select, update
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from conode.application.errors import EdgeAlreadyExistsError, EdgeNotFoundError
+from conode.application.interfaces.repositories import EdgeRepository
+from conode.domain.context import ContextId
+from conode.domain.edge import Edge, EdgeId
+from conode.domain.node import NodeId
+
+logger = structlog.get_logger()
+
+
+@dataclass
+class EdgeRepositoryImpl(EdgeRepository):
+    session: AsyncSession
+
+    async def create(self, edge: Edge) -> None:
+        logger.debug("Repository create edge", edge_id=edge.id)
+        try:
+            await self.session.execute(
+                insert(Edge).values(
+                    id=edge.id,
+                    company_id=edge.company_id,
+                    context_id=edge.context_id,
+                    node_a_id=edge.node_a_id,
+                    node_b_id=edge.node_b_id,
+                    created_at=edge.created_at,
+                    updated_at=edge.updated_at,
+                    weight=edge.weight,
+                ),
+            )
+        except IntegrityError as e:
+            raise EdgeAlreadyExistsError(
+                "Edge between nodes in this context already exists",
+                [
+                    {"key": "node_a_id", "value": edge.node_a_id},
+                    {"key": "node_b_id", "value": edge.node_b_id},
+                    {"key": "context_id", "value": edge.context_id},
+                ],
+            ) from e
+
+    async def delete(self, edge: Edge) -> None:
+        logger.debug("Repository delete edge", edge_id=edge.id)
+        await self.session.execute(
+            delete(Edge).where(
+                Edge.id == edge.id,  # type: ignore
+            ),
+        )
+
+    async def update(self, edge: Edge) -> None:
+        logger.debug("Repository update edge", edge_id=edge.id)
+        await self.session.execute(
+            update(Edge)
+            .where(
+                Edge.id == edge.id,  # type: ignore
+            )
+            .values(
+                weight=edge.weight,
+                updated_at=edge.updated_at,
+            ),
+        )
+
+    async def get_neighbours_by_node_id(self, node_id: NodeId) -> list[Edge]:
+        logger.debug("Repository get neighbours by node id", node_id=node_id)
+
+        result = await self.session.execute(
+            select(Edge).where(
+                or_(
+                    Edge.node_a_id == node_id,  # type: ignore
+                    Edge.node_b_id == node_id,  # type: ignore
+                )
+            )
+        )
+
+        result_edges = list(result.scalars().all())
+
+        logger.debug(
+            "Repository fetched neighbours by node id",
+            found_count=len(result_edges),
+        )
+
+        return result_edges
+
+    async def get_by_id(self, edge_id: EdgeId) -> Edge:
+        logger.debug("Repository get edge by id", edge_id=edge_id)
+        result = await self.session.execute(
+            select(Edge).where(
+                Edge.id == edge_id,  # type: ignore
+            ),
+        )
+
+        edge = result.scalar_one_or_none()
+
+        logger.debug("Repository fetched edge by id", found=edge is not None)
+
+        if edge is None:
+            raise EdgeNotFoundError(
+                "Edge not found",
+                [{"key": "edge_id", "value": edge_id}],
+            )
+
+        return edge
+
+    async def get_by_nodes_and_context(
+        self,
+        node_a_id: NodeId,
+        node_b_id: NodeId,
+        context_id: ContextId,
+    ) -> Edge | None:
+        logger.debug(
+            "Repository get edge by nodes and context",
+            node_a_id=node_a_id,
+            node_b_id=node_b_id,
+            context_id=context_id,
+        )
+        result = await self.session.execute(
+            select(Edge).where(
+                and_(
+                    Edge.node_a_id == node_a_id,  # type: ignore
+                    Edge.node_b_id == node_b_id,  # type: ignore
+                    Edge.context_id == context_id,  # type: ignore
+                ),
+            ),
+        )
+
+        edge = result.scalar_one_or_none()
+        logger.debug(
+            "Repository fetched edge by nodes and context",
+            found=edge is not None,
+        )
+
+        return edge
+
+    async def get_all_by_context_id(self, context_id: ContextId) -> list[Edge]:
+        logger.debug("Repository get edges by context id", context_id=context_id)
+        result = await self.session.execute(
+            select(Edge).where(
+                Edge.context_id == context_id,  # type: ignore
+            ),
+        )
+
+        result_edges = list(result.scalars())
+        logger.debug(
+            "Repository fetched edges by context id",
+            found_count=len(result_edges),
+        )
+        return result_edges
