@@ -9,6 +9,7 @@ from .node import (
 )
 from .user import (
     UpdateCurrentUserProfileRequestFactory,
+    UpdateUserProfileRequestFactory,
 )
 
 __all__ = (
@@ -20,4 +21,5 @@ __all__ = (
     "RegisterCompanyRequestFactory",
     "UpdateCurrentUserProfileRequestFactory",
     "UpdateNodeRequestFactory",
+    "UpdateUserProfileRequestFactory",
 )
