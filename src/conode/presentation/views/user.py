@@ -6,6 +6,8 @@ from fastapi import APIRouter
 from conode.application.manage_profile import (
     UpdateCurrentUserProfileInteractor,
     UpdateCurrentUserProfileRequestDTO,
+    UpdateUserProfileInteractor,
+    UpdateUserProfileRequestDTO,
 )
 from conode.application.manage_user_rights import (
     GiveRoleToUserInteractor,
@@ -19,6 +21,7 @@ from conode.domain.role import RoleId
 from conode.domain.user import UserId
 from conode.presentation.schemas.user import (
     UpdateCurrentUserProfileRequest,
+    UpdateUserProfileRequest,
     UserSchema,
 )
 
@@ -32,6 +35,23 @@ async def update_current_user_profile(
 ) -> None:
     await interactor.execute(
         UpdateCurrentUserProfileRequestDTO(
+            username=request.username,
+            first_name=request.first_name,
+            last_name=request.last_name,
+            bio=request.bio,
+        ),
+    )
+
+
+@router.put("/me/profile/{user_id}", status_code=HTTPStatus.NO_CONTENT)
+async def update_user_profile(
+    user_id: UserId,
+    request: UpdateUserProfileRequest,
+    interactor: FromDishka[UpdateUserProfileInteractor],
+) -> None:
+    await interactor.execute(
+        user_id,
+        UpdateUserProfileRequestDTO(
             username=request.username,
             first_name=request.first_name,
             last_name=request.last_name,
