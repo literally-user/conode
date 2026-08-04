@@ -24,7 +24,7 @@ from conode.domain.role import (
     RolePermission,
     RolePermissionEntityId,
 )
-from conode.domain.user import Email, User, UserId
+from conode.domain.user import Email, User, UserId, UserSystemRole
 
 type RolesPermissions = list[RolePermission]
 
@@ -289,3 +289,7 @@ class AccessControlService:
                 raise NotEnoughRightsError(
                     "Not enough rights to perform operation", None
                 )
+
+    def ensure_user_can_manipulate_user_profiles(self, user: User) -> None:
+        if user.system_role != UserSystemRole.ADMIN:
+            raise NotEnoughRightsError("Not enough rights to perform operation", None)

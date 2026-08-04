@@ -29,3 +29,5 @@ class UpdateCurrentUserProfileInteractor:
                 username=request.username,
                 bio=request.bio,
             )
+
+            await self.user_repository.update(user)
