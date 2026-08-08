@@ -76,7 +76,7 @@ class AccessControlService:
         required_entity: EntityType,
         entity_id: RolePermissionEntityId | None,
         company: Company,
-    ) -> bool:
+    ) -> None:
         for perm in permissions:
             if (
                 PERMISSION_LEVEL[perm.permission]
@@ -85,16 +85,16 @@ class AccessControlService:
                 continue
 
             if perm.entity_type == EntityType.COMPANY and perm.entity_id == company.id:
-                return True
+                return
 
             if (
                 entity_id is not None
                 and perm.entity_type == required_entity
                 and perm.entity_id == entity_id
             ):
-                return True
+                return
 
-        return False
+        raise NotEnoughRightsError("Not enough rights to perform operation", None)
 
     async def ensure_user_can_manipulate_group(
         self,
@@ -105,14 +105,13 @@ class AccessControlService:
 
         group_company = await self.company_repository.get_by_id(group.company_id)
 
-        if not self.check(
+        self.check(
             permissions=permissions,
             required_permission=PermissionType.MODIFY,
             required_entity=EntityType.GROUP,
             entity_id=group.id,
             company=group_company,
-        ):
-            raise NotEnoughRightsError("Not enough rights to perform operation", None)
+        )
 
     async def ensure_user_can_manipulate_role(
         self,
@@ -123,14 +122,13 @@ class AccessControlService:
 
         role_company = await self.company_repository.get_by_id(role.owner_company_id)
 
-        if not self.check(
+        self.check(
             permissions=permissions,
             required_permission=PermissionType.MODIFY,
             required_entity=EntityType.COMPANY,
             entity_id=None,
             company=role_company,
-        ):
-            raise NotEnoughRightsError("Not enough rights to perform operation", None)
+        )
 
     async def ensure_user_can_manipulate_context(
         self,
@@ -141,14 +139,13 @@ class AccessControlService:
 
         context_company = await self.company_repository.get_by_id(context.company_id)
 
-        if not self.check(
+        self.check(
             permissions=permissions,
             required_permission=PermissionType.MODIFY,
             required_entity=EntityType.GROUP,
             entity_id=context.id,
             company=context_company,
-        ):
-            raise NotEnoughRightsError("Not enough rights to perform operation", None)
+        )
 
     async def ensure_user_can_view_group(
         self,
@@ -159,14 +156,13 @@ class AccessControlService:
 
         group_company = await self.company_repository.get_by_id(context.company_id)
 
-        if not self.check(
+        self.check(
             permissions=permissions,
             required_permission=PermissionType.READ,
             required_entity=EntityType.GROUP,
             entity_id=context.id,
             company=group_company,
-        ):
-            raise NotEnoughRightsError("Not enough rights to perform operation", None)
+        )
 
     async def ensure_user_can_view_context(
         self,
@@ -177,14 +173,13 @@ class AccessControlService:
 
         context_company = await self.company_repository.get_by_id(context.company_id)
 
-        if not self.check(
+        self.check(
             permissions=permissions,
             required_permission=PermissionType.READ,
             required_entity=EntityType.CONTEXT,
             entity_id=context.id,
             company=context_company,
-        ):
-            raise NotEnoughRightsError("Not enough rights to perform operation", None)
+        )
 
     async def ensure_user_can_create_groups(
         self,
@@ -193,14 +188,13 @@ class AccessControlService:
     ) -> None:
         permissions = await self._get_all_permissions(user)
 
-        if not self.check(
+        self.check(
             permissions=permissions,
             required_permission=PermissionType.MODIFY,
             required_entity=EntityType.COMPANY,
             entity_id=None,
             company=target_company,
-        ):
-            raise NotEnoughRightsError("Not enough rights to perform operation", None)
+        )
 
     async def ensure_user_can_create_contexts(
         self,
@@ -209,14 +203,13 @@ class AccessControlService:
     ) -> None:
         permissions = await self._get_all_permissions(user)
 
-        if not self.check(
+        self.check(
             permissions=permissions,
             required_permission=PermissionType.MODIFY,
             required_entity=EntityType.COMPANY,
             entity_id=None,
             company=target_company,
-        ):
-            raise NotEnoughRightsError("Not enough rights to perform operation", None)
+        )
 
     async def ensure_user_can_create_roles(
         self,
@@ -225,14 +218,13 @@ class AccessControlService:
     ) -> None:
         permissions = await self._get_all_permissions(user)
 
-        if not self.check(
+        self.check(
             permissions=permissions,
             required_permission=PermissionType.MODIFY,
             required_entity=EntityType.COMPANY,
             entity_id=None,
             company=target_company,
-        ):
-            raise NotEnoughRightsError("Not enough rights to perform operation", None)
+        )
 
     async def ensure_user_can_send_offers(
         self,
@@ -241,14 +233,13 @@ class AccessControlService:
     ) -> None:
         permissions = await self._get_all_permissions(user)
 
-        if not self.check(
+        self.check(
             permissions=permissions,
             required_permission=PermissionType.MODIFY,
             required_entity=EntityType.COMPANY,
             entity_id=None,
             company=from_company,
-        ):
-            raise NotEnoughRightsError("Not enough rights to perform operation", None)
+        )
 
     async def ensure_user_can_manipulate_offers(
         self,
@@ -257,14 +248,13 @@ class AccessControlService:
     ) -> None:
         permissions = await self._get_all_permissions(user)
 
-        if not self.check(
+        self.check(
             permissions=permissions,
             required_permission=PermissionType.MODIFY,
             required_entity=EntityType.COMPANY,
             entity_id=None,
             company=to_company,
-        ):
-            raise NotEnoughRightsError("Not enough rights to perform operation", None)
+        )
 
     async def ensure_user_can_manipulate_groups(
         self,
@@ -279,21 +269,20 @@ class AccessControlService:
         check_targets = zip(groups, companies, strict=True)
 
         for group, company in check_targets:
-            if not self.check(
+            self.check(
                 permissions=permissions,
                 required_permission=PermissionType.MODIFY,
                 required_entity=EntityType.GROUP,
                 entity_id=group.id,
                 company=company,
-            ):
-                raise NotEnoughRightsError(
-                    "Not enough rights to perform operation", None
-                )
+            )
+
+    def _ensure_user_admin(self, user: User) -> None:
+        if user.system_role != UserSystemRole.ADMIN:
+            raise NotEnoughRightsError("Not enough rights to perform operation", None)
 
     def ensure_user_can_verify_companies(self, user: User) -> None:
-        if user.system_role != UserSystemRole.ADMIN:
-            raise NotEnoughRightsError("Not enough rights to perform operation", None)
+        self._ensure_user_admin(user)
 
     def ensure_user_can_manipulate_user_profiles(self, user: User) -> None:
-        if user.system_role != UserSystemRole.ADMIN:
-            raise NotEnoughRightsError("Not enough rights to perform operation", None)
+        self._ensure_user_admin(user)
