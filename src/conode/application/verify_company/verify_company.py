@@ -2,7 +2,6 @@ from dataclasses import dataclass
 
 from conode.application.errors import (
     CompanyNotFoundError,
-    NotEnoughRightsError,
 )
 from conode.application.interfaces.repositories import CompanyRepository
 from conode.application.interfaces.transaction_manager import TransactionManager
