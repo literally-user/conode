@@ -1,6 +1,7 @@
 from http import HTTPStatus
 
 import pytest
+from dirty_equals import IsPartialDict
 from httpx import AsyncClient
 
 from conode.application.interfaces.repositories import CompanyRepository
@@ -49,3 +50,7 @@ async def test_verify_company_user_not_admin(
 
     assert response.status_code == HTTPStatus.FORBIDDEN
     assert not company.verified
+    assert response.json() == IsPartialDict(
+        detail="Not enough rights to perform operation",
+        meta=None,
+    )
