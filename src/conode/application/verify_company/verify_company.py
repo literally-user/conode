@@ -20,11 +20,7 @@ class VerifyCompanyInteractor:
         async with self.transaction_manager:
             user = await self.access_control_service.get_authorized_user()
 
-            if not user.is_admin():
-                raise NotEnoughRightsError(
-                    "Not enough rights to perform operation",
-                    [{"key": "user_id", "value": user.id}],
-                )
+            self.access_control_service.ensure_user_can_verify_companies(user)
 
             company = await self.company_repository.get_by_id(company_id)
             if company is None:
