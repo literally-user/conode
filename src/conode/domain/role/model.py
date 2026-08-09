@@ -38,12 +38,6 @@ class RoleName(ValueObject[str]):
     def __init__(self, value: str) -> None:
         value = value.strip()
 
-        if value == OWNER_COMPANY_ROLE_NAME:
-            raise CannotCreateRoleWithThisNameError(
-                "Cannot create role with this name",
-                [{"key": "name", "value": value}],
-            )
-
         if MAX_ALLOWED_ROLE_NAME_LENGTH <= len(value) <= MIN_ALLOWED_ROLE_NAME_LENGTH:
             raise InvalidRoleNameFormatError(
                 "Role name must be between "
@@ -72,6 +66,11 @@ class Role(Entity[RoleId]):
         )
 
     def change_name(self, name: str) -> None:
+        if name == OWNER_COMPANY_ROLE_NAME:
+            raise CannotCreateRoleWithThisNameError(
+                "Cannot create role with this name",
+                [{"key": "name", "value": name}],
+            )
         self.name = RoleName(name)
         self.touch()
 

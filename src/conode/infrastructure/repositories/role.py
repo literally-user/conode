@@ -50,17 +50,18 @@ class RoleRepositoryImpl(RoleRepository):
     async def get_all_by_user_id(self, user_id: UserId) -> list[Role]:
         logger.debug("Repository get roles by user id", user_id=user_id)
         result = await self.session.execute(
-            select(UserGrant, Role)
-            .join(
-                Role,
-                Role.id == UserGrant.role_id,  # type: ignore
-            )
-            .where(
-                UserGrant.user_id == user_id  # type: ignore
-            )
+            select(Role)
+            .join(UserGrant, UserGrant.role_id == Role.id)  # type: ignore
+            .where(UserGrant.user_id == user_id)  # type: ignore
         )
 
-        return list(result.scalars().all())
+        result_roles = list(result.scalars().all())
+        logger.debug(
+            "Repository fetched roles by user id",
+            found_count=len(result_roles),
+        )
+
+        return result_roles
 
     async def update(self, role: Role) -> None:
         logger.debug("Repository update role", role_id=role.id)

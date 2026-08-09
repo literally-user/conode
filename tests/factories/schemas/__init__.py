@@ -1,4 +1,4 @@
-from .company import RegisterCompanyRequestFactory
+from .company import RegisterCompanyRequestFactory, UpdateCompanyRequestFactory
 from .context import CreateContextRequestFactory
 from .edge import CreateEdgeRequestFactory
 from .group import CreateGroupRequestFactory
@@ -19,6 +19,7 @@ __all__ = (
     "CreateGroupRequestFactory",
     "CreateNodeRequestFactory",
     "RegisterCompanyRequestFactory",
+    "UpdateCompanyRequestFactory",
     "UpdateCurrentUserProfileRequestFactory",
     "UpdateNodeRequestFactory",
     "UpdateUserProfileRequestFactory",
