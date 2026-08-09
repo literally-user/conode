@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from uuid import uuid4
 
-from conode.application.errors import CompanyAlreadyExistsError
 from conode.application.interfaces.repositories import (
     CompanyRepository,
     RolePermissionsRepository,
@@ -10,7 +9,7 @@ from conode.application.interfaces.repositories import (
 )
 from conode.application.interfaces.transaction_manager import TransactionManager
 from conode.application.services import AccessControlService, RoleManagmentService
-from conode.domain.company import Company, CompanyId, CompanyName
+from conode.domain.company import Company, CompanyId
 from conode.domain.grant import UserGrant, UserGrantId
 from conode.domain.role import (
     EntityType,
@@ -37,15 +36,6 @@ class RegisterCompanyInteractor:
     async def execute(self, request: RegisterCompanyRequestDTO) -> Company:
         async with self.transaction_manager:
             user = await self.access_control_service.get_authorized_user()
-
-            company = await self.company_repository.get_by_name(
-                CompanyName(request.name),
-            )
-            if company is not None:
-                raise CompanyAlreadyExistsError(
-                    "Company with this name already exists",
-                    [{"key": "name", "value": request.name}],
-                )
 
             company = Company.new(
                 company_id=CompanyId(uuid4()),
