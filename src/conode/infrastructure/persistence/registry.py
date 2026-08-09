@@ -74,7 +74,7 @@ company_record_table = Table(
         ForeignKey("user_record.id", ondelete="CASCADE"),
         nullable=False,
     ),
-    Column("name", CompanyNameType, nullable=False),
+    Column("name", CompanyNameType, nullable=False, unique=True),
     Column("description", CompanyDescriptionType, nullable=False),
     Column("verified", Boolean, nullable=False),
     Column("created_at", DateTime(timezone=True), nullable=False),
