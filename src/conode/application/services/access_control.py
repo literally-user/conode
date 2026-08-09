@@ -18,6 +18,7 @@ from conode.domain.company import Company
 from conode.domain.context import Context
 from conode.domain.group import Group
 from conode.domain.role import (
+    OWNER_COMPANY_ROLE_NAME,
     EntityType,
     PermissionType,
     Role,
@@ -276,6 +277,20 @@ class AccessControlService:
                 entity_id=group.id,
                 company=company,
             )
+
+    async def ensure_user_can_manipulate_company(
+        self, user: User, company: Company
+    ) -> None:
+        roles = await self.role_repository.get_all_by_user_id(user.id)
+
+        for role in roles:
+            if (
+                role.name == OWNER_COMPANY_ROLE_NAME
+                and role.owner_company_id == company.id
+            ):
+                return
+
+        raise NotEnoughRightsError("Not enough rights to perform operation", None)
 
     def _ensure_user_admin(self, user: User) -> None:
         if user.system_role != UserSystemRole.ADMIN:

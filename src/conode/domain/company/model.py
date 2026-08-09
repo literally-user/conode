@@ -80,6 +80,9 @@ class Company(Entity[CompanyId]):
             updated_at=now,
         )
 
+    def update(self, *, name: str, description: str) -> None:
+        self.name = CompanyName(name)
+        self.description = CompanyDescription(description)
+
     def verify(self) -> None:
         self.verified = True
-        self.touch()

@@ -7,8 +7,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from conode.application.errors import RoleNotFoundError
 from conode.application.interfaces.repositories import RoleRepository
 from conode.domain.company import CompanyId
-from conode.domain.role import Role
-from conode.domain.role.model import RoleId, RoleName
+from conode.domain.grant import UserGrant
+from conode.domain.role import Role, RoleId, RoleName
+from conode.domain.user import UserId
 
 logger = structlog.get_logger()
 
@@ -45,6 +46,21 @@ class RoleRepositoryImpl(RoleRepository):
         )
 
         return roles
+
+    async def get_all_by_user_id(self, user_id: UserId) -> list[Role]:
+        logger.debug("Repository get roles by user id", user_id=user_id)
+        result = await self.session.execute(
+            select(UserGrant, Role)
+            .join(
+                Role,
+                Role.id == UserGrant.role_id,  # type: ignore
+            )
+            .where(
+                UserGrant.user_id == user_id  # type: ignore
+            )
+        )
+
+        return list(result.scalars().all())
 
     async def update(self, role: Role) -> None:
         logger.debug("Repository update role", role_id=role.id)

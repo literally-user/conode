@@ -3,13 +3,21 @@ from http import HTTPStatus
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
 from fastapi import APIRouter
 
+from conode.application.manage_company import (
+    UpdateCompanyInteractor,
+    UpdateCompanyRequestDTO,
+)
 from conode.application.register_company import (
     RegisterCompanyInteractor,
     RegisterCompanyRequestDTO,
 )
 from conode.application.verify_company import VerifyCompanyInteractor
 from conode.domain.company import CompanyId
-from conode.presentation.schemas.company import CompanySchema, RegisterCompanyRequest
+from conode.presentation.schemas.company import (
+    CompanySchema,
+    RegisterCompanyRequest,
+    UpdateCompanyRequest,
+)
 
 router = APIRouter(tags=["companies"], prefix="/companies", route_class=DishkaRoute)
 
@@ -32,6 +40,18 @@ async def register_company(
         description=company.description.value,
         verified=company.verified,
         owner_id=company.owner_id,
+    )
+
+
+@router.put("/{company_id}", status_code=HTTPStatus.NO_CONTENT)
+async def update_company(
+    company_id: CompanyId,
+    request: UpdateCompanyRequest,
+    interactor: FromDishka[UpdateCompanyInteractor],
+) -> None:
+    await interactor.execute(
+        company_id,
+        UpdateCompanyRequestDTO(name=request.name, description=request.description),
     )
 
 

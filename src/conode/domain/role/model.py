@@ -7,7 +7,10 @@ from uuid import UUID
 from conode.domain.company import Company, CompanyId
 from conode.domain.context import ContextId
 from conode.domain.group import GroupId
-from conode.domain.role.errors import InvalidRoleNameFormatError
+from conode.domain.role.errors import (
+    CannotCreateRoleWithThisNameError,
+    InvalidRoleNameFormatError,
+)
 from conode.domain.shared import Entity, ValueObject
 
 RoleId = NewType("RoleId", UUID)
@@ -15,6 +18,7 @@ RolePermissionId = NewType("RolePermissionId", UUID)
 
 MIN_ALLOWED_ROLE_NAME_LENGTH: Final = 1
 MAX_ALLOWED_ROLE_NAME_LENGTH: Final = 50
+OWNER_COMPANY_ROLE_NAME: Final = "owner"
 
 type RolePermissionEntityId = ContextId | CompanyId | GroupId
 
@@ -33,6 +37,12 @@ class PermissionType(StrEnum):
 class RoleName(ValueObject[str]):
     def __init__(self, value: str) -> None:
         value = value.strip()
+
+        if value == OWNER_COMPANY_ROLE_NAME:
+            raise CannotCreateRoleWithThisNameError(
+                "Cannot create role with this name",
+                [{"key": "name", "value": value}],
+            )
 
         if MAX_ALLOWED_ROLE_NAME_LENGTH <= len(value) <= MIN_ALLOWED_ROLE_NAME_LENGTH:
             raise InvalidRoleNameFormatError(
