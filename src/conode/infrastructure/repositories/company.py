@@ -2,9 +2,10 @@ from dataclasses import dataclass
 
 import structlog
 from sqlalchemy import insert, select, update
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from conode.application.errors import CompanyNotFoundError
+from conode.application.errors import CompanyAlreadyExistsError, CompanyNotFoundError
 from conode.application.interfaces.repositories import CompanyRepository
 from conode.domain.company.model import Company, CompanyId, CompanyName
 from conode.domain.user import UserId
@@ -18,17 +19,23 @@ class CompanyRepositoryImpl(CompanyRepository):
 
     async def create(self, company: Company) -> None:
         logger.debug("Repository create company", company_id=company.id)
-        await self.session.execute(
-            insert(Company).values(
-                id=company.id,
-                name=company.name,
-                description=company.description,
-                verified=company.verified,
-                owner_id=company.owner_id,
-                created_at=company.created_at,
-                updated_at=company.updated_at,
-            ),
-        )
+        try:
+            await self.session.execute(
+                insert(Company).values(
+                    id=company.id,
+                    name=company.name,
+                    description=company.description,
+                    verified=company.verified,
+                    owner_id=company.owner_id,
+                    created_at=company.created_at,
+                    updated_at=company.updated_at,
+                ),
+            )
+        except IntegrityError as e:
+            raise CompanyAlreadyExistsError(
+                "Company with this name already exists",
+                [{"key": "name", "value": company.name.value}],
+            ) from e
 
     async def update(self, company: Company) -> None:
         logger.debug("Repository update company", company_id=company.id)

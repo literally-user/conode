@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from uuid import uuid4
 
-from conode.application.errors import CompanyAlreadyExistsError
 from conode.application.interfaces.repositories import (
     CompanyRepository,
     RolePermissionsRepository,
@@ -10,7 +9,7 @@ from conode.application.interfaces.repositories import (
 )
 from conode.application.interfaces.transaction_manager import TransactionManager
 from conode.application.services import AccessControlService, RoleManagmentService
-from conode.domain.company import Company, CompanyId, CompanyName
+from conode.domain.company import Company, CompanyId
 from conode.domain.grant import UserGrant, UserGrantId
 from conode.domain.role import (
     EntityType,
