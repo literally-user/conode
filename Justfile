@@ -6,22 +6,38 @@ lint:
 clean:
     docker compose -f docker-compose.base.yaml down -v
 
-run target build="":
+run target build="" profile="":
     #!/usr/bin/env bash
+    set -e
+
     BUILD_FLAG=""
-    
-    if [ "{{build}}" == "build" ]; then
+
+    if [ "{{build}}" = "build" ]; then
         BUILD_FLAG="--build"
     fi
 
-    if [ "{{target}}" == "prod" ]; then
-        docker compose -f docker-compose.base.yaml -f docker-compose.prod.yaml up $BUILD_FLAG
+    PROFILE_FLAG=""
+
+    if [ "{{profile}}" = "observability" ]; then
+        PROFILE_FLAG="--profile observability"
+    fi
+
+    if [ "{{target}}" = "prod" ]; then
+        docker compose \
+            -f docker-compose.base.yaml \
+            -f docker-compose.prod.yaml \
+            $PROFILE_FLAG \
+            up $BUILD_FLAG
     else
-        docker compose -f docker-compose.base.yaml -f docker-compose.dev.yaml up $BUILD_FLAG
+        docker compose \
+            -f docker-compose.base.yaml \
+            -f docker-compose.dev.yaml \
+            $PROFILE_FLAG \
+            up $BUILD_FLAG
     fi
 
 restart target:
     docker compose -f docker-compose.base.yaml restart {{target}}
 
 attach target:
-    docker compose -f docker-compose.base.yaml exec -it -t {{target}} /bin/bash
+    docker compose -f docker-compose.base.yaml exec -it {{target}} /bin/bash
