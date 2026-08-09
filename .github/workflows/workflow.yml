@@ -56,7 +56,5 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - run: uv sync --group dev
-
-      - name: Run tests
-        run: |
-          uv run pytest
+      - run: uv pip install -e .
+      - run: uv run pytest
