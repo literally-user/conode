@@ -31,6 +31,7 @@ services:
 
   grafana:
     image: grafana/grafana:12.1.1
+    profiles: ["observability"]
 
     labels:
       - "traefik.enable=true"
@@ -145,6 +146,7 @@ services:
 
   alloy:
     image: grafana/alloy:latest
+    profiles: ["observability"]
 
     volumes:
       - ./deploy/observability/grafana/config.alloy:/etc/alloy/config.alloy
@@ -162,6 +164,7 @@ services:
 
   prometheus:
     image: prom/prometheus
+    profiles: ["observability"]
 
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
@@ -178,6 +181,7 @@ services:
 
   tempo:
     image: grafana/tempo:latest
+    profiles: ["observability"]
 
     command:
       - "-target=all"

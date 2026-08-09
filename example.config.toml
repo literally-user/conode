@@ -3,10 +3,10 @@ host = "0.0.0.0"
 port = 8000
 
 [database]
-username = "postgres"
-password = "admin_password"
+database = "conode"
+username = "conode"
+password = "conodeSecretPassword"
 host = "persistence.literally.io"
-database = "postgres"
 port = 5432
 
 [secrets]
@@ -17,5 +17,5 @@ issuer = "http://keycloak.conode.com/realms/conode"
 audience = "conode"
 
 [telemetry]
-endpoint = "collector:4317"
-enabled = true
+endpoint = "alloy:4317"
+enabled = false
