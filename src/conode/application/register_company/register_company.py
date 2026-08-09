@@ -38,15 +38,6 @@ class RegisterCompanyInteractor:
         async with self.transaction_manager:
             user = await self.access_control_service.get_authorized_user()
 
-            company = await self.company_repository.get_by_name(
-                CompanyName(request.name),
-            )
-            if company is not None:
-                raise CompanyAlreadyExistsError(
-                    "Company with this name already exists",
-                    [{"key": "name", "value": request.name}],
-                )
-
             company = Company.new(
                 company_id=CompanyId(uuid4()),
                 name=request.name,
