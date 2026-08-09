@@ -35,3 +35,20 @@ class RegisterCompanyRequest(BaseModel):
             max_length=MAX_ALLOWED_COMPANY_DESCRIPTION_LENGTH,
         ),
     ]
+
+
+class UpdateCompanyRequest(BaseModel):
+    name: Annotated[
+        str,
+        Field(
+            min_length=MIN_ALLOWED_COMPANY_NAME_LENGTH,
+            max_length=MAX_ALLOWED_COMPANY_NAME_LENGTH,
+        ),
+    ]
+    description: Annotated[
+        str,
+        Field(
+            min_length=MIN_ALLOWED_COMPANY_DESCRIPTION_LENGTH,
+            max_length=MAX_ALLOWED_COMPANY_DESCRIPTION_LENGTH,
+        ),
+    ]

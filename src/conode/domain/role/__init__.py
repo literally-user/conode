@@ -1,4 +1,5 @@
 from .model import (
+    OWNER_COMPANY_ROLE_NAME,
     EntityType,
     PermissionType,
     Role,
@@ -10,6 +11,7 @@ from .model import (
 )
 
 __all__ = (
+    "OWNER_COMPANY_ROLE_NAME",
     "EntityType",
     "PermissionType",
     "Role",

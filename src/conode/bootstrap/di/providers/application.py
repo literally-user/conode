@@ -6,6 +6,9 @@ from conode.application.attach_node_to_group import (
 from conode.application.detach_node_from_group import (
     DetachNodeInteractor,
 )
+from conode.application.manage_company import (
+    UpdateCompanyInteractor,
+)
 from conode.application.manage_context import (
     CreateContextInteractor,
     DeleteContextInteractor,
@@ -81,6 +84,7 @@ class ApplicationProvider(Provider):
         GetCurrentUserInteractor,
         GetContextByIdInteractor,
         GiveRoleToUserInteractor,
+        UpdateCompanyInteractor,
         VerifyCompanyInteractor,
         DeleteContextInteractor,
         CreateContextInteractor,

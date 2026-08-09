@@ -7,7 +7,10 @@ from uuid import UUID
 from conode.domain.company import Company, CompanyId
 from conode.domain.context import ContextId
 from conode.domain.group import GroupId
-from conode.domain.role.errors import InvalidRoleNameFormatError
+from conode.domain.role.errors import (
+    CannotCreateRoleWithThisNameError,
+    InvalidRoleNameFormatError,
+)
 from conode.domain.shared import Entity, ValueObject
 
 RoleId = NewType("RoleId", UUID)
@@ -15,6 +18,7 @@ RolePermissionId = NewType("RolePermissionId", UUID)
 
 MIN_ALLOWED_ROLE_NAME_LENGTH: Final = 1
 MAX_ALLOWED_ROLE_NAME_LENGTH: Final = 50
+OWNER_COMPANY_ROLE_NAME: Final = "owner"
 
 type RolePermissionEntityId = ContextId | CompanyId | GroupId
 
@@ -62,6 +66,11 @@ class Role(Entity[RoleId]):
         )
 
     def change_name(self, name: str) -> None:
+        if name == OWNER_COMPANY_ROLE_NAME:
+            raise CannotCreateRoleWithThisNameError(
+                "Cannot create role with this name",
+                [{"key": "name", "value": name}],
+            )
         self.name = RoleName(name)
         self.touch()
 
