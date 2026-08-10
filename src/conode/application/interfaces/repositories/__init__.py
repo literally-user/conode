@@ -2,7 +2,7 @@ from .company import CompanyRepository
 from .context import ContextRepository
 from .contract import ContractRepository
 from .edge import EdgeRepository
-from .grant import CompanyGrantRepository, UserGrantRepository
+from .grant import UserGrantRepository
 from .group import GroupRepository
 from .node import NodeAssociationRepository, NodeRepository
 from .offer import (
@@ -16,7 +16,6 @@ from .role import RoleRepository
 from .user import UserRepository
 
 __all__ = (
-    "CompanyGrantRepository",
     "CompanyRepository",
     "ContextRepository",
     "ContractRepository",
