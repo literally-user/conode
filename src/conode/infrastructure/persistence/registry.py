@@ -16,7 +16,7 @@ from conode.domain.company import Company
 from conode.domain.context import Context
 from conode.domain.contract import Contract, ContractStatus
 from conode.domain.edge import Edge
-from conode.domain.grant import CompanyGrant, UserGrant
+from conode.domain.grant import UserGrant
 from conode.domain.group import Group
 from conode.domain.node import Node, NodeAssociation
 from conode.domain.offer import (
@@ -232,24 +232,6 @@ user_grant_record_table = Table(
     Column("updated_at", DateTime(timezone=True), nullable=False),
 )
 
-company_grant_record_table = Table(
-    "company_grant_record",
-    metadata,
-    Column("id", UUID, primary_key=True, nullable=False),
-    Column(
-        "role_id",
-        ForeignKey("role_record.id", ondelete="CASCADE"),
-        nullable=False,
-    ),
-    Column(
-        "company_id",
-        ForeignKey("company_record.id", ondelete="CASCADE"),
-        nullable=False,
-    ),
-    Column("created_at", DateTime(timezone=True), nullable=False),
-    Column("updated_at", DateTime(timezone=True), nullable=False),
-)
-
 offer_link_record_table = Table(
     "offer_link_record",
     metadata,
@@ -386,7 +368,6 @@ def start_mapper() -> None:
     registry_mapper.map_imperatively(Context, context_record_table)
     registry_mapper.map_imperatively(Role, role_record_table)
     registry_mapper.map_imperatively(UserGrant, user_grant_record_table)
-    registry_mapper.map_imperatively(CompanyGrant, company_grant_record_table)
     registry_mapper.map_imperatively(RolePermission, permission_record_table)
     registry_mapper.map_imperatively(
         Edge,
