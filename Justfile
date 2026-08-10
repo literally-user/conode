@@ -6,7 +6,7 @@ lint:
 clean:
     docker compose -f docker-compose.base.yaml down -v
 
-run target build="" profile="":
+up target build="" profile="":
     #!/usr/bin/env bash
     set -e
 
@@ -36,8 +36,22 @@ run target build="" profile="":
             up $BUILD_FLAG
     fi
 
+down rm="":
+    #!/usr/bin/env bash
+
+    set -e
+
+    RM_FLAG=""
+
+    if [ "{{rm}}" = "rm" ]; then
+        RM_FLAG="-v"
+    fi
+
+    docker compose -f docker-compose.base.yaml down $RM_FLAG
+
 restart target:
     docker compose -f docker-compose.base.yaml restart {{target}}
+
 
 attach target:
     docker compose -f docker-compose.base.yaml exec -it {{target}} /bin/bash
