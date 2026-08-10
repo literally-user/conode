@@ -293,7 +293,7 @@ class AccessControlService:
         raise NotEnoughRightsError("Not enough rights to perform operation", None)
 
     def _ensure_user_admin(self, user: User) -> None:
-        if user.system_role != UserSystemRole.ADMIN:
+        if not user.is_admin():
             raise NotEnoughRightsError("Not enough rights to perform operation", None)
 
     def ensure_user_can_verify_companies(self, user: User) -> None:
