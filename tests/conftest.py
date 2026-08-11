@@ -1,7 +1,6 @@
 from collections.abc import AsyncIterator
 from dataclasses import dataclass
 from types import TracebackType
-from unittest.mock import AsyncMock
 
 import jwt
 import pytest
@@ -84,6 +83,7 @@ class MockTokenManager(TokenManager):
             email=payload["email"],
             first_name=payload["given_name"],
             last_name=payload["family_name"],
+            email_verified=payload["email_verified"],
             username=payload["preferred_username"],
             system_role=role,
         )
@@ -94,6 +94,7 @@ class MockTokenManager(TokenManager):
                 "email": user.email.value,
                 "given_name": user.first_name.value,
                 "family_name": user.last_name.value,
+                "email_verified": user.email_verified,
                 "preferred_username": user.username.value,
                 "resource_access": {
                     "realm-management": {"roles": ["realm-admin" if admin else "user"]}
@@ -269,7 +270,6 @@ async def session(config: Config) -> AsyncIterator[AsyncSession]:
     )
 
     async with AsyncSession(engine) as session:
-        session.commit = AsyncMock()  # type: ignore
         yield session
         await session.close()
 

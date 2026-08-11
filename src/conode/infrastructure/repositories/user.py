@@ -25,6 +25,7 @@ class UserRepositoryImpl(UserRepository):
                 last_name=user.last_name,
                 username=user.username,
                 email=user.email,
+                email_verified=user.email_verified,
                 bio=user.bio,
                 created_at=user.created_at,
                 updated_at=user.updated_at,
@@ -40,6 +41,7 @@ class UserRepositoryImpl(UserRepository):
             )
             .values(
                 system_role=user.system_role,
+                email_verified=user.email_verified,
                 first_name=user.first_name,
                 last_name=user.last_name,
                 username=user.username,
