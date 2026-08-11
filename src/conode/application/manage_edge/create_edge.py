@@ -37,9 +37,9 @@ class CreateEdgeInteractor:
     edge_repository: EdgeRepository
 
     async def execute(self, request: CreateEdgeRequestDTO) -> Edge:
-        async with self.transaction_manager:
-            user = await self.access_control_service.get_authorized_user()
+        user = await self.access_control_service.get_authorized_user()
 
+        async with self.transaction_manager:
             context = await self.context_repository.get_by_id(request.context_id)
             company = await self.company_repository.get_by_id(context.company_id)
 

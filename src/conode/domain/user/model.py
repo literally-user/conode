@@ -115,6 +115,7 @@ class User(Entity[UserId]):
     first_name: FirstName
     last_name: LastName
     username: Username
+    email_verified: bool
     email: Email
     bio: Bio
 
@@ -135,6 +136,7 @@ class User(Entity[UserId]):
             last_name=LastName(last_name),
             username=Username(username),
             email=Email(email),
+            email_verified=False,
             system_role=UserSystemRole.USER,
             created_at=now,
             updated_at=now,

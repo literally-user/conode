@@ -70,6 +70,7 @@ class UserSchema(BaseModel):
     username: str
     first_name: str
     last_name: str
+    email_verified: bool
     email: EmailStr
     bio: str
 

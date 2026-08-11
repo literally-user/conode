@@ -68,6 +68,7 @@ async def get_current_user_profile(
     return UserSchema(
         id=result.id,
         username=result.username.value,
+        email_verified=result.email_verified,
         first_name=result.first_name.value,
         last_name=result.last_name.value,
         email=result.email.value,
@@ -85,6 +86,7 @@ async def get_user_by_username(
     return UserSchema(
         id=result.id,
         username=result.username.value,
+        email_verified=result.email_verified,
         first_name=result.first_name.value,
         last_name=result.last_name.value,
         email=result.email.value,

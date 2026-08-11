@@ -9,6 +9,7 @@ class UserMeta(TypedDict):
     last_name: str
     email: str
     username: str
+    email_verified: bool
 
 
 class TokenManagerResponse(NamedTuple):

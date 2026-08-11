@@ -32,9 +32,9 @@ class AttachNodeInteractor:
     company_repository: CompanyRepository
 
     async def execute(self, request: AttachNodeRequestDTO) -> list[NodeAssociation]:
-        async with self.transaction_manager:
-            user = await self.access_control_service.get_authorized_user()
+        user = await self.access_control_service.get_authorized_user()
 
+        async with self.transaction_manager:
             group = await self.group_repository.get_by_id(request.group_id)
 
             request_nodes = set(request.nodes)

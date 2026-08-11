@@ -42,9 +42,9 @@ class CreateRoleInteractor:
     role_permissions_repository: RolePermissionsRepository
 
     async def execute(self, request: CreateRoleRequestDTO) -> Role:
-        async with self.transaction_manager:
-            user = await self.access_control_service.get_authorized_user()
+        user = await self.access_control_service.get_authorized_user()
 
+        async with self.transaction_manager:
             company = await self.company_repository.get_by_id(request.company_id)
 
             await self.access_control_service.ensure_user_can_create_roles(

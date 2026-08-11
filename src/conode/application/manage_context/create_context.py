@@ -26,9 +26,9 @@ class CreateContextInteractor:
     access_control_service: AccessControlService
 
     async def execute(self, request: CreateContextRequestDTO) -> Context:
-        async with self.transaction_manager:
-            user = await self.access_control_service.get_authorized_user()
+        user = await self.access_control_service.get_authorized_user()
 
+        async with self.transaction_manager:
             company = await self.company_repository.get_by_id(request.company_id)
 
             await self.access_control_service.ensure_user_can_create_contexts(

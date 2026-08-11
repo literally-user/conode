@@ -35,5 +35,6 @@ class TokenManagerImpl(TokenManager):
             first_name=payload["given_name"],
             last_name=payload["family_name"],
             username=payload["preferred_username"],
+            email_verified=payload["email_verified"],
             system_role=role,
         )

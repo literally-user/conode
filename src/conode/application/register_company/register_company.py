@@ -34,9 +34,9 @@ class RegisterCompanyInteractor:
     role_repository: RoleRepository
 
     async def execute(self, request: RegisterCompanyRequestDTO) -> Company:
-        async with self.transaction_manager:
-            user = await self.access_control_service.get_authorized_user()
+        user = await self.access_control_service.get_authorized_user()
 
+        async with self.transaction_manager:
             company = Company.new(
                 company_id=CompanyId(uuid4()),
                 name=request.name,

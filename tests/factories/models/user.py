@@ -22,6 +22,9 @@ class UserFactory:
     user_repository: UserRepository
     password_hasher: PasswordHasher
 
+    def generate_access_token(self, user: User) -> str:
+        return self.token_manager.encode(user)
+
     async def build(self, *, admin: bool = False) -> UserFactoryResponse:
         async with self.transaction_manager:
             user = User.new(
@@ -46,5 +49,5 @@ class UserFactory:
 
             return UserFactoryResponse(
                 user=user,
-                access_token=self.token_manager.encode(user),
+                access_token=self.generate_access_token(user),
             )

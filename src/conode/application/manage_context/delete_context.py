@@ -17,9 +17,9 @@ class DeleteContextInteractor:
     transaction_manager: TransactionManager
 
     async def execute(self, context_id: ContextId) -> None:
-        async with self.transaction_manager:
-            user = await self.access_control_service.get_authorized_user()
+        user = await self.access_control_service.get_authorized_user()
 
+        async with self.transaction_manager:
             context = await self.context_repository.get_by_id(context_id)
 
             await self.access_control_service.ensure_user_can_manipulate_context(

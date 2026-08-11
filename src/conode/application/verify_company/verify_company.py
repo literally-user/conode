@@ -16,9 +16,9 @@ class VerifyCompanyInteractor:
     access_control_service: AccessControlService
 
     async def execute(self, company_id: CompanyId) -> None:
-        async with self.transaction_manager:
-            user = await self.access_control_service.get_authorized_user()
+        user = await self.access_control_service.get_authorized_user()
 
+        async with self.transaction_manager:
             self.access_control_service.ensure_user_can_verify_companies(user)
 
             company = await self.company_repository.get_by_id(company_id)

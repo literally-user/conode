@@ -59,6 +59,7 @@ user_record_table = Table(
     Column("username", UsernameType, nullable=False),
     Column("last_name", LastNameType, nullable=False),
     Column("first_name", FirstNameType, nullable=False),
+    Column("email_verified", Boolean, nullable=False),
     Column("email", EmailType, nullable=False),
     Column("bio", BioType, nullable=False),
     Column("created_at", DateTime(timezone=True), nullable=False),

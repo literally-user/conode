@@ -28,9 +28,9 @@ class UpdateNodeInteractor:
     transaction_manager: TransactionManager
 
     async def execute(self, request: UpdateNodeRequestDTO) -> None:
-        async with self.transaction_manager:
-            user = await self.access_control_service.get_authorized_user()
+        user = await self.access_control_service.get_authorized_user()
 
+        async with self.transaction_manager:
             node = await self.node_repository.get_by_id(request.node_id)
 
             existing_associations = (

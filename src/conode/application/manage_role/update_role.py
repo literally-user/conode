@@ -45,9 +45,9 @@ class UpdateRoleInteractor:
     role_repository: RoleRepository
 
     async def execute(self, request: UpdateRoleRequestDTO) -> UpdateRoleResponseDTO:
-        async with self.transaction_manager:
-            user = await self.access_control_service.get_authorized_user()
+        user = await self.access_control_service.get_authorized_user()
 
+        async with self.transaction_manager:
             role = await self.role_repository.get_by_id(request.role_id)
 
             await self.access_control_service.ensure_user_can_manipulate_role(
