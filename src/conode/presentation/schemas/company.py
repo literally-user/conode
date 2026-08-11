@@ -52,3 +52,8 @@ class UpdateCompanyRequest(BaseModel):
             max_length=MAX_ALLOWED_COMPANY_DESCRIPTION_LENGTH,
         ),
     ]
+
+
+class TransferCompanyRequest(BaseModel):
+    target_user_id: UserId
+    company_id: CompanyId
