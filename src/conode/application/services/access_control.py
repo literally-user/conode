@@ -25,7 +25,7 @@ from conode.domain.role import (
     RolePermission,
     RolePermissionEntityId,
 )
-from conode.domain.user import Email, User, UserId, UserSystemRole
+from conode.domain.user import Email, User, UserId
 
 type RolesPermissions = list[RolePermission]
 
@@ -55,8 +55,8 @@ class AccessControlService:
         meta = self.identity_provider.get_current_user_meta()
 
         user = await self.user_repository.get_by_email(Email(meta["email"]))
-        if user is None:
-            async with self.transaction_manager:
+        async with self.transaction_manager:
+            if user is None:
                 user = User.new(
                     user_id=UserId(uuid4()),
                     first_name=meta["first_name"],
@@ -66,6 +66,9 @@ class AccessControlService:
                     bio="Beautiful description about me!",
                 )
                 await self.user_repository.create(user)
+
+            user.email_verified = meta["email_verified"]
+            await self.user_repository.update(user)
 
         return user
 

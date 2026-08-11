@@ -23,9 +23,9 @@ class UpdateUserProfileInteractor:
     async def execute(
         self, user_id: UserId, request: UpdateUserProfileRequestDTO
     ) -> None:
-        async with self.transaction_manager:
-            user = await self.access_control_service.get_authorized_user()
+        user = await self.access_control_service.get_authorized_user()
 
+        async with self.transaction_manager:
             if user.id == user_id:
                 target = user
             else:

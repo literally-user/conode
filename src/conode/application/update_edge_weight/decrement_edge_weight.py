@@ -19,9 +19,9 @@ class DecrementEdgeWeightInteractor:
     access_control_service: AccessControlService
 
     async def execute(self, edge_id: EdgeId) -> None:
-        async with self.transaction_manager:
-            user = await self.access_control_service.get_authorized_user()
+        user = await self.access_control_service.get_authorized_user()
 
+        async with self.transaction_manager:
             edge = await self.edge_repository.get_by_id(edge_id)
             context = await self.context_repository.get_by_id(edge.context_id)
 

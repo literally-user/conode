@@ -21,9 +21,9 @@ class UpdateCompanyInteractor:
     async def execute(
         self, company_id: CompanyId, request: UpdateCompanyRequestDTO
     ) -> None:
-        async with self.transaction_manager:
-            user = await self.access_control_service.get_authorized_user()
+        user = await self.access_control_service.get_authorized_user()
 
+        async with self.transaction_manager:
             company = await self.company_repository.get_by_id(company_id)
 
             await self.access_control_service.ensure_user_can_manipulate_company(

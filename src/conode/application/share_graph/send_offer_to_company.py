@@ -51,9 +51,9 @@ class SendOfferToCompanyInteractor:
     context_repository: ContextRepository
 
     async def execute(self, request: SendOfferToCompanyRequestDTO) -> Offer:
-        async with self.transaction_manager:
-            user = await self.access_control_service.get_authorized_user()
+        user = await self.access_control_service.get_authorized_user()
 
+        async with self.transaction_manager:
             from_company, to_company = (
                 await self.company_repository.get_by_id(request.from_company_id),
                 await self.company_repository.get_by_id(request.to_company_id),

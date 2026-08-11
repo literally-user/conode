@@ -44,8 +44,9 @@ class AcceptOfferInteractor:
     offer_context_repository: OfferContextRepository
 
     async def execute(self, offer_id: OfferId) -> Contract:
+        user = await self.access_control_service.get_authorized_user()
+
         async with self.transaction_manager:
-            user = await self.access_control_service.get_authorized_user()
             offer = await self.offer_repository.get_by_id(offer_id)
 
             offer_from_company, offer_to_company = await self._get_offer_companies(

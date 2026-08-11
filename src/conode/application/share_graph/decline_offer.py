@@ -22,9 +22,9 @@ class DeclineOfferInteractor:
     company_repository: CompanyRepository
 
     async def execute(self, offer_id: OfferId) -> None:
-        async with self.transaction_manager:
-            user = await self.access_control_service.get_authorized_user()
+        user = await self.access_control_service.get_authorized_user()
 
+        async with self.transaction_manager:
             offer = await self.offer_repository.get_by_id(offer_id)
             company = await self.company_repository.get_by_id(offer.to_company_id)
 

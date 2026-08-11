@@ -21,9 +21,9 @@ class DeleteNodeInteractor:
     access_control_service: AccessControlService
 
     async def execute(self, node_id: NodeId) -> None:
-        async with self.transaction_manager:
-            user = await self.access_control_service.get_authorized_user()
+        user = await self.access_control_service.get_authorized_user()
 
+        async with self.transaction_manager:
             node = await self.node_repository.get_by_id(node_id)
 
             existing_associations = (
