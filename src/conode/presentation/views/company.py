@@ -4,6 +4,8 @@ from dishka.integrations.fastapi import DishkaRoute, FromDishka
 from fastapi import APIRouter
 
 from conode.application.manage_company import (
+    TransferCompanyInteractor,
+    TransferCompanyRequestDTO,
     UpdateCompanyInteractor,
     UpdateCompanyRequestDTO,
 )
@@ -16,6 +18,7 @@ from conode.domain.company import CompanyId
 from conode.presentation.schemas.company import (
     CompanySchema,
     RegisterCompanyRequest,
+    TransferCompanyRequest,
     UpdateCompanyRequest,
 )
 
@@ -40,6 +43,19 @@ async def register_company(
         description=company.description.value,
         verified=company.verified,
         owner_id=company.owner_id,
+    )
+
+
+@router.post("/transfer", status_code=HTTPStatus.NO_CONTENT)
+async def transfer_company(
+    request: TransferCompanyRequest,
+    interactor: FromDishka[TransferCompanyInteractor],
+) -> None:
+    await interactor.execute(
+        TransferCompanyRequestDTO(
+            target_user_id=request.target_user_id,
+            company_id=request.company_id,
+        ),
     )
 
 

@@ -7,6 +7,7 @@ from conode.application.detach_node_from_group import (
     DetachNodeInteractor,
 )
 from conode.application.manage_company import (
+    TransferCompanyInteractor,
     UpdateCompanyInteractor,
 )
 from conode.application.manage_context import (
@@ -79,6 +80,7 @@ class ApplicationProvider(Provider):
         GetUserByUsernameInteractor,
         UpdateEdgeWeightInteractor,
         FindShortestPathInteractor,
+        TransferCompanyInteractor,
         GetNodesByGroupInteractor,
         RegisterCompanyInteractor,
         GetCurrentUserInteractor,

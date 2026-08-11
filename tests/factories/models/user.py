@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import timedelta
 from uuid import uuid4
 
 from conode.application.interfaces.password_hasher import PasswordHasher
@@ -25,7 +26,13 @@ class UserFactory:
     def generate_access_token(self, user: User) -> str:
         return self.token_manager.encode(user)
 
-    async def build(self, *, admin: bool = False) -> UserFactoryResponse:
+    async def build(
+        self,
+        *,
+        admin: bool = False,
+        verified: bool = True,
+        timedelta_ago: timedelta | None = None,
+    ) -> UserFactoryResponse:
         async with self.transaction_manager:
             user = User.new(
                 user_id=UserId(uuid4()),
@@ -44,6 +51,10 @@ class UserFactory:
             )
             if admin:
                 user.system_role = UserSystemRole.ADMIN
+            if timedelta_ago is not None:
+                user.created_at -= timedelta_ago
+
+            user.email_verified = verified
 
             await self.user_repository.create(user)
 
