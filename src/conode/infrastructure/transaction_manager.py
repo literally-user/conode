@@ -1,12 +1,9 @@
-import time
 from dataclasses import dataclass
 from types import TracebackType
 from typing import override
-from uuid import uuid4
 
 import structlog
 from sqlalchemy.ext.asyncio import AsyncSession
-from structlog.contextvars import bind_contextvars
 
 from conode.application.interfaces.transaction_manager import TransactionManager
 
