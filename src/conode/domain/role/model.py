@@ -72,7 +72,6 @@ class Role(Entity[RoleId]):
                 [{"key": "name", "value": name}],
             )
         self.name = RoleName(name)
-        self.touch()
 
 
 @dataclass
@@ -104,12 +103,9 @@ class RolePermission(Entity[RolePermissionId]):
 
     def change_permission_type(self, permission_type: PermissionType) -> None:
         self.permission = permission_type
-        self.touch()
 
     def change_entity_type(self, entity_type: EntityType) -> None:
         self.entity_type = entity_type
-        self.touch()
 
     def change_entity_id(self, entity_id: RolePermissionEntityId) -> None:
         self.entity_id = entity_id
-        self.touch()
