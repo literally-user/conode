@@ -137,11 +137,9 @@ class Offer(Entity[OfferId]):
 
     def accept(self) -> None:
         self.status = OfferStatus.ACCEPTED
-        self.touch()
 
     def decline(self) -> None:
         self.status = OfferStatus.DECLINED
-        self.touch()
 
     def is_counter_offer(self) -> bool:
         return self.from_offer is not None
@@ -228,8 +226,6 @@ class OfferLink(Entity[OfferLinkId]):
 
     def accept(self) -> None:
         self.status = OfferLinkStatus.ACCEPTED
-        self.touch()
 
     def abort(self) -> None:
         self.status = OfferLinkStatus.ABORTED
-        self.touch()
