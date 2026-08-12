@@ -18,9 +18,7 @@ class TransactionManagerImpl(TransactionManager):
     _session: AsyncSession
 
     @override
-    async def __aenter__(self) -> None:
-        self._start = time.perf_counter()
-        bind_contextvars(transaction_id=uuid4())
+    async def __aenter__(self) -> None: ...
 
     @override
     async def __aexit__(
@@ -33,11 +31,3 @@ class TransactionManagerImpl(TransactionManager):
             await self._session.rollback()
         else:
             await self._session.commit()
-
-        process_time = time.perf_counter() - self._start
-
-        logger.debug(
-            "Processed transaction",
-            success=exc is None,
-            time=process_time,
-        )
