@@ -82,7 +82,7 @@ class UserGrantRepositoryImpl(UserGrantRepository):
         result_grants = list(result.scalars().all())
         logger.debug(
             "Repository fetched grants by user id",
-            count=len(result_grants),
+            found_count=len(result_grants),
         )
 
         return result_grants
@@ -105,7 +105,7 @@ class UserGrantRepositoryImpl(UserGrantRepository):
 
         grant = result.scalar_one_or_none()
         logger.debug(
-            "Repository fetched context by id",
+            "Repository fetched user grant by user and role id",
             found=grant is not None,
         )
 

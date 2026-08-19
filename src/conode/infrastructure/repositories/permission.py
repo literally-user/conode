@@ -116,7 +116,9 @@ class RolePermissionsRepositoryImpl(RolePermissionsRepository):
         self,
         permission_ids: list[RolePermissionId],
     ) -> list[RolePermission]:
-        logger.debug("Repository get nodes by ids", request_count=len(permission_ids))
+        logger.debug(
+            "Repository get permissions by ids", request_count=len(permission_ids)
+        )
         if not permission_ids:
             return []
 

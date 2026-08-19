@@ -82,6 +82,7 @@ class UserRepositoryImpl(UserRepository):
         user = result.scalar_one_or_none()
         logger.debug(
             "Repository fetched user by username or email",
+            found=user is not None,
         )
         return user
 

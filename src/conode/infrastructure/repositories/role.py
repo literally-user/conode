@@ -32,7 +32,7 @@ class RoleRepositoryImpl(RoleRepository):
 
     async def get_all_by_ids(self, roles_ids: list[RoleId]) -> list[Role]:
         logger.debug(
-            "Repository get roles by roles id",
+            "Repository get roles by ids",
             request_count=len(roles_ids),
         )
         if not roles_ids:
@@ -41,7 +41,7 @@ class RoleRepositoryImpl(RoleRepository):
         result = await self.session.execute(select(Role).where(Role.id.in_(roles_ids)))  # type: ignore
         roles = list(result.scalars().all())
         logger.debug(
-            "Repository fetched roles by role id",
+            "Repository fetched roles by ids",
             found_count=len(roles),
         )
 

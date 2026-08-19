@@ -61,19 +61,19 @@ class ContextRepositoryImpl(ContextRepository):
         )
 
     async def get_all_by_company_id(self, company_id: CompanyId) -> list[Context]:
-        logger.debug("Repository get groups by contexts id", company_id=company_id)
+        logger.debug("Repository get contexts by company id", company_id=company_id)
         result = await self.session.execute(
             select(Context).where(
                 Context.company_id == company_id,  # type: ignore
             ),
         )
 
-        result_groups = list(result.scalars())
+        result_contexts = list(result.scalars())
         logger.debug(
-            "Repository fetched contexts by company_id",
-            found_count=len(result_groups),
+            "Repository fetched contexts by company id",
+            found_count=len(result_contexts),
         )
-        return result_groups
+        return result_contexts
 
     async def get_all_by_ids(self, context_ids: list[ContextId]) -> list[Context]:
         logger.debug("Repository get contexts by ids", request_count=len(context_ids))
