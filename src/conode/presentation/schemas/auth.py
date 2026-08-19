@@ -1,11 +1,7 @@
-from typing import Annotated
+from typing import Annotated, Final
 
-from pydantic import BaseModel, EmailStr, Field, SecretStr
+from pydantic import BaseModel, EmailStr, Field
 
-from conode.domain.auth.authorization.model import (
-    MAX_HASHED_PASSWORD_ALLOWED_LENGTH,
-    MIN_HASHED_PASSWORD_ALLOWED_LENGTH,
-)
 from conode.domain.user.model import (
     MAX_ALLOWED_BIO_LENGTH,
     MAX_ALLOWED_FIRST_NAME_LENGTH,
@@ -15,6 +11,9 @@ from conode.domain.user.model import (
     MIN_ALLOWED_LAST_NAME_LENGTH,
     MIN_ALLOWED_USERNAME_LENGTH,
 )
+
+MAX_ALLOWED_PASSWORD_LENGTH: Final = 30
+MIN_ALLOWED_PASSWORD_LENGTH: Final = 5
 
 
 class RegisterRequest(BaseModel):
@@ -42,10 +41,10 @@ class RegisterRequest(BaseModel):
     bio: Annotated[str, Field(max_length=MAX_ALLOWED_BIO_LENGTH)]
     email: EmailStr
     password: Annotated[
-        SecretStr,
+        str,
         Field(
-            min_length=MIN_HASHED_PASSWORD_ALLOWED_LENGTH,
-            max_length=MAX_HASHED_PASSWORD_ALLOWED_LENGTH,
+            min_length=MIN_ALLOWED_PASSWORD_LENGTH,
+            max_length=MAX_ALLOWED_PASSWORD_LENGTH,
         ),
     ]
 
@@ -53,12 +52,16 @@ class RegisterRequest(BaseModel):
 class LoginRequest(BaseModel):
     email: EmailStr
     password: Annotated[
-        SecretStr,
+        str,
         Field(
-            min_length=MIN_HASHED_PASSWORD_ALLOWED_LENGTH,
-            max_length=MAX_HASHED_PASSWORD_ALLOWED_LENGTH,
+            min_length=MIN_ALLOWED_PASSWORD_LENGTH,
+            max_length=MAX_ALLOWED_PASSWORD_LENGTH,
         ),
     ]
+
+
+class RefreshTokenRequest(BaseModel):
+    refresh_token: str
 
 
 class AuthorizedResponse(BaseModel):

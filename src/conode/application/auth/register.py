@@ -74,7 +74,7 @@ class RegisterInteractor:
             await self.session_repository.create(authorization_service_response.session)
 
             return AuthorizedResponseDTO(
-                access_token=authorization_service_response.session.access_token,
+                access_token=authorization_service_response.access_token,
                 refresh_token=authorization_service_response.refresh_token,
                 expires_in=authorization_service_response.expires_in,
             )

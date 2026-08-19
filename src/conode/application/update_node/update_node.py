@@ -47,3 +47,5 @@ class UpdateNodeInteractor:
 
             node.set_name(request.name)
             node.set_description(request.description)
+
+            await self.node_repository.update(node)

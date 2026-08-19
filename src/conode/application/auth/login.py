@@ -58,21 +58,10 @@ class LoginInteractor:
                     current_user_ip,
                 )
             )
-            session = await self.session_repository.get_by_ip_and_user(
-                user, current_user_ip
-            )
-            if session is None:
-                await self.session_repository.create(
-                    authorization_service_response.session
-                )
-            else:
-                session.set_access_token(
-                    authorization_service_response.session.access_token
-                )
-                await self.session_repository.update(session)
+            await self.session_repository.upsert(authorization_service_response.session)
 
             return AuthorizedResponseDTO(
-                access_token=authorization_service_response.session.access_token,
+                access_token=authorization_service_response.access_token,
                 refresh_token=authorization_service_response.refresh_token,
                 expires_in=authorization_service_response.expires_in,
             )

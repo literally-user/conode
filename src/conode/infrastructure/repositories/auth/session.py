@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 import structlog
 from sqlalchemy import and_, insert, select, update
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from conode.application.errors import SessionNotFoundError
@@ -24,11 +25,29 @@ class SessionRepositoryImpl(SessionRepository):
                 ip=session.ip,
                 user_id=session.user_id,
                 refresh_token=session.refresh_token,
-                access_token=session.access_token,
                 created_at=session.created_at,
                 updated_at=session.updated_at,
             ),
         )
+
+    async def upsert(self, session: Session) -> None:
+        logger.debug("Repository upsert session", session_id=session.id)
+        stmt = pg_insert(Session).values(
+            id=session.id,
+            ip=session.ip,
+            user_id=session.user_id,
+            refresh_token=session.refresh_token,
+            created_at=session.created_at,
+            updated_at=session.updated_at,
+        )
+        stmt = stmt.on_conflict_do_update(
+            constraint="uq_session_record_user_id_ip",
+            set_={
+                "refresh_token": stmt.excluded.refresh_token,
+                "updated_at": stmt.excluded.updated_at,
+            },
+        )
+        await self.session.execute(stmt)
 
     async def update(self, session: Session) -> None:
         logger.debug("Repository update session", session_id=session.id)
@@ -38,7 +57,6 @@ class SessionRepositoryImpl(SessionRepository):
                 Session.id == session.id,  # type: ignore
             )
             .values(
-                access_token=session.access_token,
                 refresh_token=session.refresh_token,
                 updated_at=session.updated_at,
             ),

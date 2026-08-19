@@ -3,7 +3,11 @@ from dishka import Provider, Scope, provide_all
 from conode.application.attach_node_to_group import (
     AttachNodeInteractor,
 )
-from conode.application.auth import LoginInteractor, RegisterInteractor
+from conode.application.auth import (
+    LoginInteractor,
+    RefreshTokenInteractor,
+    RegisterInteractor,
+)
 from conode.application.detach_node_from_group import (
     DetachNodeInteractor,
 )
@@ -76,6 +80,7 @@ class ApplicationProvider(Provider):
         IncrementEdgeWeightInteractor,
         DecrementEdgeWeightInteractor,
         AuthorizationService,
+        RefreshTokenInteractor,
         RegisterInteractor,
         LoginInteractor,
         SendOfferToCompanyInteractor,

@@ -11,7 +11,6 @@ SessionId = NewType("SessionId", UUID)
 
 @dataclass
 class Session(Entity[SessionId]):
-    access_token: str
     refresh_token: str
     user_id: UserId
     ip: str
@@ -21,7 +20,6 @@ class Session(Entity[SessionId]):
         cls,
         session_id: SessionId,
         refresh_token: str,
-        access_token: str,
         user: User,
         ip: str,
     ) -> Self:
@@ -29,15 +27,11 @@ class Session(Entity[SessionId]):
         return cls(
             id=session_id,
             ip=ip,
-            access_token=access_token,
             refresh_token=refresh_token,
             user_id=user.id,
             created_at=now,
             updated_at=now,
         )
-
-    def set_access_token(self, token: str) -> None:
-        self.access_token = token
 
     def set_refresh_token(self, token: str) -> None:
         self.refresh_token = token

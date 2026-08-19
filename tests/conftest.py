@@ -20,7 +20,6 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 
-from conode.application.interfaces.identity_provider import IdentityProvider
 from conode.application.interfaces.password_hasher import PasswordHasher
 from conode.application.interfaces.repositories import (
     AuthorizationRepository,
@@ -119,6 +118,20 @@ async def company_repository(container: AsyncContainer) -> CompanyRepository:
 
 
 @pytest.fixture
+async def authorization_repository(
+    container: AsyncContainer,
+) -> AuthorizationRepository:
+    async with container() as test_contaner:
+        return await test_contaner.get(AuthorizationRepository)  # type: ignore[no-any-return]
+
+
+@pytest.fixture
+async def session_repository(container: AsyncContainer) -> SessionRepository:
+    async with container() as test_contaner:
+        return await test_contaner.get(SessionRepository)  # type: ignore[no-any-return]
+
+
+@pytest.fixture
 async def context_repository(container: AsyncContainer) -> ContextRepository:
     async with container() as test_container:
         return await test_container.get(ContextRepository)  # type: ignore[no-any-return]
@@ -183,7 +196,6 @@ async def context_factory(container: AsyncContainer) -> ContextFactory:
 async def user_factory(container: AsyncContainer) -> UserFactory:
     async with container() as test_container:
         return UserFactory(
-            identity_provider=await test_container.get(IdentityProvider),
             authorization_service=await test_container.get(AuthorizationService),
             authorization_repository=await test_container.get(AuthorizationRepository),
             session_repository=await test_container.get(SessionRepository),
@@ -288,7 +300,7 @@ async def container(
 @pytest.fixture
 async def transport(container: AsyncContainer, config: Config) -> AsyncClient:
     app = create_app(config)
-    setup_dishka(container, app)
+    setup_dishka(app=app, container=container)
 
     return AsyncClient(
         base_url="http://test.environment.org", transport=ASGITransport(app)

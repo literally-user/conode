@@ -41,7 +41,6 @@ from conode.infrastructure.persistence.types import (
     FirstNameType,
     GroupDescriptionType,
     GroupNameType,
-    HashedPasswordType,
     LastNameType,
     NodeDescriptionType,
     NodeNameType,
@@ -67,6 +66,8 @@ user_record_table = Table(
     Column("bio", BioType, nullable=False),
     Column("created_at", DateTime(timezone=True), nullable=False),
     Column("updated_at", DateTime(timezone=True), nullable=False),
+    UniqueConstraint("username", name="uq_user_record_username"),
+    UniqueConstraint("email", name="uq_user_record_email"),
 )
 
 authorization_record_table = Table(
@@ -74,7 +75,7 @@ authorization_record_table = Table(
     metadata,
     Column("id", UUID, primary_key=True, nullable=False),
     Column("user_id", ForeignKey("user_record.id", ondelete="CASCADE"), nullable=False),
-    Column("hashed_password", HashedPasswordType, nullable=False),
+    Column("hashed_password", String, nullable=False),
     Column("created_at", DateTime(timezone=True), nullable=False),
     Column("updated_at", DateTime(timezone=True), nullable=False),
 )
@@ -85,7 +86,6 @@ session_record_table = Table(
     Column("id", UUID, primary_key=True, nullable=False),
     Column("ip", String, primary_key=True, nullable=False),
     Column("user_id", ForeignKey("user_record.id", ondelete="CASCADE"), nullable=False),
-    Column("access_token", String, nullable=False),
     Column("refresh_token", String, nullable=False),
     Column("created_at", DateTime(timezone=True), nullable=False),
     Column("updated_at", DateTime(timezone=True), nullable=False),

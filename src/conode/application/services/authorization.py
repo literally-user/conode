@@ -16,6 +16,7 @@ class AuthorizationServiceResponse(NamedTuple):
     authorization: Authorization
     expires_in: int
     refresh_token: str
+    access_token: str
 
 
 @dataclass
@@ -31,7 +32,7 @@ class AuthorizationService:
         refresh_token = self.refresh_token_manager.encode()
         hashed_password = self.password_hasher.hash(password)
 
-        session = Session.new(SessionId(uuid4()), refresh_token, access_token, user, ip)
+        session = Session.new(SessionId(uuid4()), refresh_token, user, ip)
         authorization = Authorization.new(
             AuthorizationId(uuid4()), hashed_password, user
         )
@@ -40,5 +41,6 @@ class AuthorizationService:
             session=session,
             authorization=authorization,
             expires_in=expires_in,
+            access_token=access_token,
             refresh_token=refresh_token,
         )

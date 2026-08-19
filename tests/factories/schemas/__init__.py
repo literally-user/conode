@@ -1,3 +1,8 @@
+from .auth import (
+    LoginRequestFactory,
+    RefreshTokenRequestFactory,
+    RegisterRequestFactory,
+)
 from .company import (
     RegisterCompanyRequestFactory,
     TransferCompanyRequestFactory,
@@ -22,7 +27,10 @@ __all__ = (
     "CreateEdgeRequestFactory",
     "CreateGroupRequestFactory",
     "CreateNodeRequestFactory",
+    "LoginRequestFactory",
+    "RefreshTokenRequestFactory",
     "RegisterCompanyRequestFactory",
+    "RegisterRequestFactory",
     "TransferCompanyRequestFactory",
     "UpdateCompanyRequestFactory",
     "UpdateCurrentUserProfileRequestFactory",

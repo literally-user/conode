@@ -1,3 +1,3 @@
-from .model import Authorization, AuthorizationId, HashedPassword
+from .model import Authorization, AuthorizationId
 
-__all__ = ("Authorization", "AuthorizationId", "HashedPassword")
+__all__ = ("Authorization", "AuthorizationId")
