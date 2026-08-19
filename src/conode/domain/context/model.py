@@ -27,7 +27,7 @@ class ContextName(ValueObject[str]):
             <= MAX_ALLOWED_CONTEXT_NAME_LENGTH
         ):
             raise InvalidContextNameFormatError(
-                "Context name must be between"
+                "Context name length must be between"
                 f"{MIN_ALLOWED_CONTEXT_NAME_LENGTH} and "
                 f"{MAX_ALLOWED_CONTEXT_NAME_LENGTH}",
                 [{"key": "name", "value": value}],

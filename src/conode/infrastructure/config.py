@@ -14,9 +14,9 @@ class APIConfig:
 
 @dataclass(slots=True, frozen=True, kw_only=True)
 class SecretsConfig:
-    secret: str
     expires_in: int
-    jwks_url: str
+    public_key: str
+    private_key: str
     audience: str
     issuer: str
 
@@ -48,6 +48,17 @@ def load_config(path: str = "config.toml") -> Config:
     config_path = Path(path)
     with config_path.open("rb") as file:
         config = tomllib.load(file)
+
+        private_key_file_path = Path(config["secrets"]["private_key_file_path"])
+        public_key_file_path = Path(config["secrets"]["public_key_file_path"])
+
+        with (
+            private_key_file_path.open("r") as private_key_file,
+            public_key_file_path.open("r") as public_key_file,
+        ):
+            private_key = private_key_file.read()
+            public_key = public_key_file.read()
+
         return Config(
             api=APIConfig(
                 host=config["api"]["host"],
@@ -62,9 +73,9 @@ def load_config(path: str = "config.toml") -> Config:
                 port=config["database"]["port"],
             ),
             secrets=SecretsConfig(
-                secret=config["secrets"]["secret"],
                 expires_in=config["secrets"]["expires_in"],
-                jwks_url=config["secrets"]["jwks_url"],
+                public_key=public_key,
+                private_key=private_key,
                 audience=config["secrets"]["audience"],
                 issuer=config["secrets"]["issuer"],
             ),

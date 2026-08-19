@@ -1,10 +1,7 @@
 from dataclasses import dataclass
 from typing import Final
-from uuid import uuid4
 
-from conode.application.errors import (
-    NotEnoughRightsError,
-)
+from conode.application.errors import NotEnoughRightsError, UserNotFoundError
 from conode.application.interfaces.identity_provider import IdentityProvider
 from conode.application.interfaces.repositories import (
     CompanyRepository,
@@ -25,7 +22,7 @@ from conode.domain.role import (
     RolePermission,
     RolePermissionEntityId,
 )
-from conode.domain.user import Email, User, UserId
+from conode.domain.user import Email, User
 
 type RolesPermissions = list[RolePermission]
 
@@ -55,20 +52,11 @@ class AccessControlService:
         meta = self.identity_provider.get_current_user_meta()
 
         user = await self.user_repository.get_by_email(Email(meta["email"]))
-        async with self.transaction_manager:
-            if user is None:
-                user = User.new(
-                    user_id=UserId(uuid4()),
-                    first_name=meta["first_name"],
-                    last_name=meta["last_name"],
-                    username=meta["username"],
-                    email=meta["email"],
-                    bio="Beautiful description about me!",
-                )
-                await self.user_repository.create(user)
-
-            user.email_verified = meta["email_verified"]
-            await self.user_repository.update(user)
+        if user is None:
+            raise UserNotFoundError(
+                "User with this email not found",
+                [{"key": "email", "value": meta["email"]}],
+            )
 
         return user
 

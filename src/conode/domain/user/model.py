@@ -14,6 +14,7 @@ from conode.domain.user.errors import (
 )
 
 UserId = NewType("UserId", UUID)
+AuthorizationId = NewType("AuthorizationId", UUID)
 
 MIN_ALLOWED_USERNAME_LENGTH: Final = 5
 MAX_ALLOWED_USERNAME_LENGTH: Final = 30

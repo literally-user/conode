@@ -40,7 +40,7 @@ class RoleName(ValueObject[str]):
 
         if MAX_ALLOWED_ROLE_NAME_LENGTH <= len(value) <= MIN_ALLOWED_ROLE_NAME_LENGTH:
             raise InvalidRoleNameFormatError(
-                "Role name must be between "
+                "Role name length must be between "
                 f"{MIN_ALLOWED_ROLE_NAME_LENGTH} and "
                 f"{MAX_ALLOWED_ROLE_NAME_LENGTH}",
                 [{"key": "name", "value": value}],

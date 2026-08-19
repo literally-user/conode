@@ -1,3 +1,4 @@
+from .auth import router as auth
 from .company import router as company
 from .context import router as context
 from .edge import router as edge
@@ -9,6 +10,7 @@ from .root import router as root
 from .user import router as user
 
 __all__ = (
+    "auth",
     "company",
     "context",
     "edge",

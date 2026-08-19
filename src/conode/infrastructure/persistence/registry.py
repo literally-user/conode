@@ -7,11 +7,13 @@ from sqlalchemy import (
     Float,
     ForeignKey,
     MetaData,
+    String,
     Table,
     UniqueConstraint,
 )
 from sqlalchemy.orm import registry
 
+from conode.domain.auth import Authorization, Session
 from conode.domain.company import Company
 from conode.domain.context import Context
 from conode.domain.contract import Contract, ContractStatus
@@ -39,6 +41,7 @@ from conode.infrastructure.persistence.types import (
     FirstNameType,
     GroupDescriptionType,
     GroupNameType,
+    HashedPasswordType,
     LastNameType,
     NodeDescriptionType,
     NodeNameType,
@@ -64,6 +67,29 @@ user_record_table = Table(
     Column("bio", BioType, nullable=False),
     Column("created_at", DateTime(timezone=True), nullable=False),
     Column("updated_at", DateTime(timezone=True), nullable=False),
+)
+
+authorization_record_table = Table(
+    "authorization_record",
+    metadata,
+    Column("id", UUID, primary_key=True, nullable=False),
+    Column("user_id", ForeignKey("user_record.id", ondelete="CASCADE"), nullable=False),
+    Column("hashed_password", HashedPasswordType, nullable=False),
+    Column("created_at", DateTime(timezone=True), nullable=False),
+    Column("updated_at", DateTime(timezone=True), nullable=False),
+)
+
+session_record_table = Table(
+    "session_record",
+    metadata,
+    Column("id", UUID, primary_key=True, nullable=False),
+    Column("ip", String, primary_key=True, nullable=False),
+    Column("user_id", ForeignKey("user_record.id", ondelete="CASCADE"), nullable=False),
+    Column("access_token", String, nullable=False),
+    Column("refresh_token", String, nullable=False),
+    Column("created_at", DateTime(timezone=True), nullable=False),
+    Column("updated_at", DateTime(timezone=True), nullable=False),
+    UniqueConstraint("user_id", "ip", name="uq_session_record_user_id_ip"),
 )
 
 company_record_table = Table(
@@ -379,3 +405,5 @@ def start_mapper() -> None:
     registry_mapper.map_imperatively(OfferGroup, offer_group_record_table)
     registry_mapper.map_imperatively(OfferLink, offer_link_record_table)
     registry_mapper.map_imperatively(Contract, contract_record_table)
+    registry_mapper.map_imperatively(Session, session_record_table)
+    registry_mapper.map_imperatively(Authorization, authorization_record_table)

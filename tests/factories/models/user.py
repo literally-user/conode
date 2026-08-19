@@ -2,10 +2,19 @@ from dataclasses import dataclass
 from datetime import timedelta
 from uuid import uuid4
 
+from conode.application.interfaces.identity_provider import IdentityProvider
 from conode.application.interfaces.password_hasher import PasswordHasher
-from conode.application.interfaces.repositories import UserRepository
-from conode.application.interfaces.token_manager import TokenManager
+from conode.application.interfaces.repositories import (
+    AuthorizationRepository,
+    SessionRepository,
+    UserRepository,
+)
+from conode.application.interfaces.token_managers import (
+    AccessTokenManager,
+    RefreshTokenManager,
+)
 from conode.application.interfaces.transaction_manager import TransactionManager
+from conode.application.services import AuthorizationService
 from conode.domain.user import User, UserId, UserSystemRole
 from tests.factories.common import generate_random_string
 
@@ -14,17 +23,23 @@ from tests.factories.common import generate_random_string
 class UserFactoryResponse:
     user: User
     access_token: str
+    password: str
 
 
 @dataclass
 class UserFactory:
-    token_manager: TokenManager
+    authorization_repository: AuthorizationRepository
+    session_repository: SessionRepository
+    authorization_service: AuthorizationService
+    refresh_token_manager: RefreshTokenManager
+    access_token_manager: AccessTokenManager
     transaction_manager: TransactionManager
     user_repository: UserRepository
+    identity_provider: IdentityProvider
     password_hasher: PasswordHasher
 
     def generate_access_token(self, user: User) -> str:
-        return self.token_manager.encode(user)
+        return self.access_token_manager.encode(user).token
 
     async def build(
         self,
@@ -56,9 +71,23 @@ class UserFactory:
 
             user.email_verified = verified
 
+            password = generate_random_string(15)
+            authorization_service_response = (
+                self.authorization_service.generate_authorization_stuff(
+                    user,
+                    password,
+                    self.identity_provider.get_current_ip(),
+                )
+            )
+
             await self.user_repository.create(user)
+            await self.authorization_repository.create(
+                authorization_service_response.authorization
+            )
+            await self.session_repository.create(authorization_service_response.session)
 
             return UserFactoryResponse(
                 user=user,
                 access_token=self.generate_access_token(user),
+                password=password,
             )

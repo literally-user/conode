@@ -49,6 +49,7 @@ class CompanyRepositoryImpl(CompanyRepository):
                 description=company.description,
                 verified=company.verified,
                 owner_id=company.owner_id,
+                updated_at=company.updated_at,
             ),
         )
 

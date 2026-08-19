@@ -45,7 +45,7 @@ class CompanyDescription(ValueObject[str]):
             <= MIN_ALLOWED_COMPANY_DESCRIPTION_LENGTH
         ):
             raise InvalidCompanyDescriptionFormatError(
-                "Company description must be between"
+                "Company description length must be between"
                 f"{MIN_ALLOWED_COMPANY_DESCRIPTION_LENGTH} and "
                 f"{MAX_ALLOWED_COMPANY_DESCRIPTION_LENGTH}",
                 [{"key": "name", "value": value}],

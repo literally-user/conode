@@ -3,6 +3,7 @@ from typing import Any, ClassVar, override
 from sqlalchemy import Dialect, String
 from sqlalchemy.types import TypeDecorator
 
+from conode.domain.auth import HashedPassword
 from conode.domain.company import CompanyDescription, CompanyName
 from conode.domain.context import ContextDescription, ContextName
 from conode.domain.group import GroupDescription, GroupName
@@ -122,3 +123,9 @@ class OfferDescriptionType(BaseVOTypeDecorator[OfferDescription]):
     impl = String
     cache_ok = True
     vo_class = OfferDescription
+
+
+class HashedPasswordType(BaseVOTypeDecorator[HashedPassword]):
+    impl = String
+    cache_ok = True
+    vo_class = HashedPassword

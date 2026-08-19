@@ -26,7 +26,7 @@ class GroupName(ValueObject[str]):
             MIN_ALLOWED_GROUP_NAME_LENGTH <= len(value) <= MAX_ALLOWED_GROUP_NAME_LENGTH
         ):
             raise InvalidGroupNameFormatError(
-                "Group name must be between"
+                "Group name length must be between"
                 f"{MIN_ALLOWED_GROUP_NAME_LENGTH} and "
                 f"{MAX_ALLOWED_GROUP_NAME_LENGTH}",
                 [{"key": "name", "value": value}],
