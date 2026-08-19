@@ -254,7 +254,7 @@ class NodeAssociationRepositoryImpl(NodeAssociationRepository):
         result_associations = list(result.scalars())
         logger.debug(
             "Repository fetched node associations by group id",
-            count=len(result_associations),
+            found_count=len(result_associations),
         )
         return result_associations
 
@@ -275,7 +275,7 @@ class NodeAssociationRepositoryImpl(NodeAssociationRepository):
         result_associations = list(result.scalars().all())
 
         logger.debug(
-            "Repository fetched all node associations by node id",
+            "Repository fetched node associations by node id",
             found_count=len(result_associations),
         )
 

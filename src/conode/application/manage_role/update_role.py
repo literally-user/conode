@@ -5,7 +5,7 @@ from conode.application.interfaces.repositories import (
     RoleRepository,
 )
 from conode.application.interfaces.transaction_manager import TransactionManager
-from conode.application.services import AccessControlService
+from conode.application.services import AccessControlService, AuthorizationService
 from conode.domain.role import (
     EntityType,
     PermissionType,
@@ -41,13 +41,13 @@ class UpdateRoleResponseDTO:
 class UpdateRoleInteractor:
     role_permissions_repository: RolePermissionsRepository
     access_control_service: AccessControlService
+    authorization_service: AuthorizationService
     transaction_manager: TransactionManager
     role_repository: RoleRepository
 
     async def execute(self, request: UpdateRoleRequestDTO) -> UpdateRoleResponseDTO:
-        user = await self.access_control_service.get_authorized_user()
-
         async with self.transaction_manager:
+            user = await self.authorization_service.get_authorized_user()
             role = await self.role_repository.get_by_id(request.role_id)
 
             await self.access_control_service.ensure_user_can_manipulate_role(

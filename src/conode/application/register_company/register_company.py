@@ -8,7 +8,7 @@ from conode.application.interfaces.repositories import (
     UserGrantRepository,
 )
 from conode.application.interfaces.transaction_manager import TransactionManager
-from conode.application.services import AccessControlService, RoleManagmentService
+from conode.application.services import AuthorizationService, RoleManagmentService
 from conode.domain.company import Company, CompanyId
 from conode.domain.grant import UserGrant, UserGrantId
 from conode.domain.role import (
@@ -27,16 +27,15 @@ class RegisterCompanyRequestDTO:
 class RegisterCompanyInteractor:
     company_repository: CompanyRepository
     transaction_manager: TransactionManager
-    access_control_service: AccessControlService
+    authorization_service: AuthorizationService
     role_managment_service: RoleManagmentService
     role_permissions_repository: RolePermissionsRepository
     user_grant_repository: UserGrantRepository
     role_repository: RoleRepository
 
     async def execute(self, request: RegisterCompanyRequestDTO) -> Company:
-        user = await self.access_control_service.get_authorized_user()
-
         async with self.transaction_manager:
+            user = await self.authorization_service.get_authorized_user()
             company = Company.new(
                 company_id=CompanyId(uuid4()),
                 name=request.name,

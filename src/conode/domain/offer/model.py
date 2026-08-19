@@ -51,7 +51,7 @@ class OfferTitle(ValueObject[str]):
             <= MIN_ALLOWED_OFFER_TITLE_LENGTH
         ):
             raise InvalidOfferTitleFormatError(
-                "Offer name must be between "
+                "Offer name length must be between "
                 f"{MIN_ALLOWED_OFFER_TITLE_LENGTH} and "
                 f"{MAX_ALLOWED_OFFER_TITLE_LENGTH}",
                 [{"key": "name", "value": value}],

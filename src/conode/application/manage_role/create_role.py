@@ -7,7 +7,11 @@ from conode.application.interfaces.repositories import (
     RoleRepository,
 )
 from conode.application.interfaces.transaction_manager import TransactionManager
-from conode.application.services import AccessControlService, RoleManagmentService
+from conode.application.services import (
+    AccessControlService,
+    AuthorizationService,
+    RoleManagmentService,
+)
 from conode.domain.company import CompanyId
 from conode.domain.role import (
     EntityType,
@@ -38,13 +42,13 @@ class CreateRoleInteractor:
     company_repository: CompanyRepository
     transaction_manager: TransactionManager
     access_control_service: AccessControlService
+    authorization_service: AuthorizationService
     role_managment_service: RoleManagmentService
     role_permissions_repository: RolePermissionsRepository
 
     async def execute(self, request: CreateRoleRequestDTO) -> Role:
-        user = await self.access_control_service.get_authorized_user()
-
         async with self.transaction_manager:
+            user = await self.authorization_service.get_authorized_user()
             company = await self.company_repository.get_by_id(request.company_id)
 
             await self.access_control_service.ensure_user_can_create_roles(

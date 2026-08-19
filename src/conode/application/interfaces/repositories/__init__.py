@@ -1,3 +1,4 @@
+from .auth import AuthorizationRepository, SessionRepository
 from .company import CompanyRepository
 from .context import ContextRepository
 from .contract import ContractRepository
@@ -16,6 +17,7 @@ from .role import RoleRepository
 from .user import UserRepository
 
 __all__ = (
+    "AuthorizationRepository",
     "CompanyRepository",
     "ContextRepository",
     "ContractRepository",
@@ -29,6 +31,7 @@ __all__ = (
     "OfferRepository",
     "RolePermissionsRepository",
     "RoleRepository",
+    "SessionRepository",
     "UserGrantRepository",
     "UserRepository",
 )

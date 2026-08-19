@@ -6,12 +6,17 @@ services:
     command: ["conode", "api", "run"]
 
     depends_on:
-      keycloak:
-        condition: service_healthy
       postgres:
         condition: service_healthy
       migrations:
         condition: service_completed_successfully
+
+    labels:
+      - "traefik.enable=true"
+
+      - "traefik.http.routers.grafana.rule=Host(`api.conode.com`)"
+      - "traefik.http.routers.grafana.entrypoints=web"
+      - "traefik.http.services.grafana.loadbalancer.server.port=8000"
 
     networks:
       - conode-network
@@ -43,32 +48,6 @@ services:
     networks:
       - conode-network
 
-  oauth:
-    image: quay.io/oauth2-proxy/oauth2-proxy:latest
-    command: ["--config=/etc/oauth2-proxy/oauth2-proxy.toml"]
-
-    environment:
-      OAUTH2_PROXY_CLIENT_ID: conode
-      OAUTH2_PROXY_CLIENT_SECRET: y9QISRU4LktDcAOvrXmw5q8t5s44JshMrnc4PIqPfq1vIEGipEtYgmUxvgiG9nb0PsxVwvlVQQ4FPOlhl9tiZ3
-      OAUTH2_PROXY_COOKIE_SECRET: x3CpXUQxfDgXzDDxIdST3mTbTDosKOlx
-
-    volumes:
-      - "./deploy/oauth_proxy.toml:/etc/oauth2-proxy/oauth2-proxy.toml"
-
-    labels:
-      - "traefik.enable=true"
-
-      - "traefik.http.routers.oauth.rule=Host(`api.conode.com`)"
-      - "traefik.http.routers.oauth.entrypoints=web"
-      - "traefik.http.services.oauth.loadbalancer.server.port=4180"
-
-    networks:
-      - conode-network
-
-    depends_on:
-      keycloak:
-        condition: service_healthy
-
   traefik:
     image: traefik:latest
     command:
@@ -84,51 +63,13 @@ services:
     networks:
       conode-network:
         aliases:
-          - keycloak.conode.com
           - api.conode.com
-
-  keycloak:
-    image: quay.io/keycloak/keycloak:latest
-
-    command: start-dev --import-realm
-
-    depends_on:
-      postgres:
-        condition: service_healthy
-
-    env_file:
-      - "./deploy/keycloak/keycloak.env"
-
-    healthcheck:
-      test:
-        - CMD-SHELL
-        - >
-          { printf 'HEAD /health/ready HTTP/1.0\r\n\r\n' >&0;
-          grep -q '200'; } 0<>/dev/tcp/localhost/9000
-      interval: 5s
-      timeout: 10s
-      retries: 30
-      start_period: 30s
-
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.keycloak.rule=Host(`keycloak.conode.com`)"
-      - "traefik.http.routers.keycloak.entrypoints=web"
-      - "traefik.http.services.keycloak.loadbalancer.server.port=8080"
-
-    volumes:
-      - keycloak-data:/opt/keycloak/
-      - ./deploy/keycloak/keycloak.json:/opt/keycloak/data/import/realm-export.json
-
-    networks:
-      - conode-network
 
   postgres:
     image: postgres:16-alpine
 
     volumes:
       - postgres-data:/var/lib/postgresql/data
-      - ./deploy/persistence:/docker-entrypoint-initdb.d:ro
 
     networks:
       conode-network:
@@ -200,7 +141,6 @@ services:
 volumes:
   prometheus-data:
   postgres-data:
-  keycloak-data:
   tempo-data:
   alloy-data:
 

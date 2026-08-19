@@ -5,18 +5,14 @@ from conode.domain.user import User, UserSystemRole
 
 class UserMeta(TypedDict):
     system_role: UserSystemRole
-    first_name: str
-    last_name: str
     email: str
-    username: str
-    email_verified: bool
 
 
-class TokenManagerResponse(NamedTuple):
+class AccessTokenManagerResponse(NamedTuple):
     token: str
     expires_in: int
 
 
-class TokenManager(Protocol):
+class AccessTokenManager(Protocol):
     def decode(self, token: str) -> UserMeta: ...
-    def encode(self, user: User) -> str: ...
+    def encode(self, user: User) -> AccessTokenManagerResponse: ...

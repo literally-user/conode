@@ -10,7 +10,7 @@ from conode.application.interfaces.repositories import (
     NodeRepository,
 )
 from conode.application.interfaces.transaction_manager import TransactionManager
-from conode.application.services import AccessControlService
+from conode.application.services import AccessControlService, AuthorizationService
 from conode.domain.node import NodeAssociationId
 
 
@@ -19,14 +19,14 @@ class DetachNodeInteractor:
     node_repository: NodeRepository
     node_association_repository: NodeAssociationRepository
     access_control_service: AccessControlService
+    authorization_service: AuthorizationService
     transaction_manager: TransactionManager
     group_repository: GroupRepository
     company_repository: CompanyRepository
 
     async def execute(self, association_id: NodeAssociationId) -> None:
-        user = await self.access_control_service.get_authorized_user()
-
         async with self.transaction_manager:
+            user = await self.authorization_service.get_authorized_user()
             association = await self.node_association_repository.get_by_id(
                 association_id,
             )

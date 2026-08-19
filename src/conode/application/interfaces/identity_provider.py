@@ -1,6 +1,6 @@
 from typing import Protocol
 
-from conode.application.interfaces.token_manager import UserMeta
+from conode.application.interfaces.token_managers import UserMeta
 
 
 class IdentityProvider(Protocol):

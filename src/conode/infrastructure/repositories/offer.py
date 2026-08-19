@@ -132,9 +132,12 @@ class OfferLinkRepositoryImpl(OfferLinkRepository):
                 ),
             ),
         )
-        logger.debug("Repository fetched offer link by id", found=result is not None)
+        offer_link = result.scalar_one_or_none()
+        logger.debug(
+            "Repository fetched offer link by offer ids", found=offer_link is not None
+        )
 
-        return result.scalar_one_or_none()
+        return offer_link
 
 
 @dataclass
@@ -166,7 +169,7 @@ class OfferGroupRepositoryImpl(OfferGroupRepository):
         )
 
     async def get_by_offer_id(self, offer_id: OfferId) -> list[OfferGroup]:
-        logger.debug("Repository get offer group by offer id")
+        logger.debug("Repository get offer groups by offer id", offer_id=offer_id)
         result = await self.session.execute(
             select(OfferGroup).where(
                 OfferGroup.offer_id == offer_id,  # type: ignore
@@ -175,7 +178,7 @@ class OfferGroupRepositoryImpl(OfferGroupRepository):
 
         result_offer_groups = list(result.scalars().all())
         logger.debug(
-            "Repository offer groups by offer id",
+            "Repository fetched offer groups by offer id",
             found_count=len(result_offer_groups),
         )
 
@@ -212,7 +215,7 @@ class OfferContextRepositoryImpl(OfferContextRepository):
         )
 
     async def get_by_offer_id(self, offer_id: OfferId) -> list[OfferContext]:
-        logger.debug("Repository get offer group by offer id")
+        logger.debug("Repository get offer contexts by offer id", offer_id=offer_id)
         result = await self.session.execute(
             select(OfferContext).where(
                 OfferContext.offer_id == offer_id,  # type: ignore
@@ -221,7 +224,7 @@ class OfferContextRepositoryImpl(OfferContextRepository):
 
         result_offer_contexts = list(result.scalars().all())
         logger.debug(
-            "Repository offer contexts by offer id",
+            "Repository fetched offer contexts by offer id",
             found_count=len(result_offer_contexts),
         )
 

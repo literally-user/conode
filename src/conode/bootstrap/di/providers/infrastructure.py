@@ -3,6 +3,7 @@ from dishka import Provider, Scope, WithParents, provide_all
 from conode.infrastructure.identity_provider import IdentityProviderImpl
 from conode.infrastructure.password_hasher import PasswordHasherImpl
 from conode.infrastructure.repositories import (
+    AuthorizationRepositoryImpl,
     CompanyRepositoryImpl,
     ContextRepositoryImpl,
     ContractRepositoryImpl,
@@ -16,8 +17,13 @@ from conode.infrastructure.repositories import (
     OfferRepositoryImpl,
     RolePermissionsRepositoryImpl,
     RoleRepositoryImpl,
+    SessionRepositoryImpl,
     UserGrantRepositoryImpl,
     UserRepositoryImpl,
+)
+from conode.infrastructure.token_managers import (
+    AccessTokenManagerImpl,
+    RefreshTokenManagerImpl,
 )
 
 
@@ -30,6 +36,8 @@ class InfrastructureProvider(Provider):
         WithParents[CompanyRepositoryImpl],
         WithParents[UserRepositoryImpl],
         WithParents[NodeRepositoryImpl],
+        WithParents[AccessTokenManagerImpl],
+        WithParents[RefreshTokenManagerImpl],
         WithParents[ContextRepositoryImpl],
         WithParents[EdgeRepositoryImpl],
         WithParents[UserGrantRepositoryImpl],
@@ -40,5 +48,7 @@ class InfrastructureProvider(Provider):
         WithParents[OfferGroupRepositoryImpl],
         WithParents[OfferLinkRepositoryImpl],
         WithParents[OfferRepositoryImpl],
+        WithParents[AuthorizationRepositoryImpl],
+        WithParents[SessionRepositoryImpl],
         scope=Scope.REQUEST,
     )

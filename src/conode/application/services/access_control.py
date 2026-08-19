@@ -1,17 +1,12 @@
 from dataclasses import dataclass
 from typing import Final
-from uuid import uuid4
 
-from conode.application.errors import (
-    NotEnoughRightsError,
-)
-from conode.application.interfaces.identity_provider import IdentityProvider
+from conode.application.errors import NotEnoughRightsError
 from conode.application.interfaces.repositories import (
     CompanyRepository,
     RolePermissionsRepository,
     RoleRepository,
     UserGrantRepository,
-    UserRepository,
 )
 from conode.application.interfaces.transaction_manager import TransactionManager
 from conode.domain.company import Company
@@ -25,7 +20,7 @@ from conode.domain.role import (
     RolePermission,
     RolePermissionEntityId,
 )
-from conode.domain.user import Email, User, UserId
+from conode.domain.user import User
 
 type RolesPermissions = list[RolePermission]
 
@@ -41,36 +36,13 @@ class AccessControlService:
     user_grant_repository: UserGrantRepository
     role_repository: RoleRepository
     company_repository: CompanyRepository
-    identity_provider: IdentityProvider
     transaction_manager: TransactionManager
-    user_repository: UserRepository
 
     async def _get_all_permissions(self, user: User) -> list[RolePermission]:
         grants = await self.user_grant_repository.get_all_by_user_id(user.id)
         role_ids = [g.role_id for g in grants]
 
         return await self.role_permissions_repository.get_all_by_role_ids(role_ids)
-
-    async def get_authorized_user(self) -> User:
-        meta = self.identity_provider.get_current_user_meta()
-
-        user = await self.user_repository.get_by_email(Email(meta["email"]))
-        async with self.transaction_manager:
-            if user is None:
-                user = User.new(
-                    user_id=UserId(uuid4()),
-                    first_name=meta["first_name"],
-                    last_name=meta["last_name"],
-                    username=meta["username"],
-                    email=meta["email"],
-                    bio="Beautiful description about me!",
-                )
-                await self.user_repository.create(user)
-
-            user.email_verified = meta["email_verified"]
-            await self.user_repository.update(user)
-
-        return user
 
     def check(
         self,

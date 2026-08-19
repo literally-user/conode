@@ -27,7 +27,7 @@ class NodeName(ValueObject[str]):
             MIN_ALLOWED_NODE_NAME_LENGTH <= len(value) <= MAX_ALLOWED_NODE_NAME_LENGTH
         ):
             raise InvalidNodeNameFormatError(
-                "Node name must be between"
+                "Node name length must be between"
                 f"{MIN_ALLOWED_NODE_NAME_LENGTH} and "
                 f"{MAX_ALLOWED_NODE_NAME_LENGTH}",
                 [{"key": "name", "value": value}],
@@ -42,7 +42,7 @@ class NodeDescription(ValueObject[str]):
 
         if len(value) >= MAX_ALLOWED_NODE_DESCRIPTION_LENGTH:
             raise InvalidNodeDescriptionFormatError(
-                "Node description must be shorter than "
+                "Node description length must be shorter than "
                 f"{MAX_ALLOWED_NODE_DESCRIPTION_LENGTH}",
                 [{"key": "name", "value": value}],
             )

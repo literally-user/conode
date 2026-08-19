@@ -9,7 +9,7 @@ from conode.application.interfaces.repositories import (
     UserRepository,
 )
 from conode.application.interfaces.transaction_manager import TransactionManager
-from conode.application.services import AccessControlService
+from conode.application.services import AccessControlService, AuthorizationService
 from conode.domain.role import RoleId
 from conode.domain.user import UserId
 
@@ -20,11 +20,12 @@ class RevokeRoleFromUserInteractor:
     role_repository: RoleRepository
     user_repository: UserRepository
     access_control_service: AccessControlService
+    authorization_service: AuthorizationService
     transaction_manager: TransactionManager
 
     async def execute(self, user_id: UserId, role_id: RoleId) -> None:
         async with self.transaction_manager:
-            executor = await self.access_control_service.get_authorized_user()
+            executor = await self.authorization_service.get_authorized_user()
 
             role = await self.role_repository.get_by_id(role_id)
 

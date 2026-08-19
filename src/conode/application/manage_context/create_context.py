@@ -6,7 +6,7 @@ from conode.application.interfaces.repositories import (
     ContextRepository,
 )
 from conode.application.interfaces.transaction_manager import TransactionManager
-from conode.application.services import AccessControlService
+from conode.application.services import AccessControlService, AuthorizationService
 from conode.domain.company import CompanyId
 from conode.domain.context import Context, ContextId
 
@@ -24,11 +24,11 @@ class CreateContextInteractor:
     company_repository: CompanyRepository
     context_repository: ContextRepository
     access_control_service: AccessControlService
+    authorization_service: AuthorizationService
 
     async def execute(self, request: CreateContextRequestDTO) -> Context:
-        user = await self.access_control_service.get_authorized_user()
-
         async with self.transaction_manager:
+            user = await self.authorization_service.get_authorized_user()
             company = await self.company_repository.get_by_id(request.company_id)
 
             await self.access_control_service.ensure_user_can_create_contexts(

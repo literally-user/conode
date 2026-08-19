@@ -8,6 +8,7 @@ from conode.presentation.exceptions import (
 )
 from conode.presentation.middlewares import LoggerMiddleware
 from conode.presentation.views import (
+    auth,
     company,
     context,
     edge,
@@ -32,6 +33,7 @@ def include_handlers(app: FastAPI) -> None:
     app.include_router(user)
     app.include_router(node)
     app.include_router(edge)
+    app.include_router(auth)
 
 
 def include_middlewares(app: FastAPI) -> None:

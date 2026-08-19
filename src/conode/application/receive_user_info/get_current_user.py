@@ -1,12 +1,12 @@
 from dataclasses import dataclass
 
-from conode.application.services import AccessControlService
+from conode.application.services import AuthorizationService
 from conode.domain.user import User
 
 
 @dataclass
 class GetCurrentUserInteractor:
-    access_control_service: AccessControlService
+    authorization_service: AuthorizationService
 
     async def execute(self) -> User:
-        return await self.access_control_service.get_authorized_user()
+        return await self.authorization_service.get_authorized_user()

@@ -2,9 +2,10 @@ from dataclasses import dataclass
 
 import structlog
 from sqlalchemy import insert, or_, select, update
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from conode.application.errors import UserNotFoundError
+from conode.application.errors import UserAlreadyExistsError, UserNotFoundError
 from conode.application.interfaces.repositories import UserRepository
 from conode.domain.user import Email, User, UserId, Username
 
@@ -17,20 +18,29 @@ class UserRepositoryImpl(UserRepository):
 
     async def create(self, user: User) -> None:
         logger.debug("Repository create user", user_id=user.id)
-        await self.session.execute(
-            insert(User).values(
-                id=user.id,
-                system_role=user.system_role,
-                first_name=user.first_name,
-                last_name=user.last_name,
-                username=user.username,
-                email=user.email,
-                email_verified=user.email_verified,
-                bio=user.bio,
-                created_at=user.created_at,
-                updated_at=user.updated_at,
-            ),
-        )
+        try:
+            await self.session.execute(
+                insert(User).values(
+                    id=user.id,
+                    system_role=user.system_role,
+                    first_name=user.first_name,
+                    last_name=user.last_name,
+                    username=user.username,
+                    email=user.email,
+                    email_verified=user.email_verified,
+                    bio=user.bio,
+                    created_at=user.created_at,
+                    updated_at=user.updated_at,
+                ),
+            )
+        except IntegrityError as e:
+            raise UserAlreadyExistsError(
+                "User with this username or email already exists",
+                [
+                    {"key": "email", "value": user.email.value},
+                    {"key": "username", "value": user.username.value},
+                ],
+            ) from e
 
     async def update(self, user: User) -> None:
         logger.debug("Repository update user", user_id=user.id)
@@ -72,6 +82,7 @@ class UserRepositoryImpl(UserRepository):
         user = result.scalar_one_or_none()
         logger.debug(
             "Repository fetched user by username or email",
+            found=user is not None,
         )
         return user
 
