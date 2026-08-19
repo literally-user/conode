@@ -194,12 +194,26 @@ async def context_factory(container: AsyncContainer) -> ContextFactory:
         )
 
 
+@dataclass
+class NullIdentityProvider(IdentityProvider):
+    def get_current_ip(self) -> str:
+        raise NotImplementedError
+
+    def get_current_user_meta(self) -> UserMeta:
+        raise NotImplementedError
+
 
 @pytest.fixture
 async def user_factory(container: AsyncContainer) -> UserFactory:
     async with container() as test_container:
         return UserFactory(
-            authorization_service=await test_container.get(AuthorizationService),
+            authorization_service=AuthorizationService(
+                access_token_manager=await test_container.get(AccessTokenManager),
+                refresh_token_manager=await test_container.get(RefreshTokenManager),
+                password_hasher=await test_container.get(PasswordHasher),
+                identity_provider=NullIdentityProvider(),
+                user_repository=await test_container.get(UserRepository),
+            ),
             authorization_repository=await test_container.get(AuthorizationRepository),
             session_repository=await test_container.get(SessionRepository),
             refresh_token_manager=await test_container.get(RefreshTokenManager),
