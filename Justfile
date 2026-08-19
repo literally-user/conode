@@ -36,18 +36,40 @@ up target build="" profile="":
             up $BUILD_FLAG
     fi
 
-down rm="":
+down flag="":
     #!/usr/bin/env bash
 
     set -e
 
-    RM_FLAG=""
+    FLAG=""
 
-    if [ "{{rm}}" = "rm" ]; then
-        RM_FLAG="-v"
+    if [ "{{flag}}" = "rm" ]; then
+        FLAG="-v"
     fi
 
-    docker compose -f docker-compose.base.yaml down $RM_FLAG
+    docker compose -f docker-compose.base.yaml down $FLAG
+
+keygen path="src/conode/infrastructure/credentials/":
+    #!/usr/bin/env bash
+
+    openssl genrsa -out {{path}}private.pem 4096
+    openssl rsa \
+    -in {{path}}private.pem \
+    -pubout \
+    -out {{path}}public.pem
+
+test flag="":
+    #!/usr/bin/env bash
+
+    set -e
+
+    FLAG=""
+
+    if [ "{{flag}}" = "parallel" ]; then
+        FLAG="-n auto"
+    fi
+
+    pytest . $FLAG
 
 restart target:
     docker compose -f docker-compose.base.yaml restart {{target}}

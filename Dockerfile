@@ -21,7 +21,7 @@ RUN apt-get update \
 RUN pip install "uv==$UV_VERSION"
 COPY pyproject.toml config.toml ./
 RUN uv venv -p 3.13
-RUN uv sync --all-extras
+RUN uv sync --no-dev
 COPY src ./src
 RUN uv pip install -e .
 
@@ -32,3 +32,4 @@ COPY --from=builder $VIRTUAL_ENV $VIRTUAL_ENV
 COPY --from=builder $APP_PATH/src $APP_PATH/src
 COPY --from=builder $APP_PATH/pyproject.toml $APP_PATH/pyproject.toml
 COPY --from=builder $APP_PATH/config.toml $APP_PATH/config.toml
+COPY --from=builder $APP_PATH/src/conode/infrastructure/credentials $APP_PATH/infrastructure/credentials

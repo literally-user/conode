@@ -10,10 +10,10 @@ host = "persistence.literally.io"
 port = 5432
 
 [secrets]
-secret = "ABC123"
 expires_in = 3600
-jwks_url = "http://keycloak:8080/realms/conode/protocol/openid-connect/certs"
-issuer = "http://keycloak.conode.com/realms/conode"
+private_key_file_path = "/conode/src/conode/infrastructure/credentials/private.pem"
+public_key_file_path = "/conode/src/conode/infrastructure/credentials/public.pem"
+issuer = "https://api.conode.com/"
 audience = "conode"
 
 [telemetry]
