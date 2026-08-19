@@ -12,7 +12,7 @@ from conode.application.interfaces.repositories import (
     NodeRepository,
 )
 from conode.application.interfaces.transaction_manager import TransactionManager
-from conode.application.services import AccessControlService
+from conode.application.services import AccessControlService, AuthorizationService
 from conode.domain.context import ContextId
 from conode.domain.edge import Edge, EdgeId
 from conode.domain.node import NodeId
@@ -30,6 +30,7 @@ class CreateEdgeRequestDTO:
 @dataclass
 class CreateEdgeInteractor:
     access_control_service: AccessControlService
+    authorization_service: AuthorizationService
     transaction_manager: TransactionManager
     context_repository: ContextRepository
     company_repository: CompanyRepository
@@ -37,9 +38,8 @@ class CreateEdgeInteractor:
     edge_repository: EdgeRepository
 
     async def execute(self, request: CreateEdgeRequestDTO) -> Edge:
-        user = await self.access_control_service.get_authorized_user()
-
         async with self.transaction_manager:
+            user = await self.authorization_service.get_authorized_user()
             context = await self.context_repository.get_by_id(request.context_id)
             company = await self.company_repository.get_by_id(context.company_id)
 

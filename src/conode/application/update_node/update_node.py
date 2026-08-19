@@ -7,7 +7,7 @@ from conode.application.interfaces.repositories import (
     NodeRepository,
 )
 from conode.application.interfaces.transaction_manager import TransactionManager
-from conode.application.services import AccessControlService
+from conode.application.services import AccessControlService, AuthorizationService
 from conode.domain.node import NodeId
 
 
@@ -21,6 +21,7 @@ class UpdateNodeRequestDTO:
 @dataclass
 class UpdateNodeInteractor:
     access_control_service: AccessControlService
+    authorization_service: AuthorizationService
     node_repository: NodeRepository
     company_repository: CompanyRepository
     node_association_repository: NodeAssociationRepository
@@ -28,9 +29,8 @@ class UpdateNodeInteractor:
     transaction_manager: TransactionManager
 
     async def execute(self, request: UpdateNodeRequestDTO) -> None:
-        user = await self.access_control_service.get_authorized_user()
-
         async with self.transaction_manager:
+            user = await self.authorization_service.get_authorized_user()
             node = await self.node_repository.get_by_id(request.node_id)
 
             existing_associations = (

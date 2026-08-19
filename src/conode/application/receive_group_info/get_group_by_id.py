@@ -1,17 +1,18 @@
 from dataclasses import dataclass
 
 from conode.application.interfaces.repositories import GroupRepository
-from conode.application.services import AccessControlService
+from conode.application.services import AccessControlService, AuthorizationService
 from conode.domain.group import Group, GroupId
 
 
 @dataclass
 class GetGroupByIdInteractor:
     access_control_service: AccessControlService
+    authorization_service: AuthorizationService
     group_repository: GroupRepository
 
     async def execute(self, group_id: GroupId) -> Group:
-        user = await self.access_control_service.get_authorized_user()
+        user = await self.authorization_service.get_authorized_user()
 
         group = await self.group_repository.get_by_id(group_id)
 

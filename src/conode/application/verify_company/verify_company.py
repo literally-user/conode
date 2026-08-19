@@ -5,7 +5,7 @@ from conode.application.errors import (
 )
 from conode.application.interfaces.repositories import CompanyRepository
 from conode.application.interfaces.transaction_manager import TransactionManager
-from conode.application.services import AccessControlService
+from conode.application.services import AccessControlService, AuthorizationService
 from conode.domain.company import CompanyId
 
 
@@ -14,11 +14,11 @@ class VerifyCompanyInteractor:
     transaction_manager: TransactionManager
     company_repository: CompanyRepository
     access_control_service: AccessControlService
+    authorization_service: AuthorizationService
 
     async def execute(self, company_id: CompanyId) -> None:
-        user = await self.access_control_service.get_authorized_user()
-
         async with self.transaction_manager:
+            user = await self.authorization_service.get_authorized_user()
             self.access_control_service.ensure_user_can_verify_companies(user)
 
             company = await self.company_repository.get_by_id(company_id)

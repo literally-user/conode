@@ -13,7 +13,11 @@ from conode.application.interfaces.repositories import (
     UserRepository,
 )
 from conode.application.interfaces.transaction_manager import TransactionManager
-from conode.application.services import AccessControlService, RoleManagmentService
+from conode.application.services import (
+    AccessControlService,
+    AuthorizationService,
+    RoleManagmentService,
+)
 from conode.domain.company import CompanyId
 from conode.domain.grant import UserGrant, UserGrantId
 from conode.domain.user import UserId
@@ -29,15 +33,15 @@ class TransferCompanyRequestDTO:
 class TransferCompanyInteractor:
     user_repository: UserRepository
     access_control_service: AccessControlService
+    authorization_service: AuthorizationService
     user_grant_repository: UserGrantRepository
     company_repository: CompanyRepository
     role_managment_service: RoleManagmentService
     transaction_manager: TransactionManager
 
     async def execute(self, request: TransferCompanyRequestDTO) -> None:
-        user = await self.access_control_service.get_authorized_user()
-
         async with self.transaction_manager:
+            user = await self.authorization_service.get_authorized_user()
             if not user.email_verified:
                 raise EmailsOfAllParticipantsMustBeVerifiedError(
                     "Emails of all participants must be verified", None

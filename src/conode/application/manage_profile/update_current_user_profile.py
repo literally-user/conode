@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 from conode.application.interfaces.repositories import UserRepository
 from conode.application.interfaces.transaction_manager import TransactionManager
-from conode.application.services import AccessControlService
+from conode.application.services import AuthorizationService
 
 
 @dataclass
@@ -17,12 +17,11 @@ class UpdateCurrentUserProfileRequestDTO:
 class UpdateCurrentUserProfileInteractor:
     user_repository: UserRepository
     transaction_manager: TransactionManager
-    access_control_service: AccessControlService
+    authorization_service: AuthorizationService
 
     async def execute(self, request: UpdateCurrentUserProfileRequestDTO) -> None:
-        user = await self.access_control_service.get_authorized_user()
-
         async with self.transaction_manager:
+            user = await self.authorization_service.get_authorized_user()
             user.update_profile(
                 first_name=request.first_name,
                 last_name=request.last_name,

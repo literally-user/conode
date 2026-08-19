@@ -16,7 +16,11 @@ from conode.application.interfaces.repositories import (
     OfferRepository,
 )
 from conode.application.interfaces.transaction_manager import TransactionManager
-from conode.application.services import AccessControlService, OfferSendingService
+from conode.application.services import (
+    AccessControlService,
+    AuthorizationService,
+    OfferSendingService,
+)
 from conode.domain.company import CompanyId
 from conode.domain.context import ContextId
 from conode.domain.group import GroupId
@@ -47,13 +51,13 @@ class SendOfferToCompanyInteractor:
     offer_link_repository: OfferLinkRepository
     transaction_manager: TransactionManager
     access_control_service: AccessControlService
+    authorization_service: AuthorizationService
     group_repository: GroupRepository
     context_repository: ContextRepository
 
     async def execute(self, request: SendOfferToCompanyRequestDTO) -> Offer:
-        user = await self.access_control_service.get_authorized_user()
-
         async with self.transaction_manager:
+            user = await self.authorization_service.get_authorized_user()
             from_company, to_company = (
                 await self.company_repository.get_by_id(request.from_company_id),
                 await self.company_repository.get_by_id(request.to_company_id),

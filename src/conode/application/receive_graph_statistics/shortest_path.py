@@ -4,7 +4,7 @@ from heapq import heappop, heappush
 from math import inf
 
 from conode.application.interfaces.repositories import ContextRepository, EdgeRepository
-from conode.application.services import AccessControlService
+from conode.application.services import AccessControlService, AuthorizationService
 from conode.domain.context import ContextId
 from conode.domain.edge import Edge
 from conode.domain.node import NodeId
@@ -20,6 +20,7 @@ class FindShortestPathRequestDTO:
 @dataclass
 class FindShortestPathInteractor:
     access_control_service: AccessControlService
+    authorization_service: AuthorizationService
     context_repository: ContextRepository
     edge_repository: EdgeRepository
 
@@ -27,7 +28,7 @@ class FindShortestPathInteractor:
         if request.from_node_id == request.to_node_id:
             return []
 
-        user = await self.access_control_service.get_authorized_user()
+        user = await self.authorization_service.get_authorized_user()
         context = await self.context_repository.get_by_id(request.context_id)
 
         await self.access_control_service.ensure_user_can_view_context(user, context)

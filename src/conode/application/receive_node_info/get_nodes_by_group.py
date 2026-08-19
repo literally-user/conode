@@ -6,7 +6,7 @@ from conode.application.interfaces.repositories import (
     NodeAssociationRepository,
     NodeRepository,
 )
-from conode.application.services import AccessControlService
+from conode.application.services import AccessControlService, AuthorizationService
 from conode.domain.group import GroupId
 from conode.domain.node import Node
 
@@ -15,12 +15,13 @@ from conode.domain.node import Node
 class GetNodesByGroupInteractor:
     node_association_repository: NodeAssociationRepository
     access_control_service: AccessControlService
+    authorization_service: AuthorizationService
     company_repository: CompanyRepository
     group_repository: GroupRepository
     node_repository: NodeRepository
 
     async def execute(self, group_id: GroupId) -> list[Node]:
-        user = await self.access_control_service.get_authorized_user()
+        user = await self.authorization_service.get_authorized_user()
 
         group = await self.group_repository.get_by_id(group_id)
 

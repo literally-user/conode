@@ -7,7 +7,7 @@ from conode.application.interfaces.repositories import (
     EdgeRepository,
     NodeRepository,
 )
-from conode.application.services import AccessControlService
+from conode.application.services import AccessControlService, AuthorizationService
 from conode.domain.context import ContextId
 from conode.domain.edge import Edge
 from conode.domain.node import Node, NodeId
@@ -23,6 +23,7 @@ class GetNodeNeighboursRequestDTO:
 @dataclass
 class GetNodeNeighboursInteractor:
     access_control_service: AccessControlService
+    authorization_service: AuthorizationService
     node_repository: NodeRepository
     context_repository: ContextRepository
     edge_repository: EdgeRepository
@@ -30,7 +31,7 @@ class GetNodeNeighboursInteractor:
     async def execute(
         self, request: GetNodeNeighboursRequestDTO
     ) -> list[tuple[Node, Edge]]:
-        user = await self.access_control_service.get_authorized_user()
+        user = await self.authorization_service.get_authorized_user()
 
         context = await self.context_repository.get_by_id(request.context_id)
 

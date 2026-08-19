@@ -10,7 +10,7 @@ from conode.application.interfaces.repositories import (
     UserRepository,
 )
 from conode.application.interfaces.transaction_manager import TransactionManager
-from conode.application.services import AccessControlService
+from conode.application.services import AccessControlService, AuthorizationService
 from conode.domain.grant import UserGrant, UserGrantId
 from conode.domain.role import RoleId
 from conode.domain.user import UserId
@@ -19,6 +19,7 @@ from conode.domain.user import UserId
 @dataclass
 class GiveRoleToUserInteractor:
     access_control_service: AccessControlService
+    authorization_service: AuthorizationService
     user_repository: UserRepository
     user_grant_repository: UserGrantRepository
     transaction_manager: TransactionManager
@@ -26,7 +27,7 @@ class GiveRoleToUserInteractor:
 
     async def execute(self, user_id: UserId, role_id: RoleId) -> UserGrant:
         async with self.transaction_manager:
-            executor = await self.access_control_service.get_authorized_user()
+            executor = await self.authorization_service.get_authorized_user()
 
             role = await self.role_repository.get_by_id(role_id)
             user = await self.user_repository.get_by_id(user_id)

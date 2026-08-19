@@ -9,7 +9,7 @@ from conode.application.interfaces.repositories import (
     OfferRepository,
 )
 from conode.application.interfaces.transaction_manager import TransactionManager
-from conode.application.services import AccessControlService
+from conode.application.services import AccessControlService, AuthorizationService
 from conode.domain.offer import OfferId
 
 
@@ -19,12 +19,12 @@ class DeclineOfferInteractor:
     offer_link_repository: OfferLinkRepository
     offer_repository: OfferRepository
     access_control_service: AccessControlService
+    authorization_service: AuthorizationService
     company_repository: CompanyRepository
 
     async def execute(self, offer_id: OfferId) -> None:
-        user = await self.access_control_service.get_authorized_user()
-
         async with self.transaction_manager:
+            user = await self.authorization_service.get_authorized_user()
             offer = await self.offer_repository.get_by_id(offer_id)
             company = await self.company_repository.get_by_id(offer.to_company_id)
 

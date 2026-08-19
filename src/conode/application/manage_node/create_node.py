@@ -8,7 +8,7 @@ from conode.application.interfaces.repositories import (
     NodeRepository,
 )
 from conode.application.interfaces.transaction_manager import TransactionManager
-from conode.application.services import AccessControlService
+from conode.application.services import AccessControlService, AuthorizationService
 from conode.domain.group import GroupId
 from conode.domain.node import Node, NodeAssociation, NodeAssociationId, NodeId
 
@@ -28,11 +28,11 @@ class CreateNodeInteractor:
     node_repository: NodeRepository
     transaction_manager: TransactionManager
     access_control_service: AccessControlService
+    authorization_service: AuthorizationService
 
     async def execute(self, request: CreateNodeRequestDTO) -> Node:
-        user = await self.access_control_service.get_authorized_user()
-
         async with self.transaction_manager:
+            user = await self.authorization_service.get_authorized_user()
             group = await self.group_repository.get_by_id(request.group_id)
             company = await self.company_repository.get_by_id(group.company_id)
 

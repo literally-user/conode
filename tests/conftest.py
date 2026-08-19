@@ -20,6 +20,7 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 
+from conode.application.interfaces.identity_provider import IdentityProvider
 from conode.application.interfaces.password_hasher import PasswordHasher
 from conode.application.interfaces.repositories import (
     AuthorizationRepository,
@@ -38,6 +39,7 @@ from conode.application.interfaces.repositories import (
 from conode.application.interfaces.token_managers import (
     AccessTokenManager,
     RefreshTokenManager,
+    UserMeta,
 )
 from conode.application.interfaces.transaction_manager import TransactionManager
 from conode.application.services import AuthorizationService, RoleManagmentService
@@ -190,6 +192,7 @@ async def context_factory(container: AsyncContainer) -> ContextFactory:
             transaction_manager=await test_container.get(TransactionManager),
             context_repository=await test_container.get(ContextRepository),
         )
+
 
 
 @pytest.fixture

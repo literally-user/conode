@@ -6,7 +6,7 @@ from conode.application.interfaces.repositories import (
     EdgeRepository,
 )
 from conode.application.interfaces.transaction_manager import TransactionManager
-from conode.application.services import AccessControlService
+from conode.application.services import AccessControlService, AuthorizationService
 from conode.domain.edge import EdgeId
 
 
@@ -17,11 +17,11 @@ class DecrementEdgeWeightInteractor:
     context_repository: ContextRepository
     transaction_manager: TransactionManager
     access_control_service: AccessControlService
+    authorization_service: AuthorizationService
 
     async def execute(self, edge_id: EdgeId) -> None:
-        user = await self.access_control_service.get_authorized_user()
-
         async with self.transaction_manager:
+            user = await self.authorization_service.get_authorized_user()
             edge = await self.edge_repository.get_by_id(edge_id)
             context = await self.context_repository.get_by_id(edge.context_id)
 
